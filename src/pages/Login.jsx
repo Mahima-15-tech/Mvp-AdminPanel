@@ -46,7 +46,11 @@ export default function Login() {
 
       {/* Logo */}
       <div className="flex justify-center mb-8">
-        <SoloLogo />
+      <img 
+    src="/logo2.png"   // ✅ correct path
+    alt="logo"
+    className="h-full w-62 object-contain"
+  />
       </div>
 
       {/* Title */}
