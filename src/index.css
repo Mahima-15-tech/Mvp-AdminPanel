@@ -1,19 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
 
 @import "tailwindcss";
 
-.premium-btn {
-  @apply px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300;
-}
 
 
-body {
-  font-family: 'Inter', sans-serif;
-} 
+
+
 /* RESET */
 * {
   box-sizing: border-box;
   /* font-family: Inter, system-ui, sans-serif; */
+}
+
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("./assets/fonts/Inter_18pt-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("./assets/fonts/Inter_18pt-Medium.ttf") format("truetype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("./assets/fonts/Inter_18pt-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "InterCustom";
+  src: url("./assets/fonts/Inter_18pt-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+
+*{
+  font-family: "InterCustom", sans-serif;
+  /* letter-spacing: 0.3px; */
 }
 
 body {
@@ -26,6 +54,27 @@ body {
 .admin-layout {
   display: flex;
   min-height: 100vh;
+}
+
+/* SCROLLBAR DESIGN */
+
+/* width of scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* long track */
+::-webkit-scrollbar-track {
+  background: #e8e8e8;
+  margin-top: 10px;   /* top gap */
+  /* margin-bottom: 10px; bottom gap */
+  border-radius: 20px;
+}
+
+/* handle */
+::-webkit-scrollbar-thumb {
+  background: #b6b9b3;
+  border-radius: 10px;
 }
 
 /* SIDEBAR */
@@ -465,3 +514,46 @@ body {
 }
 
 
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+.custom-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker {
+  border: none !important;
+  width: 100% !important;
+}
+
+.react-datepicker__month {
+  margin: 0 !important;
+}
+
+.react-datepicker__header {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+.react-datepicker__day {
+  width: 2rem;
+  line-height: 2rem;
+}
+
+.react-datepicker__day--selected {
+  background: #78bcc4 !important;
+  border-radius: 50% !important;
+}
+
+.react-datepicker__day:hover {
+  background: #e6f7f9 !important;
+  border-radius: 50%;
+}

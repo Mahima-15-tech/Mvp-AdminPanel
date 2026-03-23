@@ -7,167 +7,280 @@ import {
   MessageSquare,
   MessageCircle,
   Settings,
+  LogOut,
+  ChevronDown,
+
 } from "lucide-react";
 
-import logoDark from "../assets/lightlogo.svg";
-import logoLight from "../assets/darklogo.svg";
-import { isSuperAdmin } from "../utils/role";
+
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { useEffect } from "react";
-import api from "../api/axios";
 
+export default function Sidebar() {
+  const [openSettings,setOpenSettings] = useState(false);
+  const [showLogout,setShowLogout] = useState(false);
 
-export default function Sidebar({ darkMode }) {
-  const [openSettings, setOpenSettings] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-
-useEffect(() => {
-  async function fetchUnread() {
-    try {
-      const res = await api.get("/support/unread-count");
-      setUnreadCount(res.data.count);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  fetchUnread();
-}, []);
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // ya jo tum use kar rhi ho
+    window.location.href = "/";
+  };
   return (
-    <div
-      className={`w-64 min-h-screen flex flex-col transition-all duration-300 ${
-        darkMode
-          ? "bg-[#0F172A] border-r border-gray-800  "
-          : "bg-white border-r border-gray-800/20"
-      }`}
-    >
-      {/* ===== LOGO ===== */}
-      <div className={`h-25 flex items-center px-6   ${
-        darkMode
-          ? " border-b border-gray-800  "
-          : " border-b border-gray-800/20"
-      }`} >
-        <img
-          src={darkMode ? logoLight : logoDark}
-          alt="SOLO Logo"
-          className="h-12 object-contain"
+<div className="w-64 h-screen bg-[#f7f8f3] flex flex-col">
+
+    {/* LOGO */}
+    <div className="ml-12">
+    <div className="flex justify-center mt-13 h-[120px]">
+  <img 
+    src="/logo2.png"   // ✅ correct path
+    alt="logo"
+    className="h-full w-full object-contain"
+  />
+</div>
+    </div>
+
+      {/* MENU */}
+
+<nav className="flex-1 px-4 py-22 space-y-2 overflow-y-auto scrollbar-hide scroll-smooth">
+
+        <SidebarItem
+          to="/dashboard"
+          label="Dashboard"
+          icon={LayoutDashboard}
         />
-      </div>
 
-      
+        <SidebarItem
+          to="/users"
+          label="Users"
+          icon={Users}
+        />
 
-      {/* ===== NAV ===== */}
-      <nav className="flex-1 px-4 py-6 space-y-2 text-sm font-medium">
+        <SidebarItem
+          to="/alerts"
+          label="Alerts"
+          icon={Siren}
+        />
 
-<SidebarItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} darkMode={darkMode} />
-<SidebarItem to="/users" label="Users" icon={Users} darkMode={darkMode} />
-<SidebarItem to="/alerts" label="Alerts" icon={Siren} darkMode={darkMode} />
-<SidebarItem to="/checkins" label="Check-ins" icon={Clock} darkMode={darkMode} />
-<SidebarItem to="/sms-logs" label="SMS Logs" icon={MessageSquare} darkMode={darkMode} />
-<SidebarItem
-  to="/support"
-  label="Support Tickets"
-  icon={MessageCircle}
-  darkMode={darkMode}
-  badge={unreadCount}
+        <SidebarItem
+          to="/checkins"
+          label="SMS Tracker"
+          icon={Clock}
+        />
+
+        <SidebarItem
+          to="/sms-logs"
+          label="Revenue"
+          icon={MessageSquare}
+        />
+
+        <SidebarItem
+          to="/support"
+          label="Support"
+          icon={MessageCircle}
+          badge={2}
+        />
+
+<div>
+
+<button
+onClick={()=>setOpenSettings(!openSettings)}
+className="
+flex items-center justify-between
+px-4 py-3 w-full rounded-full
+text-[#5a6c7d] hover:bg-gray-100
+"
+>
+
+<div className="flex items-center gap-3">
+  <Settings size={20}/>
+  <span className="font-medium">Settings</span>
+</div>
+
+{/* RIGHT ARROW */}
+<ChevronDown
+  size={18}
+  className={`transition-transform duration-300 ${
+    openSettings ? "rotate-180" : ""
+  }`}
 />
 
-{isSuperAdmin() && (
-  <div>
-    <button
-      onClick={() => setOpenSettings(!openSettings)}
-      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition ${
-        darkMode
-          ? "text-gray-400 hover:text-white hover:bg-gray-800"
-          : "text-gray-600 hover:bg-gray-100"
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <Settings size={18} />
-        <span>Settings</span>
+</button>
+
+
+{openSettings && (
+
+<div className="ml-6 mt-2 pl-4 border-l border-[#d5dbe1] space-y-2">
+
+  <NavLink
+    to="/settings/profile"
+    className={({isActive}) =>
+    `block px-4 py-2 rounded-full text-md font-medium
+    ${isActive
+      ? "bg-[#78bcc4] text-white"
+      : "text-[#5a6c7d] hover:bg-gray-100"}`
+    }
+  >
+    Profile
+  </NavLink>
+
+  <NavLink
+    to="/settings/security"
+    className={({isActive}) =>
+    `block px-4 py-2 rounded-full text-md font-medium
+    ${isActive
+      ? "bg-[#78bcc4] text-white"
+      : "text-[#5a6c7d] hover:bg-gray-100"}`
+    }
+  >
+    Security
+  </NavLink>
+
+  <NavLink
+    to="/settings/system-health"
+    className={({isActive}) =>
+    `block px-4 py-2 rounded-full text-md font-medium 
+    ${isActive
+      ? "bg-[#78bcc4] text-white"
+      : "text-[#5a6c7d] hover:bg-gray-100"}`
+    }
+  >
+    System Status
+  </NavLink>
+
+</div>
+
+)}
+
+</div>
+
+
+
+
+
+      </nav>
+
+
+{/* SIGN OUT */}
+
+<div className="px-8 pb-6">
+<button 
+onClick={()=>setShowLogout(true)}
+className="flex items-center gap-3 text-[#5a6c7d] hover:text-[#002c3e]"
+>
+  <LogOut size={20} />
+  <span className="font-medium">Sign Out</span>
+</button>
+</div>
+   
+
+      {/* FOOTER */}
+
+      <div className="bg-[#002c3e] text-[#a8b6c2] text-xs px-6 w-72 py-4">
+
+        SOLO © 2026 Social Rebels™  
+        Design Admin Panel
+
       </div>
 
-      <ChevronDown
-        size={16}
-        className={`transition-transform duration-300 ${
-          openSettings ? "rotate-180" : ""
-        }`}
-      />
-    </button>
+      {showLogout && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
 
-    {openSettings && (
-      <div className="ml-8 mt-2 space-y-1 text-sm border-l border-gray-300 pl-4">
+    {/* OVERLAY */}
+    <div
+      className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+      onClick={()=>setShowLogout(false)}
+    />
 
-        <SubItem to="/settings/profile" label="Profile" />
-        <SubItem to="/settings/security" label="Security" />
-        <SubItem to="/settings/admin-access" label="Admin Access" />
-        <SubItem to="/settings/system-health" label="System Health" />
+    {/* MODAL */}
+    <div className="
+      relative z-10
+      bg-white
+      w-[400px]
+      rounded-2xl
+      shadow-xl
+      p-6
+      text-center
+    ">
+
+      <h2 className="text-xl font-semibold text-[#002c3e] mb-2">
+        Sign Out
+      </h2>
+
+      <p className="text-[#5a6c7d] mb-6">
+        Are you sure you want to sign out?
+      </p>
+
+      <div className="flex justify-center gap-4">
+
+        {/* CANCEL */}
+        <button
+          onClick={()=>setShowLogout(false)}
+          className="
+          px-6 py-2 rounded-full
+          bg-[#b6b9b3]
+          text-white font-medium
+          hover:opacity-90
+          "
+        >
+          Cancel
+        </button>
+
+        {/* CONFIRM */}
+        <button
+          onClick={handleLogout}
+          className="
+          px-6 py-2 rounded-full
+          bg-[#002c3e]
+          text-white font-medium
+          hover:opacity-90
+          "
+        >
+          Yes, Sign Out
+        </button>
 
       </div>
-    )}
+
+    </div>
   </div>
 )}
 
-</nav>
-
-
-
-      {/* ===== FOOTER ===== */}
-      <div
-        className={`px-6 py-4 text-xs ${
-          darkMode ? "text-gray-500" : "text-gray-400"
-        }`}
-      >
-        © {new Date().getFullYear()} SOLO Admin
-      </div>
     </div>
   );
 }
 
-/* ===== SIDEBAR ITEM ===== */
+function SidebarItem({ to, label, icon: Icon, badge }) {
 
-function SidebarItem({ to, label, icon: Icon, darkMode, badge }) {
   return (
+
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${
+        `flex items-center justify-between px-4 py-3 rounded-full transition 
+        ${
           isActive
-            ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md"
-            : darkMode
-            ? "text-gray-400 hover:text-white hover:bg-gray-800"
-            : "text-gray-600 hover:bg-gray-100"
+            ? "bg-[#002c3e] text-[#f5f5f5]"
+            : "text-[#5a6c7d] hover:bg-gray-100"
         }`
       }
     >
-      <div className="flex items-center gap-3">
-        <Icon size={18} />
-        <span>{label}</span>
+
+      <div className="flex items-center gap-3  ">
+
+        <Icon size={20}  />
+
+        <span className="font-medium">{label}</span>
+
       </div>
 
-      {badge > 0 && (
-        <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+      {badge && (
+        <span className="bg-[#ee6a59] text-[#f5f5f5] text-sm font-bold px-2 py-1 rounded-full">
           {badge}
         </span>
       )}
+
+
+
+
     </NavLink>
   );
 }
 
-function SubItem({ to, label }) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `block py-2 px-3 rounded-lg transition ${
-          isActive
-            ? "bg-indigo-50 text-indigo-600 font-medium"
-            : "text-gray-500 hover:text-indigo-600 hover:bg-gray-100"
-        }`
-      }
-    >
-      {label}
-    </NavLink>
-  );
-}
+

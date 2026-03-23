@@ -1,140 +1,64 @@
-import { useState, useRef, useEffect } from "react";
+import { Sun } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { Sun, Moon } from "lucide-react";
 import { pageTitles } from "../config/pageTitles";
-import { useNavigate } from "react-router-dom";
-import { logoutAdmin } from "../utils/auth";
 
-export default function Topbar({ darkMode, setDarkMode }) {
+export default function Topbar() {
+
   const location = useLocation();
+  const path = location.pathname;
 
-  let currentPage = pageTitles[location.pathname];
+  let page = pageTitles[path];
 
-  if (!currentPage) {
-  
-    if (location.pathname.startsWith("/users/")) {
-      currentPage = {
+  /* dynamic routes handle */
+
+  if (!page) {
+    if (path.startsWith("/users/")) {
+      page = {
         title: "User Details",
-        subtitle: "View and manage user information"
-      };
-    }
-  
-    else if (location.pathname.startsWith("/support")) {
-      currentPage = {
-        title: "Support Tickets",
-        subtitle: "Manage customer queries"
-      };
-    }
-  
-    else {
-      currentPage = {
-        title: "Admin Panel",
-        subtitle: ""
+        subtitle: "View and Manage User Information"
       };
     }
   }
 
-    const navigate = useNavigate();
-
-const handleLogout = () => {
-  logoutAdmin();
-  navigate("/");
-};
-
-const [open, setOpen] = useState(false);
-const dropdownRef = useRef(null);
-
-useEffect(() => {
-  function handleClickOutside(event) {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target)
-    ) {
-      setOpen(false);
-    }
+  if (!page) {
+    page = {
+      title: "Admin Dashboard",
+      subtitle: "Real-time system overview"
+    };
   }
-
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
 
   return (
-    <div
-      className={`flex justify-between items-center px-8 py-6 transition-all duration-300 ${
-        darkMode
-          ? "bg-[#0B1220] border-b border-gray-800 text-white"
-          : "bg-white border-b border-gray-300 text-gray-800"
-      }`}
-    >
-      {/* Dynamic Title */}
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {currentPage.title}
+
+    <div className="flex justify-between items-center px-10 py-12 mt-10">
+
+      {/* TITLE */}
+      <div className="ml-8 mt-2">
+
+        <h2 className="text-4xl font-semibold text-[#002c3e] tracking-wide">
+          {page.title}
         </h2>
-        <p
-          className={`text-xs mt-1 ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
-          {currentPage.subtitle}
+
+        <p className="text-md font-medium tracking-wide mt-0.5 text-[#5a6c7d]">
+          {page.subtitle}
         </p>
+
       </div>
 
-      {/* Right Side */}
+      {/* RIGHT SIDE */}
       <div className="flex items-center gap-6">
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`relative w-14 h-7 flex items-center rounded-full p-1 transition-all duration-300 ${
-            darkMode ? "bg-indigo-600" : "bg-gray-300"
-          }`}
-        >
-          <div
-            className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-all duration-300 flex items-center justify-center ${
-              darkMode ? "translate-x-7" : "translate-x-0"
-            }`}
-          >
-            {darkMode ? (
-              <Moon size={14} className="text-indigo-600" />
-            ) : (
-              <Sun size={14} className="text-yellow-500" />
-            )}
+
+        <div className="w-12 h-6 bg-[#d1d5db] rounded-full flex items-center px-1">
+          <div className="w-5 h-5 bg-[#f5f5f5] rounded-full flex items-center justify-center">
+            <Sun size={12} color="#f5b13e" />
           </div>
-        </button>
+        </div>
 
-        <div className="relative" ref={dropdownRef}>
-
-<div
-  onClick={() => setOpen(!open)}
-  className="w-9 h-9 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow cursor-pointer hover:scale-105 transition"
->
+        <div className="w-10 h-10 bg-[#002c3e] text-white rounded-full flex items-center justify-center font-semibold text-lg shadow-sm hover:scale-105 transition-all duration-300">
   A
 </div>
 
-{open && (
-  <div className={`absolute right-0 mt-3 w-40 rounded-xl shadow-xl border transition-all duration-200 ${
-    darkMode
-      ? "bg-[#111827] border-gray-700 text-white"
-      : "bg-white border-gray-200 text-gray-800"
-  }`}>
-    
-    <button
-      onClick={handleLogout}
-      className={`w-full text-left px-4 py-3 text-sm rounded-xl transition ${
-        darkMode
-          ? "hover:bg-gray-700"
-          : "hover:bg-gray-100"
-      }`}
-    >
-      Sign Out
-    </button>
-
-  </div>
-)}
-
-</div>
       </div>
+
     </div>
   );
 }

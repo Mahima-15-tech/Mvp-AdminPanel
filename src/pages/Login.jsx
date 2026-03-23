@@ -1,9 +1,9 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { setAdminToken } from "../utils/auth";
-import logo from "../assets/lightlogo.svg";
 import { NavLink } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import SoloLogo from "../components/SoloLogo";
 
 export default function Login() {
 
@@ -36,109 +36,111 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-6">
 
-      <div className="w-full max-w-md">
+<div className="min-h-screen flex items-center justify-center bg-[#002c3e] px-6">
 
-        <div className="bg-white rounded-2xl shadow-xl p-10">
+  <div className="w-full max-w-[500px] py-20">
 
-          <div className="flex justify-center mb-8">
-            <img
-              src={logo}
-              alt="SoLo Admin"
-              className="h-14 object-contain"
-            />
-          </div>
+    {/* Card */}
+    <div className="bg-[#f5f5f5] rounded-[22px] shadow-[0_20px_40px_rgba(0,0,0,0.25)] px-12 py-10">
 
-          <h1 className="text-2xl font-semibold text-gray-800 text-center">
-            Admin Login
-          </h1>
+      {/* Logo */}
+      <div className="flex justify-center mb-8">
+        <SoloLogo />
+      </div>
 
-          <p className="text-sm text-gray-500 text-center mt-2 mb-8">
-            Sign in to access the dashboard
-          </p>
+      {/* Title */}
+      <h1 className="text-[26px] font-semibold text-[#002c3e] text-center">
+        Admin Login
+      </h1>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-lg mb-6 text-center">
-              {error}
-            </div>
-          )}
+      {/* Subtitle */}
+      <p className="text-[14px] text-[#5a6c7d] text-center   mb-10">
+        Sign In to Access the Dashboard
+      </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-2 rounded-lg mb-6 text-center">
+          {error}
+        </div>
+      )}
 
-            {/* Email */}
-            <div>
-              <label className="text-sm text-gray-600">
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="admin@solo.app"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full mt-2 px-0 py-2 text-gray-700 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition bg-transparent"
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-7">
 
-            {/* Password with Eye Icon */}
-            <div>
-              <label className="text-sm text-gray-600">
-                Password
-              </label>
+        {/* Email */}
+        <div>
+          <label className="text-[14px] font-medium text-[#5a6c7d]">
+            Email
+          </label>
 
-              <div className="relative mt-2">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-0 py-2 pr-10 text-gray-700 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition bg-transparent"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition"
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Forgot Password */}
-            <div className="text-right">
-              <NavLink
-                to="/forgot-password"
-                className="text-sm text-indigo-600 hover:text-indigo-800 transition"
-              >
-                Forgot Password?
-              </NavLink>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg bg-gray-900 text-white font-medium hover:bg-black transition disabled:opacity-60"
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
-
-          </form>
-
+          <input
+            type="email"
+            placeholder="admin@solo.app"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full mt-2 px-0 py-2 text-[#606060] placeholder-[#b6b9b3] border-b border-[#7f8f93]/50 focus:border-[#002c3e] focus:outline-none bg-transparent"
+          />
         </div>
 
-        <p className="text-xs text-gray-400 text-center mt-6">
-          © {new Date().getFullYear()} SoLo Admin Panel
-        </p>
+        {/* Password */}
+        <div>
+          <label className="text-[14px] font-medium text-[#5a6c7d]">
+            Password
+          </label>
 
-      </div>
+          <div className="relative mt-2">
+
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-0 py-2 pr-10 text-[#606060] placeholder-[#b6b9b3] border-b border-[#7f8f93]/50 focus:border-[#002c3e] focus:outline-none bg-transparent"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-[#7f8f93]"
+            >
+              {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
+            </button>
+
+          </div>
+        </div>
+
+        {/* Forgot password */}
+        <div className="text-right">
+          <NavLink
+            to="/forgot-password"
+            className="text-[14px] text-[#5a6c7d] hover:text-[#002c3e]"
+          >
+            Forgot password?
+          </NavLink>
+        </div>
+
+        {/* Sign In Button */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-[14px] rounded-full bg-[#0cb4ab] text-[#f5f5f5] font-semibold text-[16px] hover:opacity-90 transition"
+        >
+          {loading ? "Signing in..." : "Sign In"}
+        </button>
+
+      </form>
+
     </div>
+
+    {/* Footer */}
+    <p className="text-[12px] text-[#d1d9e0] text-center mt-6">
+    SOLO © 2026 Social Rebels™ Design Admin Panel
+    </p>
+
+  </div>
+
+</div>
   );
 }

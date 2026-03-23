@@ -8,6 +8,26 @@ import PastContactsModal from "../components/PastContactsModal";
    MAIN COMPONENT
 ===================================================== */
 
+function formatDate(date){
+
+  const d = new Date(date)
+  
+  const day = d.getDate()
+  
+  const month = d.toLocaleString("en",{month:"short"})
+  
+  const year = d.getFullYear()
+  
+  const time = d.toLocaleString("en",{
+  hour:"numeric",
+  minute:"2-digit",
+  hour12:true
+  })
+  
+  return `${day} ${month} ${year} | ${time}`
+  
+  }
+
 export default function UserDetail() {
   const { id } = useParams();
   const [data, setData] = useState(null);
@@ -48,68 +68,76 @@ export default function UserDetail() {
       <div className="max-w-7xl mx-auto space-y-10">
 
         {/* HEADER */}
-        <div className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100">
-          <div className="flex justify-between items-center flex-wrap gap-6">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800">
-                {data.basicInfo.name || "Unnamed User"}
-              </h1>
-              <p className="text-gray-500 mt-2">
-                User ID: {data.basicInfo._id}
-              </p>
-            </div>
+        <div className="bg-[#f5f5f5] border border-[#e6e6e6] rounded-4xl px-10 py-4">
+        <div className="flex justify-between items-center">
 
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Current Balance</p>
-              <p className="text-3xl font-bold text-indigo-600">
-                {data.currentBalance}
-              </p>
-            </div>
-          </div>
+<div>
+  <h1 className="text-3xl font-semibold text-[#002c3e] tracking-wide">
+    {data.basicInfo.name || "Unnamed User"}
+  </h1>
+
+  <p className="text-[#5a6c7d] text-md font-semibold mt-1 tracking-wide ">
+    User ID : {data.basicInfo.phone}
+  </p>
+</div>
+
+<div className="flex items-center gap-6">
+
+  <div className="text-left font-semibold tracking-wide text-md text-[#5a6c7d]">
+    Alert <br />Credits<br/>Balance
+  </div>
+  <div className="border-l border-[#5a6c7d] h-15 border-2 rounded-full "></div>
+  <div className="text-6xl font-semibold text-[#0cb4ab]">
+    {data.currentBalance}
+  </div>
+
+</div>
+
+</div>
         </div>
 
         {/* TABS */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-5">
           {[
-            "overview",
-            "subscription",
-            "subscription-history",
-            "contacts",
-            "checkin",
-            "alerts",
-            "credits",
-            "admin-notes",
+            "User Overview",
+            "Subscription",
+            // "subscription-history",
+            "Contacts",
+            "Check-ins",
+            "Recent Alerts",
+            "Alert Credits",
+            "Admin Notes",
           ].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+              className={`px-4 py-2 rounded-full text-md font-semibold tracking-wide transition ${
                 activeTab === tab
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "bg-white text-gray-600 hover:shadow"
+                  ? "bg-[#002c3e] text-white"
+                  : "bg-[#f1f3f4] text-[#5a6c7d]"
               }`}
             >
-              {tab.replace("-", " ").toUpperCase()}
+              {tab.replace("", " ")}
             </button>
           ))}
         </div>
 
         {/* CONTENT CARD */}
-        <div className="bg-white rounded-3xl shadow-xl p-10 border border-gray-100">
-          {activeTab === "overview" && <Overview data={data} />}
-          {activeTab === "subscription" && <Subscription data={data} />}
-          {activeTab === "subscription-history" && (
+        <div className="bg-white rounded-[30px] border border-[#e6e6e6] overflow-hidden">
+          {activeTab === "User Overview" && <Overview data={data} />}
+          {activeTab === "Subscription" && <Subscription data={data} />}
+          {/* {activeTab === "subscription-history" && (
             <SubscriptionHistory data={data} />
-          )}
-          {activeTab === "contacts" && <Contacts data={data} />}
-          {activeTab === "checkin" && (
+          )} */}
+          {activeTab === "Contacts" && <Contacts data={data} />}
+          {activeTab === "Check-ins" && (
             <Checkin data={data} refresh={fetchUser} />
           )}
-          {activeTab === "alerts" && <Alerts data={data} />}
-          {activeTab === "credits" && (
+          {activeTab === "Recent Alerts" && <RecentAlerts data={data} />}
+          {activeTab === "Alert Credits" && (
             <Credits data={data} refresh={fetchUser} />
           )}
-          {activeTab === "admin-notes" && (
+          {activeTab === "Admin Notes" && (
             <AdminNotes data={data} refresh={fetchUser} />
           )}
         </div>
@@ -124,7 +152,7 @@ export default function UserDetail() {
 
 function SectionTitle({ children }) {
   return (
-    <h2 className="text-2xl font-semibold mb-8 text-gray-800">
+    <h2 className="text-2xl font-semibold tracking-wide text-[#002c3e] px-10 py-6">
       {children}
     </h2>
   );
@@ -132,11 +160,11 @@ function SectionTitle({ children }) {
 
 function Info({ label, value }) {
   return (
-    <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-      <p className="text-xs uppercase tracking-wide text-gray-400">
+    <div>
+      <p className="text-md font-semibold tracking-wide text-[#5a6c7d]">
         {label}
       </p>
-      <p className="text-lg font-semibold mt-2 text-gray-800">
+      <p className="text-xl font-semibold leading-8 tracking-wide text-[#002c3e]">
         {value || "—"}
       </p>
     </div>
@@ -187,55 +215,193 @@ function PremiumTable({ headers, children }) {
 ===================================================== */
 
 function Overview({ data }) {
-  const u = data.basicInfo;
 
-  return (
-    <>
-      <SectionTitle>User Overview</SectionTitle>
-      <div className="grid md:grid-cols-2 gap-6">
-        <Info label="Phone" value={u.phone} />
-        <Info label="Email" value={u.email} />
-        <Info label="Gender" value={u.gender} />
-        <Info label="Age" value={u.age} />
-        <Info label="Location" value={u.profileLocation} />
-        <Info label="Language" value={u.language} />
-        <Info label="Alert Voice" value={u.alertVoice} />
-        <Info
-          label="Created At"
-          value={new Date(u.createdAt).toLocaleString()}
-        />
-      </div>
-    </>
-  );
-}
+  const u = data.basicInfo
+  
+  function formatDate(date){
+  
+  const d = new Date(date)
+  
+  const day = d.getDate()
+  const month = d.toLocaleString("en",{month:"short"})
+  const year = d.getFullYear()
+  
+  const time = d.toLocaleString("en",{
+  hour:"numeric",
+  minute:"2-digit",
+  hour12:true
+  })
+  
+  return `${day} ${month} ${year} | ${time}`
+  
+  }
+
+  function formatLanguage(lang){
+
+    if(lang === "en") return "English"
+    if(lang === "zh") return "Chinese"
+    
+    return "-"
+    }
+  
+    function formatVoice(v){
+
+      if(v === "female_soft") return "Female"
+      if(v === "male_soft") return "Male"
+      
+      return "-"
+      }
+  
+  return(
+  
+  <div>
+  
+  <SectionTitle>User Overview</SectionTitle>
+  
+  <div className="border-t border-[#CFD5DB]">
+  
+  <div className="grid grid-cols-4 gap-x-12 px-10 py-6 border-b border-[#CFD5DB]">
+  <Info label="Phone" value={u.phone}/>
+  <Info label="Gender" value={u.gender}/>
+  <Info label="Location" value={u.profileLocation}/>
+  <Info label="Language" value={formatLanguage(u.language)} />
+  
+  </div>
+  
+  <div className="grid grid-cols-4 gap-x-12 px-10 py-6">
+  
+  <Info label="Email" value={u.email}/>
+  <Info label="Age" value={u.age}/>
+  <Info label="Account Created" value={<span className="tracking-tight">{formatDate(u.createdAt)}</span>}/>
+  <Info label="Voice Reminder" value={formatVoice(u.alertVoice)} />
+  
+  </div>
+  
+  </div>
+  
+  </div>
+  
+  )
+  
+  }
 
 /* =====================================================
    SUBSCRIPTION
 ===================================================== */
 
+
+  function formatPlan(plan){
+
+    if(plan === "MONTHLY") return "Monthly"
+    if(plan === "YEARLY") return "Yearly"
+    if(plan === "TRIAL") return "Trial"
+    
+    return plan
+    
+    }
+
+    function formatStatus(status){
+
+      if(status === "ACTIVE") return "Active"
+      if(status === "EXPIRED") return "Expired"
+      if(status === "CANCELLED") return "Cancelled"
+      
+      return status
+      
+      }
+
+      function getExpiryDate(date){
+
+        const d = new Date(date)
+        
+        d.setDate(d.getDate() - 1)
+        
+        return formatDate(d)
+        
+        }
+
 function Subscription({ data }) {
+
   const s = data.subscription;
-  if (!s) return <p>No active subscription</p>;
+
+  if (!s) {
+    return (
+      <div className="px-10 py-8">
+        <p className="text-[#5a6c7d]">No active subscription</p>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <SectionTitle>Subscription Details</SectionTitle>
-      <div className="grid md:grid-cols-2 gap-6">
-        <Info label="Plan Type" value={s.planType} />
-        <Info label="Status" value={s.status} />
-        <Info label="Auto Renew" value={s.autoRenew ? "Yes" : "No"} />
-        <Info label="Credits Per Cycle" value={s.creditsPerCycle} />
-        <Info
-          label="Start Date"
-          value={new Date(s.startDate).toLocaleDateString()}
-        />
-        <Info
-          label="End Date"
-          value={new Date(s.endDate).toLocaleDateString()}
-        />
+
+    <div>
+
+      {/* TITLE + BUTTON */}
+
+      <div className="flex justify-between items-center px-10 py-6">
+
+        <h2 className="text-2xl font-semibold text-[#002c3e]">
+          Subscription Details
+        </h2>
+
+        <button className="bg-[#002c3e] text-white px-6 py-2 font-semibold tracking-wide rounded-full text-md">
+          History
+        </button>
+
       </div>
-    </>
+
+      {/* DATA */}
+
+      <div className="border-t border-[#CFD5DB]">
+
+        {/* ROW 1 */}
+
+        <div className="grid grid-cols-3 px-10 py-6 border-b border-[#CFD5DB]">
+
+          <Info
+            label="Plan Type"
+            value={formatPlan(s.planType)}
+          />
+
+          <Info
+            label="Start Date"
+            value={formatDate(s.startDate)}
+          />
+
+          <Info
+            label="Next Renewal Date"
+            value={formatDate(s.nextRenewalDate)}
+          />
+
+        </div>
+
+        {/* ROW 2 */}
+
+        <div className="grid grid-cols-3 px-10 py-6">
+
+          <Info
+            label="Auto Renewal"
+            value={s.autoRenew ? "Yes" : "No"}
+          />
+
+<Info
+label="Expiry Date"
+value={getExpiryDate(s.nextRenewalDate)}
+/>
+
+          <Info
+            label="Status"
+            value={formatStatus(s.status)}
+          />
+
+        </div>
+
+      </div>
+
+    </div>
+
   );
+
 }
 
 /* =====================================================
@@ -274,51 +440,125 @@ function SubscriptionHistory({ data }) {
 
 function Contacts({ data }) {
 
-  const [showHistory, setShowHistory] = useState(false);
-  const activeContacts = data.contacts?.filter(c => !c.removedAt);
+  const contacts = data.contacts || [];
+
+  // minimum 2 rows दिखाने के लिए
+  const displayContacts =
+    contacts.length >= 2
+      ? contacts
+      : [...contacts, ...Array(2 - contacts.length).fill(null)];
 
   return (
-    <>
-      <div className="flex justify-between items-center">
-        <SectionTitle>Active Contacts</SectionTitle>
 
-        <button
-          onClick={() => setShowHistory(true)}
-          className="text-sm px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
-        >
-          View Past Contacts
-        </button>
+    <div>
+
+      <SectionTitle>Trusted Contacts</SectionTitle>
+
+      <div className="border border-[#CFD5DB] overflow-hidden">
+
+        {displayContacts.map((c, index) => (
+
+          <div
+            key={index}
+            className={`grid grid-cols-5 px-10 py-6 items-center ${
+              index !== displayContacts.length - 1
+                ? "border-b border-[#CFD5DB]"
+                : ""
+            }`}
+          >
+
+            {/* NUMBER + NAME */}
+
+            <div className="flex items-center gap-2 -ml-1">
+
+              <div className="w-10 h-10 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-sm font-semibold">
+                {index + 1}
+              </div>
+
+              <div>
+
+                <p className="text-md font-semibold text-[#5a6c7d]">
+                  Contact
+                </p>
+
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {c?.name || "No Contact Added"}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            {/* PHONE */}
+
+            <div className="ml-18">
+
+              <p className="text-md font-semibold text-[#5a6c7d]">
+                Phone
+              </p>
+
+              <p className="font-semibold tracking-wide leading-8 text-lg text-[#002c3e]">
+                {c?.phone || "-"}
+              </p>
+
+            </div>
+
+
+            {/* ADDED ON */}
+
+            <div className="ml-18">
+
+              <p className="text-md font-semibold text-[#5a6c7d]">
+                Added On
+              </p>
+
+              <p className="font-semibold  leading-8 text-lg text-[#002c3e]">
+              {c?.createdAt ? formatDate(c.createdAt) : "-"}
+              </p>
+
+            </div>
+
+
+            {/* CONSENT */}
+
+            <div className="ml-18">
+
+              <p className="text-md font-semibold text-[#5a6c7d]">
+                Consent
+              </p>
+
+              <p className="font-semibold tracking-wide leading-8 text-lg text-[#002c3e]">
+                {c?.consentStatus || "-"}
+              </p>
+
+            </div>
+
+
+            {/* CONSENT DATE */}
+
+            <div className="ml-18">
+
+              <p className="text-md font-semibold text-[#5a6c7d]">
+                Consent Date
+              </p>
+
+              <p className="font-semibold tracking-wide leading-8 text-lg text-[#002c3e]">
+                {c?.consentDate
+                  ? new Date(c.consentDate).toLocaleDateString()
+                  : "-"}
+              </p>
+
+            </div>
+
+          </div>
+
+        ))}
+
       </div>
 
-      {!activeContacts?.length ? (
-        <p className="text-gray-500">No active contacts</p>
-      ) : (
-        <PremiumTable
-          headers={["Name", "Phone", "Relation", "Added On", "SMS Consent"]}
-        >
-          {activeContacts.map((c) => (
-            <tr key={c._id} className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-medium">{c.name}</td>
-              <td className="px-6 py-4">{c.phone}</td>
-              <td className="px-6 py-4">{c.relation}</td>
-              <td className="px-6 py-4">
-                {new Date(c.createdAt).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4">
-                <ConsentBadge status={c.consentStatus || "PENDING"} />
-              </td>
-            </tr>
-          ))}
-        </PremiumTable>
-      )}
+    </div>
 
-      {showHistory && (
-        <PastContactsModal
-          history={data.contactHistory}
-          onClose={() => setShowHistory(false)}
-        />
-      )}
-    </>
   );
 }
 
@@ -326,109 +566,364 @@ function Contacts({ data }) {
    ALERTS
 ===================================================== */
 
-function Alerts({ data }) {
-  const alerts = data.recentAlerts || [];
+function formatAlertType(type){
 
-  if (!alerts.length)
-    return <p className="text-gray-500">No alerts found.</p>;
+  if(!type) return "-"
+  
+  return type
+  .toLowerCase()
+  .replace("_"," ")
+  .replace(/\b\w/g,c=>c.toUpperCase())
+  
+  }
+
+  function formatAlertStatus(status){
+
+    if(!status) return "-"
+    
+    if(status === "SMS_PENDING") return "SMS Pending Retry"
+    if(status === "SMS_SENT") return "SMS Sent"
+    if(status === "FAILED") return "Failed"
+    if(status === "CREATED") return "Created"
+    
+    return status
+    }
+
+
+function RecentAlerts({ data }) {
+
+  const alerts = data?.recentAlerts?.length
+    ? data.recentAlerts
+    : [
+        {
+          type: "Missed Check-in",
+          status: "SMS Pending Retry",
+          creditsUsed: 1,
+          retryCount: 2,
+          createdAt: "2026-03-03T10:00:00",
+        },
+      ];
+
+  const a = alerts[0];
 
   return (
-    <>
+
+    <div>
+
       <SectionTitle>Recent Alerts</SectionTitle>
 
-      <div className="space-y-6">
-        {alerts.map((a) => (
-          <div
-            key={a._id}
-            className="bg-gradient-to-br from-white to-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition"
-          >
-            <div className="flex justify-between items-start flex-wrap gap-4">
-              
-              {/* LEFT SIDE */}
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {a.type}
-                </h3>
+      <div className="border border-[#CFD5DB]  overflow-hidden">
 
-                <div className="flex gap-3 flex-wrap text-sm">
-                  <span className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-600 font-medium">
-                    Status: {a.status}
-                  </span>
+        {/* ROW 1 */}
 
-                  <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700">
-                    Credits: {a.creditsUsed}
-                  </span>
+        <div className="grid grid-cols-3 px-10 py-6 border-b border-[#CFD5DB]">
 
-                  <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">
-                    Retries: {a.retryCount}
-                  </span>
-                </div>
+          {/* ALERT TYPE */}
 
-                {a.failureReason && (
-                  <div className="mt-2 text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
-                    <strong>Failure Reason:</strong> {a.failureReason}
-                  </div>
-                )}
+          <div>
 
-                {a.location && (
-                  <div className="text-sm text-gray-600 mt-1">
-                    📍 <strong>Location:</strong> {a.location.address}
-                  </div>
-                )}
-              </div>
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              Alert Type
+            </p>
 
-              {/* RIGHT SIDE DATE */}
-              <div className="text-sm text-gray-400 whitespace-nowrap">
-                {new Date(a.createdAt).toLocaleString()}
-              </div>
-            </div>
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#ee6a59]">
+            {formatAlertType(a.type)}
+            </p>
+
           </div>
-        ))}
+
+
+          {/* STATUS */}
+
+          <div>
+
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              Status
+            </p>
+
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+            {formatAlertStatus(a.status)}
+            </p>
+
+          </div>
+
+
+          {/* CREDITS USED */}
+
+          <div>
+
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              Alert Credits Used
+            </p>
+
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+              {a.creditsUsed}
+            </p>
+
+          </div>
+
+        </div>
+
+
+        {/* ROW 2 */}
+
+        <div className="grid grid-cols-3 px-10 py-6">
+
+          {/* DATE */}
+
+          <div>
+
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              Date | Time
+            </p>
+
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+{formatDateTime(a.createdAt)}
+</p>
+
+          </div>
+
+
+          {/* ATTEMPTS */}
+
+          <div>
+
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              Attempts
+            </p>
+
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+            {a.retryCount ?? 0} | 5
+            </p>
+
+          </div>
+
+
+          {/* BALANCE */}
+
+          <div>
+
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              Alert Credits Balance
+            </p>
+
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+              {data?.currentBalance ?? 2}
+            </p>
+
+          </div>
+
+        </div>
+
       </div>
-    </>
+
+    </div>
+
   );
+
 }
 
 /* =====================================================
    CHECKIN
 ===================================================== */
 
-function Checkin({ data, refresh }) {
-  const c = data.checkin;
-  if (!c) return <p>No check-in schedule set.</p>;
 
-  const toggleStatus = async () => {
-    await api.patch(`/admin/users/${data.basicInfo._id}/toggle-checkin`);
-    refresh();
-  };
+function formatDelay(min){
+
+  if(!min) return "-"
+  
+  if(min % 60 === 0){
+  
+  const hours = min / 60
+  
+  if(hours === 1) return "1 Hour"
+  
+  return `${hours} Hours`
+  
+  }
+  
+  return `${min} Minutes`
+  
+  }
+  function formatDateTime(date){
+
+    if(!date) return "-"
+    
+    const d = new Date(date)
+    
+    const day = d.getDate()
+    const month = d.toLocaleString("en",{month:"short"})
+    const year = d.getFullYear()
+    
+    const time = d.toLocaleString("en",{
+    hour:"numeric",
+    minute:"2-digit",
+    hour12:true
+    })
+    
+    return `${day} ${month} ${year} | ${time}`
+    
+    }
+
+    function getStatusReason(c){
+
+      if(c.status === "PAUSED") return "User Paused Manually"
+      
+      if(c.status === "ALERTED") return "Missed Check-in"
+      
+      return "-"
+      
+      }
+
+    function formatTime(time){
+
+      if(!time) return "-"
+      
+      const [h,m] = time.split(":")
+      const d = new Date()
+      d.setHours(h)
+      d.setMinutes(m)
+      
+      return d.toLocaleString("en",{
+      hour:"numeric",
+      minute:"2-digit",
+      hour12:true
+      })
+      
+      }
+
+      function formatStatuss(status){
+
+        if(status === "PAUSED") return "Paused"
+        if(status === "ACTIVE") return "Active"
+        if(status === "ALERTED") return "Alerted"
+        
+        return status
+        
+        }
+
+        
+
+function Checkin({ data }) {
+
+  const c = data.checkin;
+
+  if (!c) {
+    return (
+      <div className="px-10 py-8">
+        <p className="text-[#5a6c7d]">No check-in schedule set.</p>
+      </div>
+    );
+  }
+
+  const rows = [
+    {
+    label: "Check-In Time",
+    value: c.checkInTimes?.length
+    ? c.checkInTimes.map(t => formatTime(t)).join(" / ")
+    : "No Check-in Time Set",
+    delay: formatDelay(c.graceMinutes),
+    status: c.status
+    },
+    {
+    label: "Check-In Time",
+    value: c.checkInTimes?.length
+    ? c.checkInTimes.map(t => formatTime(t)).join(" / ")
+    : "-",
+    lastCheckin: c.lastCheckInAt
+    ? formatDateTime(c.lastCheckInAt)
+    : "-",
+    reason: c.status === "PAUSED"
+    ? "User Paused Manually"
+    : "-"
+    }
+    ]
 
   return (
-    <>
-      <SectionTitle>Check-in Details</SectionTitle>
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-      <Info
- label="Check-in Time"
- value={c.checkInTimes?.map(t => `${t}`).join(" / ")}
-/>
-        <Info label="Grace Minutes" value={c.graceMinutes} />
-        <Info label="Status" value={c.status} />
-        <Info
-          label="Last Check-in"
-          value={
-            c.lastCheckInAt
-              ? new Date(c.lastCheckInAt).toLocaleString()
-              : "—"
-          }
-        />
+
+    <div>
+
+      <SectionTitle>Check-In Details</SectionTitle>
+
+      <div className="border border-[#CFD5DB] overflow-hidden">
+
+        {rows.map((row, index) => (
+
+          <div
+            key={index}
+            className={`grid grid-cols-4 px-10 py-6 items-center ${
+              index !== rows.length - 1
+                ? "border-b border-[#CFD5DB]"
+                : ""
+            }`}
+          >
+
+            {/* NUMBER + TITLE */}
+
+            <div className="flex items-center gap-2 ">
+
+              <div className="w-12 h-12 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-xl font-semibold">
+                {index + 1}
+              </div>
+
+              <div>
+
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  {row.label}
+                </p>
+
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {row.value}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            {/* ALERT DELAY / LAST CHECKIN */}
+
+            <div className="ml-18">
+
+              <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                {index === 0 ? "Alert Delay" : "Last Check-in"}
+              </p>
+
+              <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                {index === 0 ? row.delay : row.lastCheckin}
+              </p>
+
+            </div>
+
+
+            {/* STATUS / REASON */}
+
+            <div className="ml-18 col-span-2">
+
+              <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                {index === 0 ? "Status" : "Status Reason"}
+              </p>
+
+              <p
+                className={`font-semibold tracking-wide leading-8 text-xl ${
+                  index === 0 && row.status === "PAUSED"
+                    ? "text-[#ee6a59]"
+                    : "text-[#002c3e]"
+                }`}
+              >
+                {index === 0 ? formatStatuss(row.status) : row.reason}
+              </p>
+
+            </div>
+
+          </div>
+
+        ))}
+
       </div>
 
-      <button
-        onClick={toggleStatus}
-        className="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow hover:shadow-lg transition"
-      >
-        {c.status === "PAUSED" ? "Resume Check-in" : "Pause Check-in"}
-      </button>
-    </>
+    </div>
+
   );
 }
 
@@ -437,224 +932,374 @@ function Checkin({ data, refresh }) {
 ===================================================== */
 
 function Credits({ data, refresh }) {
-  const [amount, setAmount] = useState("");
+
+  const [amount, setAmount] = useState(2);
   const [loading, setLoading] = useState(false);
 
-  // Pagination
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 5;
-
   const history = data.creditHistory || [];
-  const totalPages = Math.ceil(history.length / itemsPerPage);
 
-  const paginatedData = history.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
+  const [page, setPage] = useState(1);
+  const perPage = 5;
+
+  const totalPages = Math.ceil(history.length / perPage);
+
+  const paginatedHistory = history.slice(
+    (page - 1) * perPage,
+    page * perPage
   );
 
+  function formatDateTime(date){
+
+    if(!date) return "-"
+
+    const d = new Date(date)
+
+    const day = d.getDate()
+    const month = d.toLocaleString("en",{month:"short"})
+    const year = d.getFullYear()
+
+    const time = d.toLocaleString("en",{
+      hour:"numeric",
+      minute:"2-digit",
+      hour12:true
+    })
+
+    return `${day} ${month} ${year} | ${time}`
+
+  }
+
+  function formatReason(reason){
+
+    if(!reason) return "-"
+
+    return reason
+      .toLowerCase()
+      .replaceAll("_"," ")
+      .replace(/\b\w/g,c=>c.toUpperCase())
+
+  }
+
   const adjustCredit = async () => {
+
     if (!amount) return;
 
     try {
+
       setLoading(true);
+
       await api.post(`/admin/users/${data.basicInfo._id}/adjust-credits`, {
         amount: Number(amount),
         reason: "ADMIN_ADJUSTMENT",
       });
-      setAmount("");
+
       refresh();
+
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
-    <>
-      <SectionTitle>Credit Management</SectionTitle>
 
-      {/* SMALLER BALANCE CARD */}
-      <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 mb-8 flex justify-between items-center">
-        <div>
-          <p className="text-xs text-gray-500 uppercase">Current Balance</p>
-          <p className="text-2xl font-semibold text-indigo-700">
-            {data.currentBalance}
-          </p>
-        </div>
+    <div className="tracking-wide">
+
+      {/* HEADER */}
+
+      <div className="grid grid-cols-2 px-10 py-6">
+
+        <h2 className="text-[26px] font-semibold text-[#002c3e]">
+          Alert Credits Management
+        </h2>
+
+        <h2 className="text-[26px] font-semibold text-[#002c3e]">
+          Adjust Alert Credits
+        </h2>
+
       </div>
 
-      {/* ADJUST SECTION */}
-      <div className="bg-white border rounded-xl p-6 shadow-sm mb-10">
-        <h3 className="font-semibold mb-4">Adjust Credits</h3>
 
-        <div className="flex gap-4">
-          <input
-            type="number"
-            placeholder="+100 or -50"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="border px-4 py-2 rounded-lg w-60 focus:ring-2 focus:ring-indigo-400 outline-none"
-          />
+      {/* INFO + ADJUST */}
 
-          <button
-            onClick={adjustCredit}
-            disabled={loading}
-            className="bg-indigo-600 text-white px-5 py-2 rounded-lg shadow hover:shadow-md transition disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Apply"}
-          </button>
+      <div className="grid grid-cols-2 border-t border-[#CFD5DB]">
+
+        <div className="flex gap-24 px-10 py-6">
+
+          <div>
+
+            <p className="text-lg font-semibold text-[#5a6c7d]">
+              Alert Credits Used
+            </p>
+
+            <p className="font-semibold text-xl text-[#002c3e]">
+              {data.totalCreditsUsed || 1}
+            </p>
+
+          </div>
+
+          <div>
+
+            <p className="text-lg font-semibold text-[#5a6c7d]">
+              Alert Credits Balance
+            </p>
+
+            <p className="font-semibold text-xl text-[#002c3e]">
+              {data.currentBalance}
+            </p>
+
+          </div>
+
         </div>
+
+
+        {/* ADJUST */}
+
+        <div className="flex items-center justify-center">
+
+          <div className="flex items-center gap-4 bg-[#B5B9B2] px-6 py-6 -ml-12 rounded-4xl">
+
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              className="w-38 px-4 py-2 text-[#5a6c7d] text-xl bg-white rounded-full outline-none"
+            />
+
+            <button
+              onClick={() => setAmount(amount + 1)}
+              className="w-12 h-12 rounded-full bg-white text-4xl text-[#5a6c7d] flex items-center justify-center"
+            >
+              +
+            </button>
+
+            <button
+              onClick={() => setAmount(amount - 1)}
+              className="w-12 h-12 rounded-full bg-white text-4xl text-[#5a6c7d] flex items-center justify-center"
+            >
+              −
+            </button>
+
+            <button
+              onClick={adjustCredit}
+              disabled={loading}
+              className="bg-[#002c3e] text-white px-14 py-3 rounded-full font-semibold"
+            >
+              {loading ? "..." : "Apply"}
+            </button>
+
+          </div>
+
+        </div>
+
       </div>
+
+
+      {/* HISTORY TITLE */}
+
+      <div className="border-t border-[#CFD5DB] px-10 py-5">
+
+        <p className="text-xl font-semibold text-[#002c3e]">
+          View History
+        </p>
+
+      </div>
+
 
       {/* HISTORY */}
+
       <div>
-        <h3 className="font-semibold mb-6 text-lg">Credit History</h3>
 
-        {paginatedData.length === 0 && (
-          <p className="text-gray-500">No credit transactions found.</p>
-        )}
+        {paginatedHistory.map((c) => {
 
-<div className="space-y-3">
-  {paginatedData.map((c) => {
+          const isAdd = c.type === "ADD";
 
-    // 🔥 FIXED LOGIC
-    const deductReasons = ["MISSED_ALERT", "DEDUCT"];
-    const isDeduct =
-      deductReasons.includes(c.reason) ||
-      c.type === "DEDUCT" ||
-      c.amount < 0;
+          return (
 
-    const isAdd = !isDeduct;
+            <div
+              key={c._id}
+              className="flex justify-between items-center px-10 py-6 border-t border-[#CFD5DB]"
+            >
 
-    return (
-      <div
-        key={c._id}
-        className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow transition"
-      >
-        <div className="flex justify-between items-center">
+              {/* LEFT */}
 
-          {/* LEFT */}
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span
-                className={`px-2 py-0.5 text-xs rounded-full font-semibold ${
-                  isAdd
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                }`}
-              >
-                {isAdd ? "ADD" : "DEDUCT"}
-              </span>
+              <div className="flex items-center gap-4">
 
-              <span className="text-sm font-medium text-gray-700">
-                {c.reason}
-              </span>
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-2xl font-bold ${
+                    isAdd ? "bg-[#0cb4ab]" : "bg-[#ee6a59]"
+                  }`}
+                >
+                  {isAdd ? "+" : "−"}
+                </div>
+
+                <div>
+
+                  <p className="font-semibold text-xl text-[#002c3e]">
+                    {formatReason(c.reason)}
+                  </p>
+
+                  <p
+                    className={`text-lg font-semibold ${
+                      isAdd ? "text-[#5a6c7d]" : "text-[#ee6a59]"
+                    }`}
+                  >
+                    {formatDateTime(c.createdAt)}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              {/* RIGHT */}
+
+              <div className="text-right">
+
+                <p className="text-lg font-semibold text-[#5a6c7d]">
+                  Alert Credits
+                </p>
+
+                <p
+                  className={`font-semibold text-2xl ${
+                    isAdd ? "text-[#0cb4ab]" : "text-[#ee6a59]"
+                  }`}
+                >
+                  {isAdd ? `+${c.amount}` : `-${c.amount}`}
+                </p>
+
+              </div>
+
             </div>
 
-            <p className="text-xs text-gray-400">
-              {new Date(c.createdAt).toLocaleString()}
-            </p>
-          </div>
+          );
 
-          {/* RIGHT */}
-          <div className="text-right">
-            <p
-              className={`text-lg font-semibold ${
-                isAdd ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {isAdd ? "+" : "-"}
-              {Math.abs(c.amount)}
-            </p>
+        })}
 
-            <p className="text-xs text-gray-500">
-              Balance: {c.balanceAfter}
-            </p>
-          </div>
-
-        </div>
       </div>
-    );
-  })}
-</div>
 
-        {/* PAGINATION */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-8">
 
-            <button
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-              className="px-4 py-2 border rounded-lg disabled:opacity-40"
-            >
-              Prev
-            </button>
+      {/* PAGINATION */}
 
-            <span className="text-sm text-gray-600">
-              Page {page} of {totalPages}
-            </span>
+      <div className="flex justify-center items-center gap-6 py-8">
 
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage(page + 1)}
-              className="px-4 py-2 border rounded-lg disabled:opacity-40"
-            >
-              Next
-            </button>
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="px-6 py-2 border border-[#5a6c7d] text-[#5a6c7d] rounded-full"
+        >
+          Back
+        </button>
 
-          </div>
-        )}
+        <p className="text-[#5a6c7d] font-semibold">
+          Page {page} of {totalPages || 1}
+        </p>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+          className="px-6 py-2 bg-[#002c3e] text-white rounded-full"
+        >
+          Next
+        </button>
+
       </div>
-    </>
+
+    </div>
+
   );
-}
 
+}
 /* =====================================================
    ADMIN NOTES
 ===================================================== */
 
 function AdminNotes({ data, refresh }) {
+
   const [note, setNote] = useState("");
 
   const addNote = async () => {
+
     if (!note.trim()) return;
+
     await api.post(`/admin/users/${data.basicInfo._id}/notes`, { note });
+
     setNote("");
+
     refresh();
+
   };
 
   return (
-    <>
+
+    <div>
+
+      {/* TITLE */}
+
       <SectionTitle>Admin Notes</SectionTitle>
 
-      <textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Add internal admin note..."
-        className="w-full border border-gray-300 rounded-2xl p-4 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-      />
 
-      <button
-        onClick={addNote}
-        className="px-6 py-2 rounded-xl bg-indigo-600 text-white font-semibold shadow hover:shadow-lg transition mb-6"
-      >
-        Add Note
-      </button>
+      {/* TEXTAREA */}
 
-      <div className="space-y-4">
+      <div className="px-10 py-6">
+
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="w-full h-32 border border-[#BDC7CE] rounded-[28px] text-[#002c3e] px-6 py-4 outline-none resize-none text-lg"
+        />
+
+        <button
+          onClick={addNote}
+          className="mt-6 bg-[#002c3e] text-white px-8 py-3 rounded-full font-semibold"
+        >
+          Add Note
+        </button>
+
+      </div>
+
+
+      {/* HISTORY TITLE */}
+
+      <div className="border-t border-[#C7D0D6] px-10 py-5">
+
+        <p className="text-xl font-semibold text-[#002c3e]">
+          View History
+        </p>
+
+      </div>
+
+
+      {/* HISTORY LIST */}
+
+      <div>
+
         {data.adminNotes?.map((n) => (
+
           <div
             key={n._id}
-            className="bg-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm"
+            className="px-10 py-6 border-t border-[#C7D0D6]"
           >
-            <p>{n.note}</p>
-            <p className="text-sm text-gray-500 mt-1">
-              {new Date(n.createdAt).toLocaleString()}
+
+            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+              {n.note}
             </p>
+
+            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+
+            {formatDateTime(n.createdAt)}
+
+            </p>
+
           </div>
+
         ))}
+
       </div>
-    </>
+
+    </div>
+
   );
+
 }

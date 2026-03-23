@@ -1,261 +1,401 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 
-export default function AdminCheckinMonitoring() {
-  const [data, setData] = useState([]);
-  const [status, setStatus] = useState("ALL");
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+export default function SmsTracker(){
 
-  useEffect(() => {
-    fetchData();
-  }, [status]);
+const [data,setData] = useState([]);
+const [loading,setLoading] = useState(true);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
+const [search,setSearch] = useState("");
+const [consent,setConsent] = useState("ALL");
+const [status,setStatus] = useState("ALL");
 
-      const res = await api.get("/admin/checkins", {
-        params: { status, search }
-      });
+const [page,setPage] = useState(1);
 
-      setData(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+/* ================= FETCH ================= */
 
-  const toggleCheckin = async (userId) => {
-    try {
-      await api.patch(`/admin/users/${userId}/toggle-checkin`);
-      fetchData();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+useEffect(()=>{
+fetchData();
+},[consent,status,page]);
 
-  const activeCount = data.filter(d => d.status === "ACTIVE").length;
-  const pausedCount = data.filter(d => d.status === "PAUSED").length;
+const fetchData = async()=>{
 
-  return (
-    <div className="min-h-screen ">
-      <div className="max-w-7xl mx-auto space-y-8">
+try{
 
-        {/* HEADER */}
-        {/* <div>
-          <h1 className="text-3xl font-bold text-gray-800">
-            Check-in Monitoring
-          </h1>
-          <p className="text-gray-500 mt-2">
-            Manage and monitor all active user check-ins
-          </p>
-        </div> */}
+setLoading(true);
 
-        {/* SUMMARY CARDS */}
-        <div className="grid md:grid-cols-3 gap-6">
+const res = await api.get("/admin/sms-tracker",{
+params:{
+search,
+consent,
+status,
+page
+}
+});
 
-          <SummaryCard
-            label="Active Check-ins"
-            value={activeCount}
-            color="green"
-          />
+setData(res.data);
 
-          <SummaryCard
-            label="Paused Check-ins"
-            value={pausedCount}
-            color="red"
-          />
+}
+catch(err){
+console.error(err);
+}
+finally{
+setLoading(false);
+}
 
-          <SummaryCard
-            label="Total Check-ins"
-            value={data.length}
-            color="indigo"
-          />
+};
 
-        </div>
 
-        {/* FILTER BAR */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
-          <div className="grid md:grid-cols-3 gap-4">
+/* ================= SUMMARY ================= */
 
-            <input
-              type="text"
-              placeholder="Search by phone..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onBlur={fetchData}
-              className="border rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-400 outline-none"
-            />
+const total = data.length;
+const sent = data.filter(d=>d.status==="SENT").length;
+const pending = data.filter(d=>d.status==="PENDING").length;
+const failed = data.filter(d=>d.status==="FAILED").length;
 
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="border rounded-xl px-4 py-2"
-            >
-              <option value="ALL">All Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="PAUSED">Paused</option>
-            </select>
 
-            <button
-              onClick={() => {
-                setStatus("ALL");
-                setSearch("");
-                fetchData();
-              }}
-              className="bg-gray-100 rounded-xl px-4 py-2 hover:bg-gray-200 transition"
-            >
-              Reset
-            </button>
+/* ================= DROPDOWN ================= */
 
-          </div>
-        </div>
+const [open,setOpen] = useState(false);
 
-        {/* TABLE */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+const consentOptions = [
+"All",
+"Opted In",
+"Opted Out",
+"Pending"
+];
 
-          {loading ? (
-            <div className="p-10 text-center text-gray-400">
-              Loading check-ins...
-            </div>
-          ) : data.length === 0 ? (
-            <div className="p-10 text-center text-gray-400">
-              No check-in schedules found
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
 
-                <thead className="bg-gray-50 uppercase text-xs tracking-wide text-gray-600">
-                  <tr>
-                    <th className="px-6 py-4 text-left">User</th>
-                    <th className="px-6 py-4 text-left">Plan</th>
-                    <th className="px-6 py-4 text-left">Check-in Time</th>
-                    <th className="px-6 py-4 text-left">Grace</th>
-                    <th className="px-6 py-4 text-left">Last Check-in</th>
-                    <th className="px-6 py-4 text-left">Status</th>
-                    <th className="px-6 py-4 text-left">Action</th>
-                  </tr>
-                </thead>
+return(
 
-                <tbody className="divide-y divide-gray-100">
+<div className="space-y-10">
 
-                  {data.map((row) => (
-                    <tr key={row._id} className="hover:bg-gray-50 transition">
+{/* ================= FILTER BAR ================= */}
 
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-800">
-                          {row.userName}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          {row.phone}
-                        </div>
-                      </td>
+<div
+className="
+bg-[#B5B9B2]
+rounded-4xl
+px-4
+py-5
+flex
+items-center
+gap-2
 
-                      <td className="px-6 py-4">
-                        <PlanBadge plan={row.planType} />
-                      </td>
+"
+>
 
-                      <td className="px-6 py-4">
-  {row.checkInTimes?.length ? (
-    row.checkInTimes.map((t, i) => (
-      <span
-        key={i}
-        className="px-2 py-1 mr-2 bg-indigo-100 text-indigo-700 rounded-full text-xs"
-      >
-        {t}
-      </span>
-    ))
-  ) : (
-    "—"
-  )}
+{/* SEARCH */}
+
+<input
+type="text"
+placeholder="Search Recipient..."
+value={search}
+onChange={(e)=>setSearch(e.target.value)}
+onBlur={fetchData}
+className="
+bg-white
+rounded-full
+px-6
+py-3
+w-[260px]
+outline-none
+text-[#002c3e]
+"
+/>
+
+
+{/* CONSENT DROPDOWN */}
+
+<div className="relative">
+
+<button
+onClick={()=>setOpen(!open)}
+className="
+bg-[#002c3e]
+text-white
+px-6
+py-2
+rounded-full
+flex
+items-center
+gap-2
+
+"
+>
+Consent <span >▼</span> 
+</button>
+
+{open && (
+
+<div
+className="
+absolute
+top-13
+left-0
+bg-[#7f837f]
+text-white
+rounded-4xl
+overflow-hidden
+shadow-lg
+py-2
+"
+>
+
+{consentOptions.map(opt=>(
+
+<div
+key={opt}
+onClick={()=>{
+
+setConsent(opt);
+setOpen(false);
+
+}}
+className="
+px-5
+py-2
+cursor-pointer
+hover:bg-[#6f736f]
+
+"
+>
+
+{opt.replace("_"," ")}
+
+</div>
+
+))}
+
+</div>
+
+)}
+
+</div>
+
+
+{/* STATUS FILTER */}
+
+{["Sent","Pending","Failed","Delivered"].map(s=>(
+
+<button
+key={s}
+onClick={()=>setStatus(s)}
+className={`
+px-13
+py-3
+rounded-full
+font-semibold
+tracking-wide
+${status===s
+? "bg-[#002c3e] text-white"
+: "bg-white text-[#5a6c7d]"
+}
+`}
+>
+
+{s}
+
+</button>
+
+))}
+
+</div>
+
+
+{/* ================= SUMMARY ================= */}
+
+<div className="grid grid-cols-4 gap-6">
+
+<Card label="Users Triggered" value={total}/>
+
+<Card label="SMS Sent" value={sent}/>
+
+<Card label="SMS Pending" value={pending}/>
+
+<Card label="SMS Failed" value={failed} error/>
+
+</div>
+
+
+
+{/* ================= TABLE ================= */}
+
+<div className="bg-white rounded-4xl overflow-hidden">
+
+{loading ?(
+
+<div className="p-10 text-center text-gray-400">
+Loading...
+</div>
+
+):(
+
+<table className="w-full text-[17px] ">
+
+<thead className="bg-[#78bcc4] text-white tracking-wide">
+
+<tr>
+
+<th className="px-6 py-5 text-left">Recipient</th>
+
+<th className="px-6 py-5 text-left">Phone</th>
+
+<th className="px-6 py-5 text-left">Consent</th>
+
+<th className="px-6 py-5 text-left">Alerts Type</th>
+
+<th className="px-6 py-5 text-left">Alert Sent At</th>
+
+<th className="px-6 py-5 text-left">Status</th>
+
+<th className="px-6 py-5 text-left">Attempts</th>
+
+<th className="px-6 py-5 text-left">Failure Reason</th>
+
+</tr>
+
+</thead>
+
+
+<tbody className="text-[#5a6c7d]">
+
+{data.map((row,i)=>(
+
+<tr
+key={i}
+className="
+border-b
+border-[#e5e5e5]
+hover:bg-[#f7f8f3]
+"
+>
+
+<td className="px-6 py-4 font-semibold">
+{row.name}
 </td>
 
-                      <td className="px-6 py-4 text-gray-700">
-                        {row.graceMinutes} min
-                      </td>
+<td className="px-6 py-4">
+{row.phone}
+</td>
 
-                      <td className="px-6 py-4 text-gray-400 text-xs">
-                        {row.lastCheckInAt
-                          ? new Date(row.lastCheckInAt).toLocaleString()
-                          : "—"}
-                      </td>
+<td className="px-6 py-4">
+{row.consent}
+</td>
 
-                      <td className="px-6 py-4">
-                        <StatusBadge status={row.status} />
-                      </td>
+<td
+className={`
+px-6 py-4 font-semibold
+${row.alertType==="MISSED" || row.alertType==="SOS"
+? "text-[#ee6a59]"
+: ""
+}
+`}
+>
+{row.alertType}
+</td>
 
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => toggleCheckin(row.userId)}
-                          className={`px-4 py-2 rounded-lg text-xs font-semibold transition ${
-                            row.status === "ACTIVE"
-                              ? "bg-red-100 text-red-600 hover:bg-red-200"
-                              : "bg-green-100 text-green-600 hover:bg-green-200"
-                          }`}
-                        >
-                          {row.status === "ACTIVE" ? "Pause" : "Resume"}
-                        </button>
-                      </td>
+<td className="px-6 py-4">
+{new Date(row.createdAt).toLocaleString()}
+</td>
 
-                    </tr>
-                  ))}
+<td
+className={`
+px-6 py-4 font-semibold
+${row.status==="SENT"
+? "text-[#78bcc4]"
+: "text-[#ee6a59]"
+}
+`}
+>
+{row.status}
+</td>
 
-                </tbody>
+<td className="px-6 py-4">
+{row.retryCount} | 5
+</td>
 
-              </table>
-            </div>
-          )}
+<td className="px-6 py-4">
+{row.failureReason || "-"}
+</td>
 
-        </div>
+</tr>
 
-      </div>
-    </div>
-  );
+))}
+
+</tbody>
+
+</table>
+
+)}
+
+</div>
+
+
+
+{/* ================= PAGINATION ================= */}
+
+<div className="flex justify-center items-center gap-6">
+
+<button
+onClick={()=>setPage(p=>Math.max(p-1,1))}
+className="
+border-[#5a6c7d]
+border-2
+text-[#5a6c7d]
+font-semibold
+px-6
+py-2
+rounded-full
+"
+>
+Back
+</button>
+
+<span className="text-[#5a6c7d]">
+Page {page}
+</span>
+
+<button
+onClick={()=>setPage(p=>p+1)}
+className="
+bg-[#002c3e]
+text-white
+px-6
+py-2
+rounded-full
+"
+>
+Next
+</button>
+
+</div>
+
+</div>
+
+);
 }
 
-/* ================= COMPONENTS ================= */
 
-function SummaryCard({ label, value, color }) {
-  const colors = {
-    green: "from-green-100 to-green-50 text-green-700",
-    red: "from-red-100 to-red-50 text-red-700",
-    indigo: "from-indigo-100 to-indigo-50 text-indigo-700",
-  };
 
-  return (
-    <div className={`bg-gradient-to-br ${colors[color]} rounded-3xl p-6 shadow`}>
-      <p className="text-sm opacity-70">{label}</p>
-      <p className="text-3xl font-bold mt-2">{value}</p>
-    </div>
-  );
-}
+/* ================= CARD ================= */
 
-function PlanBadge({ plan }) {
-  const styles = {
-    TRIAL: "bg-blue-100 text-blue-700",
-    MONTHLY: "bg-emerald-100 text-emerald-700",
-    YEARLY: "bg-purple-100 text-purple-700",
-  };
+function Card({label,value,error}){
 
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[plan] || "bg-gray-100 text-gray-600"}`}>
-      {plan || "—"}
-    </span>
-  );
-}
+return(
 
-function StatusBadge({ status }) {
-  const styles = {
-    ACTIVE: "bg-green-100 text-green-700",
-    PAUSED: "bg-red-100 text-red-700",
-  };
+<div className="bg-[#f5f5f5] rounded-4xl px-8 py-6">
 
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>
-      {status}
-    </span>
-  );
+<p className="text-[#5a6c7d] text-lg tracking-wide font-semibold">
+{label}
+</p>
+
+<p className={`text-6xl font-semibold mt-2 ${error ? "text-[#ee6a59]" : "text-[#002c3e]"}`}>
+{value}
+</p>
+
+</div>
+
+);
+
 }

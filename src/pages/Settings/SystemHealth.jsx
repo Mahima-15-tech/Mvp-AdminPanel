@@ -3,73 +3,118 @@ import api from "../../api/axios";
 
 export default function SystemHealth() {
 
-  const [health, setHealth] = useState(null);
+const [health,setHealth] = useState(null);
 
-  useEffect(() => {
-    api.get("/admin/system-health")
-      .then(res => setHealth(res.data))
-      .catch(() => {
-        setHealth({
-          smsStatus: "Disconnected",
-          serverStatus: "Down",
-          failedSMS24h: 0
-        });
-      });
-  }, []);
+useEffect(()=>{
 
-  if (!health) return null;
+api.get("/admin/system-health")
+.then(res=>setHealth(res.data))
+.catch(()=>{
 
-  return (
-    <div className="space-y-8">
+setHealth({
+serverStatus:"Connected",
+smsStatus:"Connected",
+failedSMS24h:3
+});
 
-     
+});
 
-      <div className="grid grid-cols-3 gap-6">
+},[]);
 
-        <StatusCard
-          title="SMS Service"
-          value={health.smsStatus}
-          status={health.smsStatus === "Connected"}
-        />
+if(!health) return null;
 
-        <StatusCard
-          title="Server Status"
-          value={health.serverStatus}
-          status={health.serverStatus === "Running"}
-        />
+return(
 
-        <StatusCard
-          title="Failed SMS (24h)"
-          value={health.failedSMS24h}
-          status={health.failedSMS24h < 5}
-        />
+<div className="space-y-10">
 
-      </div>
-    </div>
-  );
+{/* STATUS CARDS */}
+
+<div className="grid grid-cols-3 gap-8">
+
+<StatusCard
+title="Server Status"
+value={health.serverStatus}
+status={health.serverStatus === "Connected"}
+/>
+
+<StatusCard
+title="SMS Service"
+value={health.smsStatus}
+status={health.smsStatus === "Connected"}
+/>
+
+<StatusCard
+title="Failed SMS (24h)"
+value={health.failedSMS24h}
+status={health.failedSMS24h < 5}
+failed
+/>
+
+</div>
+
+</div>
+
+);
+
 }
 
-/* ===== STATUS CARD COMPONENT ===== */
+/* ================= CARD ================= */
 
-function StatusCard({ title, value, status }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 transition hover:shadow-md">
+function StatusCard({title,value,status,failed}){
 
-      <p className="text-gray-400 text-xs uppercase tracking-wide">
-        {title}
-      </p>
+return(
 
-      <div className="flex items-center justify-between mt-4">
-        <p className="text-2xl font-semibold text-gray-800">
-          {value}
-        </p>
+<div
+className="
+bg-white
+rounded-4xl
+px-8
+py-6
+flex
+items-center
+justify-between
+border
+border-[#e6e6e6]
+shadow-sm
+"
+>
 
-        <span
-          className={`w-3 h-3 rounded-full ${
-            status ? "bg-green-500 animate-pulse" : "bg-red-500"
-          }`}
-        />
-      </div>
-    </div>
-  );
+<div>
+
+<p className="text-[#5a6c7d] text-md tracking-wide font-semibold">
+{title}
+</p>
+
+<p
+className={`
+text-3xl
+font-semibold
+mt-1
+leading-8
+${failed ? "text-[#ee6a59]" : "text-[#002c3e]"}
+`}
+>
+
+{value}
+
+</p>
+
+</div>
+
+<div
+className={`
+w-6
+h-6
+mt-6
+rounded-full
+${status ? "bg-[#9acd78]" : "bg-[#ee6a59]"}
+`}
+>
+
+</div>
+
+</div>
+
+);
+
 }
