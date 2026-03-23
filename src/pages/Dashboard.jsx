@@ -79,7 +79,7 @@ export default function Dashboard() {
           padding: 16,
           font: {
             size: 16,
-            weight: 600
+            weight: 400
           }
         }
       }
@@ -155,7 +155,7 @@ export default function Dashboard() {
 
 {/* RIGHT */}
 <div className="pl-8  mt-2">
-  <p className="text-md font-semibold  leading-5">Monthly <br /> Plan Net*</p>
+  <p className="text-md font-semibold  leading-5">Monthly <br /> Plan Net<sup className="raletive -top-1">*</sup></p>
   <p className="text-3xl font-medium mt-2">${data.revenue?.monthly?.net || 0}</p>
 </div>
 
@@ -170,14 +170,14 @@ export default function Dashboard() {
             <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#f6c663] text-white py-3 px-6">
 
             <div className="pr-6 mt-2">
-  <p className="text-md font-semibold">Yearly <br /> Plan Gross</p>
+  <p className="text-md font-semibold leading-5">Yearly <br /> Plan Gross</p>
   <p className="text-3xl mt-2">
     ${data.revenue?.yearly?.gross || 0}
   </p>
 </div>
 
 <div className="pl-8 mt-2">
-  <p className="text-md font-semibold">Yearly <br /> Plan Net*</p>
+  <p className="text-md font-semibold leading-5">Yearly <br /> Plan Net<sup className="raletive -top-1">*</sup></p>
   <p className="text-3xl mt-2">
     ${data.revenue?.yearly?.net || 0}
   </p>
@@ -193,14 +193,14 @@ export default function Dashboard() {
             <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#fc867d] text-white py-3 px-6">
 
             <div className="pr-6 mt-2">
-  <p className="text-md font-semibold">Top-ups <br /> Gross</p>
+  <p className="text-md font-semibold leading-5">Top-ups <br /> Gross</p>
   <p className="text-3xl mt-2">
     ${data.revenue?.topups?.gross || 0}
   </p>
 </div>
 
 <div className="pl-8 mt-2">
-  <p className="text-md font-semibold">Top-ups <br /> Net*</p>
+  <p className="text-md font-semibold leading-5">Top-ups <br /> Net<sup className="raletive -top-1">*</sup></p>
   <p className="text-3xl mt-2">
     ${data.revenue?.topups?.net || 0}
   </p>
@@ -276,7 +276,7 @@ function Activity({ label, value, color }) {
       </span>
 
       <span
-        className="text-white text-sm px-3 py-1 font-bold rounded-full"
+        className="text-white text-sm px-2 py-1 font-bold rounded-full"
         style={{ background: color }}
       >
         {value}

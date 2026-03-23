@@ -27,8 +27,8 @@ export default function Sidebar() {
 <div className="w-64 h-screen bg-[#f7f8f3] flex flex-col">
 
     {/* LOGO */}
-    <div className="ml-12">
-    <div className="flex justify-center mt-13 h-[120px]">
+    <div className="ml-6">
+    <div className="flex justify-center mt-11.5 h-[120px]">
   <img 
     src="/logo2.png"   // ✅ correct path
     alt="logo"

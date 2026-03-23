@@ -481,7 +481,7 @@ function Contacts({ data }) {
                   Contact
                 </p>
 
-                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                <p className="font-semibold tracking-wide leading-6 text-xl text-[#002c3e]">
                   {c?.name || "No Contact Added"}
                 </p>
 
