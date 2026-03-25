@@ -503,7 +503,7 @@ return(
 {title}
 </p>
 
-<p className={`text-5xl font-semibold mt-2 tracking-wide ${red?"text-[#ee6a59]":"text-[#002c3e]"}`}>
+<p className={`text-[48px] font-semibold  tracking-wide ${red?"text-[#ee6a59]":"text-[#002c3e]"}`}>
 {value}
 </p>
 

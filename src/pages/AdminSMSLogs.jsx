@@ -220,7 +220,7 @@ return(
 
 
 {/* ================= FILTER BAR ================= */}
-<div className="bg-[#B5B9B2] rounded-4xl px-10  py-5 flex items-center gap-5 flex-wrap">
+<div className="bg-[#B5B9B2] rounded-4xl px-8  py-5 flex items-center gap-5 flex-wrap">
 {/* MONTH */}
 
 <div className="relative">
