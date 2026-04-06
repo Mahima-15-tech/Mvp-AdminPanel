@@ -1,5 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
+import ScrollToTop from "../components/ScrollToTop";
+
 
 export default function AdminLayout({ children }) {
   return (
@@ -18,8 +20,9 @@ export default function AdminLayout({ children }) {
         <div className="flex-1 relative -mt-2">
 
 {/* 🔹 BACKGROUND + TOP BORDER */}
-<div
+<div 
   className="
+  
   absolute inset-0 
   bg-[#d8dbd6]
   rounded-tl-[90px]
@@ -32,7 +35,9 @@ export default function AdminLayout({ children }) {
 />
 
 {/* 🔹 SCROLL CONTENT */}
-<div
+<ScrollToTop />
+
+<div id="main-scroll"
   className="
   absolute
   inset-0
