@@ -16,6 +16,9 @@ function InlineDatePicker({ value, onChange, label }) {
   const [showMonth, setShowMonth] = useState(false);
   const [showYear, setShowYear] = useState(false);
 
+  const [appleCommission, setAppleCommission] = useState(15);
+const [googleCommission, setGoogleCommission] = useState(20);
+
 
   const ref = useRef();
 
@@ -234,6 +237,9 @@ const [highlightTable, setHighlightTable] = useState(false);
 const [highlightSummary, setHighlightSummary] = useState(false);
 
 const [commission, setCommission] = useState(15);
+
+const [appleCommission, setAppleCommission] = useState(15);
+const [googleCommission, setGoogleCommission] = useState(20);
 
 
 const titleMonth = () => {
@@ -541,13 +547,13 @@ Apply
 <Card 
   label="Gross Revenue" 
   value={`$${grossTotal.toFixed(2)}`} 
-  onClick={scrollToSummary}
+
 />
 
 <Card 
   label="Net Revenue" 
   value={`$${netTotal.toFixed(2)}`} 
-  onClick={scrollToSummary}
+  
 />
 
 </div>
@@ -565,40 +571,47 @@ Apply
   }`}
 >
 
-  <table className="w-full text-[16px] tracking-wide">
+<table className="w-full text-[16px] tracking-wide table-fixed">
 
     {/* HEADER (unchanged) */}
     <thead className="bg-[#78bcc4] text-white">
-      <tr>
-        <th className="px-6 py-5 text-left">Date</th>
-        <th className="px-6 py-5 text-left">User ID</th>
-        <th className="px-6 py-5 text-left">User Name</th>
-        <th className="px-6 py-5 text-left">Plan</th>
-        <th className="px-6 py-5 text-left">Gross</th>
-        <th className="px-6 py-5 text-left">Net*</th>
-      </tr>
-    </thead>
+  <tr>
+    <th className="w-[16%] px-6 py-5 text-left">Date</th>
+    <th className="w-[16%] px-6 py-5 text-left">User ID</th>
+    <th className="w-[18%] px-6 py-5 text-left">User Name</th>
+    <th className="w-[14%] px-6 py-5 text-left">Plan</th>
+    <th className="w-[18%] px-6 py-5 text-left">Gross</th>
+    <th className="w-[18%] px-6 py-5 text-left">Net</th>
+  </tr>
+</thead>
 
     <tbody className="text-[#5a6c7d]">
 
       {/* ✅ EMPTY STATE (ONLY CHANGE) */}
       {data.length === 0 ? (
 
-        <tr>
-          <td colSpan="6" className="py-20 text-center">
+<tr className="h-[140px]">
+  <td className="px-6"></td>
+  <td className="px-6"></td>
 
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-lg font-semibold text-[#5a6c7d]">
-                No revenue data found
-              </p>
+  {/* ✅ PERFECT CENTER */}
+  <td colSpan="2" className="px-6">
+    <div className="flex flex-col items-center justify-center h-full text-center">
+      
+      <p className="text-lg leading-6 font-semibold text-[#5a6c7d]">
+        No revenue data found
+      </p>
 
-              <p className="text-sm text-[#a0a0a0]">
-                Try adjusting filters or date range
-              </p>
-            </div>
+      <p className="text-sm text-[#a0a0a0]">
+        Try adjusting filters or date range
+      </p>
 
-          </td>
-        </tr>
+    </div>
+  </td>
+
+  <td className="px-6"></td>
+  <td className="px-6"></td>
+</tr>
 
       ) : (
 
@@ -676,53 +689,145 @@ Next
 
 <div 
   id="revenue-summary"
-  className={`flex items-center gap-6 transition-all duration-500 ${
-    highlightSummary ? "ring-4 ring-[#78bcc4] rounded-2xl p-3" : ""
-  }`}
+  className="flex items-center gap-2 -ml-8 whitespace-nowrap"
 >
-<h2 className="text-3xl font-semibold text-[#002c3e]">
 
-{titleMonth} Revenue
+  {/* REVENUE */}
+  <div className="flex flex-col min-w-max">
+    <p className="text-2xl font-semibold text-[#002c3e] flex items-center gap-2">
+      Revenue
+      <span className="text-lg text-[#5a6c7d]">
+        {titleMonth()}
+      </span>
+    </p>
 
-<p className="text-sm text-[#5a6c7d] font-normal">
-<sup className="raletive -top-1">*</sup>Net after 15% app store commission
-</p>
-
-</h2>
-
+    <p className="text-sm text-[#5a6c7d]">
+      Net after app store commission
+    </p>
+  </div>
 
 
-<span className="bg-[#f5f5f5] px-6 py-2 rounded-full text-[#5a6c7d] text-lg   font-semibold">
-
-Gross <span className="text-[#002c3e] text-3xl ml-1 ">${grossTotal.toFixed(2)}</span> 
-
-</span>
-
-<span className="bg-[#f5f5f5] px-6 py-2 rounded-full text-[#5a6c7d] font-semibold">
-
-Net<sup className="raletive -top-1">*</sup><span className="text-[#002c3e] text-3xl ml-1 "> ${netTotal.toFixed(2)}</span>
-
-</span>
-
-<div className="flex items-center gap-3 bg-[#f5f5f5] px-5 py-2 rounded-full ml-auto">
-
-    <span className="text-[#5a6c7d] text-sm font-semibold">
-      Commission %
+  {/* GROSS */}
+  <div className="bg-[#f5f5f5] px-3 py-2 rounded-full flex items-center gap-2 min-w-max">
+    <span className="text-[#5a6c7d] text-lg font-semibold">Gross</span>
+    <span className="text-[#002c3e] text-3xl font-semibold">
+      ${grossTotal.toFixed(2)}
     </span>
+  </div>
 
-    <input
-      type="number"
-      value={commission}
-      onChange={(e) => setCommission(e.target.value)}
-      className="w-16 bg-transparent outline-none text-[#002c3e] font-semibold"
-    />
 
+  {/* NET */}
+  <div className="bg-[#f5f5f5] px-3 py-2 rounded-full flex items-center gap-2 min-w-max">
+    <span className="text-[#5a6c7d] text-lg font-semibold">Net</span>
+    <span className="text-[#002c3e] text-3xl font-semibold">
+      ${netTotal.toFixed(2)}
+    </span>
+  </div>
+
+
+  {/* COMMISSION TITLE */}
+  <div className="flex flex-col min-w-max">
+    <p className="text-2xl ml-4 font-semibold text-[#002c3e]">
+      Commission
+    </p>
+    <p className="text-sm ml-4 text-[#5a6c7d]">
+      Edit app store rates
+    </p>
+  </div>
+
+
+  {/* COMMISSION BOX */}
+  <div className="bg-[#f5f5f5] rounded-4xl px-4 py-4 flex items-center gap-8 min-w-max">
+
+    {/* LEFT */}
+    <div className="flex flex-col gap-3">
+
+      {/* APPLE */}
+      <div className="flex items-center ">
+
+        <p className="text-[#5a6c7d] font-semibold w-[160px]">
+          Apple App Store
+        </p>
+
+        <div className="flex items-center gap-2">
+
+          <span className="text-[#002c3e] font-semibold text-lg">
+            {appleCommission}%
+          </span>
+
+          {/* SIDE ARROWS */}
+          <div className="flex items-center gap-1">
+
+            <button
+              onClick={() => setAppleCommission(p => p + 1)}
+              className="text-xs  px-1 bg-[#e0e0e0] text-black rounded"
+            >
+              ▲
+            </button>
+
+            <button
+              onClick={() => setAppleCommission(p => Math.max(0, p - 1))}
+              className="text-xs px-1 bg-[#e0e0e0] text-black rounded"
+            >
+              ▼
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+<hr />
+
+      {/* GOOGLE */}
+      <div className="flex items-center ">
+
+        <p className="text-[#5a6c7d] font-semibold w-[160px]">
+          Google Play Store
+        </p>
+
+        <div className="flex items-center gap-1">
+
+          <span className="text-[#002c3e] font-semibold text-lg">
+            {googleCommission}%
+          </span>
+
+          <div className="flex items-center gap-1">
+
+            <button
+              onClick={() => setGoogleCommission(p => p + 1)}
+              className="text-xs px-1 bg-[#e0e0e0] text-black rounded"
+            >
+              ▲
+            </button>
+
+            <button
+              onClick={() => setGoogleCommission(p => Math.max(0, p - 1))}
+              className="text-xs px-1 bg-[#e0e0e0] text-black rounded"
+            >
+              ▼
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    {/* SAVE */}
     <button
       onClick={async () => {
-        await api.post("/admin/set-commission", { commission });
+        await api.post("/admin/set-commission", {
+          apple: appleCommission,
+          google: googleCommission
+        });
         fetchRevenue();
       }}
-      className="bg-[#002c3e] text-white px-4 py-1 rounded-full text-sm"
+      className="bg-[#002c3e] text-white px-4 py-2 rounded-full font-semibold"
     >
       Save
     </button>
@@ -730,7 +835,6 @@ Net<sup className="raletive -top-1">*</sup><span className="text-[#002c3e] text-
   </div>
 
 </div>
-
 
 
 </div>

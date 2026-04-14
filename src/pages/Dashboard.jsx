@@ -197,7 +197,7 @@ const pieOptions = {
 
 {/* RIGHT */}
 <div className="pl-8  mt-2">
-  <p className="text-md font-semibold  leading-5">Monthly <br /> Plan Net<sup className="raletive -top-1">*</sup></p>
+  <p className="text-md font-semibold  leading-5">Monthly <br /> Plan Net</p>
   <p className="text-3xl font-medium mt-2">${data.revenue?.monthly?.net || 0}</p>
 </div>
 
@@ -219,7 +219,7 @@ const pieOptions = {
 </div>
 
 <div className="pl-8 mt-2">
-  <p className="text-md font-semibold leading-5">Yearly <br /> Plan Net<sup className="raletive -top-1">*</sup></p>
+  <p className="text-md font-semibold leading-5">Yearly <br /> Plan Net</p>
   <p className="text-3xl mt-2">
     ${data.revenue?.yearly?.net || 0}
   </p>
@@ -242,7 +242,7 @@ const pieOptions = {
 </div>
 
 <div className="pl-8 mt-2">
-  <p className="text-md font-semibold leading-5">Top-ups <br /> Net<sup className="raletive -top-1">*</sup></p>
+  <p className="text-md font-semibold leading-5">Top-ups <br /> Net</p>
   <p className="text-3xl mt-2">
     ${data.revenue?.topups?.net || 0}
   </p>
@@ -255,7 +255,7 @@ const pieOptions = {
           </div>
 
           <p className="text-xs text-[#5a6c7d] mt-4">
-            *Net after 15% app store commission
+            *Net after app store commission
           </p>
 
         </div>

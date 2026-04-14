@@ -77,7 +77,7 @@ return(
 className="
 bg-[#B5B9B2]
 rounded-4xl
-px-4
+px-3
 py-5
 flex
 items-center
@@ -97,7 +97,7 @@ onBlur={fetchData}
 className="
 bg-white
 rounded-full
-px-6
+px-4
 py-3
 w-[260px]
 outline-none
@@ -115,7 +115,7 @@ onClick={()=>setOpen(!open)}
 className="
 bg-[#002c3e]
 text-white
-px-6
+px-4
 py-2
 rounded-full
 flex
@@ -162,7 +162,7 @@ setOpen(false);
 
 }}
 className="
-px-5
+px-4
 py-2
 cursor-pointer
 hover:bg-[#6f736f]
@@ -191,7 +191,7 @@ hover:bg-[#6f736f]
 key={s}
 onClick={()=>setStatus(s)}
 className={`
-px-12
+px-8
 py-3
 rounded-full
 font-semibold
@@ -208,6 +208,31 @@ ${status===s
 </button>
 
 ))}
+
+<button
+  onClick={()=>{
+    setSearch("");
+    setConsent("ALL");
+    setStatus("ALL");
+    setPage(1);
+
+    // ✅ immediately refetch
+    setTimeout(() => {
+      fetchData();
+    }, 0);
+  }}
+  className="
+  bg-[#002c3e]
+  text-white
+  px-10
+  py-3
+  rounded-full
+  font-semibold
+  ml-auto
+  "
+>
+  Reset
+</button>
 
 </div>
 
@@ -240,7 +265,7 @@ Loading...
 
 ):(
 
-<table className="w-full text-[17px] ">
+<table className="w-full text-[16px] table-fixed">
 
 <thead className="bg-[#78bcc4] text-white tracking-wide">
 
@@ -252,15 +277,15 @@ Loading...
 
 <th className="px-6 py-5 text-left">Consent</th>
 
-<th className="px-6 py-5 text-left leading-5">Alerts Type</th>
+<th className="px-6 py-5 text-left leading-tight ">Alerts Type</th>
 
-<th className="px-4 py-5 text-left leading-5">Alert Sent At</th>
+<th className="px-4 py-5 text-left leading-tight">Alert Sent At</th>
 
 <th className="px-6 py-5 text-left">Status</th>
 
 <th className="px-6 py-5 text-left">Attempts</th>
 
-<th className="px-6 py-5 text-left">Failure Reason</th>
+<th className="px-6 py-5 text-left leading-tight">Failure Reason</th>
 
 </tr>
 
@@ -270,15 +295,33 @@ Loading...
 <tbody className="text-[#5a6c7d]">
 
 {data.length === 0 ? (
-  <tr>
-    <td colSpan="8">
-      <EmptyState
-        title="No SMS records found"
-        subtitle="Try adjusting filters or search"
-      />
+  <tr className="h-[140px]">
+    
+    <td className="px-6"></td>
+    <td className="px-6"></td>
+    <td className="px-6"></td>
+
+    {/* ✅ CENTER */}
+    <td colSpan="2" className="px-6">
+      <div className="flex flex-col items-center justify-center h-full text-center gap-2">
+        
+        <p className="text-lg leading-4 font-semibold text-[#5a6c7d]">
+          No SMS records found
+        </p>
+
+        <p className="text-sm text-[#a0a0a0]">
+          Try adjusting filters or search
+        </p>
+
+      </div>
     </td>
+
+    <td className="px-6"></td>
+    <td className="px-6"></td>
+    <td className="px-6"></td>
+
   </tr>
-) :  data.map((row,i)=>(
+) :   data.map((row,i)=>(
 
 <tr
 key={i}

@@ -81,11 +81,11 @@ return(
 className="
 bg-[#B5B9B2]
 rounded-4xl
-px-6
+px-3
 py-5
 flex
 items-center
-gap-4
+gap-2
 
 "
 >
@@ -100,7 +100,7 @@ onChange={(e)=>setSearch(e.target.value)}
 className="
 bg-white
 rounded-full
-px-6
+px-4
 py-3
 w-[260px]
 outline-none
@@ -122,7 +122,7 @@ text-[#5a6c7d]
 key={s.value}
 onClick={()=>setFilter(s.value)}
 className={`
-px-14
+px-12
 py-3
 rounded-full
 font-semibold
@@ -139,6 +139,25 @@ ${filter===s.value
 </button>
 
 ))}
+
+<button
+  onClick={()=>{
+    setFilter("ALL");
+    setSearch("");
+    setPage(1);
+  }}
+  className="
+  bg-[#002c3e]
+  text-white
+  px-10
+  py-3
+  rounded-full
+  font-semibold
+  ml-auto
+  "
+>
+  Reset
+</button>
 
 </div>
 
@@ -167,43 +186,48 @@ ${filter===s.value
 {/* ================= TABLE ================= */}
 <div className="bg-white rounded-4xl overflow-hidden border border-[#e6e6e6]">
 
-  <table className="w-full text-[16px]">
+  <table className="w-full text-[16px] table-fixed">
 
     {/* ✅ HEADER ALWAYS VISIBLE */}
-    <thead className="bg-[#78bcc4] text-white">
-      <tr>
-        <th className="px-6 py-5 text-left first:rounded-tl-4xl">User ID</th>
-        <th className="px-3 py-5 text-left">User Name</th>
-        <th className="px-6 py-5 text-left">Email</th>
-        <th className="px-6 py-5 text-left">Subject</th>
-        <th className="px-6 py-5 text-left">Status</th>
-        <th className="px-6 py-5 text-left">Date</th>
-        <th className="px-6 py-5 text-left last:rounded-tr-4xl">View</th>
-      </tr>
-    </thead>
+<thead className="bg-[#78bcc4] text-white">
+  <tr>
+    <th className="w-[14%] px-6 py-5 text-left">User ID</th>
+    <th className="w-[14%] px-6 py-5 text-left">User Name</th>
+    <th className="w-[18%] px-6 py-5 text-left">Email</th>
+    <th className="w-[20%] px-6 py-5 text-left">Subject</th>
+    <th className="w-[12%] px-6 py-5 text-left">Status</th>
+    <th className="w-[12%] px-6 py-5 text-left">Date</th>
+    <th className="w-[10%] px-6 py-5 text-left">View</th>
+  </tr>
+</thead>
 
     <tbody className="text-[#5a6c7d]">
 
       {/* ✅ EMPTY STATE INSIDE TABLE */}
       {filtered.length === 0 ? (
 
-        <tr>
-          <td colSpan="7" className="py-20 text-center">
+<tr className="h-[140px]">
+  <td className="px-6"></td>
+  <td className="px-6"></td>
 
-            <div className="flex flex-col items-center gap-2">
+  {/* ✅ CENTER */}
+  <td colSpan="2" className="px-6">
+    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
+      
+      <p className="text-lg font-semibold text-[#5a6c7d]">
+        {getEmptyMessage()}
+      </p>
 
-              <p className="text-lg font-semibold text-[#5a6c7d]">
-                {getEmptyMessage()}
-              </p>
+      <p className="text-sm leading-1 text-[#a0a0a0]">
+        Try adjusting filters or search
+      </p>
 
-              <p className="text-sm text-[#a0a0a0]">
-                Try adjusting filters or search
-              </p>
+    </div>
+  </td>
 
-            </div>
-
-          </td>
-        </tr>
+  <td className="px-6"></td>
+  <td className="px-6"></td>
+</tr>
 
       ) : (
 

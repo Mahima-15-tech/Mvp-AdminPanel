@@ -370,7 +370,7 @@ Apply
 
 <div 
   id="users-table"
-  className={`bg-white rounded-4xl w-[1090px] -ml-5 overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
+  className={`bg-white rounded-4xl w-[1090px]  overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
     highlight ? "ring-4 ring-[#78bcc4]" : ""
   }`}
 >
@@ -380,14 +380,14 @@ Apply
     <thead className="bg-[#78bcc4] text-white">
       <tr>
         <th className="px-6 py-6 text-left">User ID</th>
-        <th className="px-6 py-4 text-left">User Name</th>
+        <th className="px-6 py-4 text-left leading-4">User Name</th>
         <th className="px-6 py-4 text-left">Joined</th>
         <th className="px-6 py-4 text-left">Plans</th>
         <th className="px-6 py-4 text-left">Renewal</th>
-        <th className="px-6 py-4 text-left">Alert Credits</th>
-        <th className="px-6 py-4 text-left">Check-ins</th>
-        <th className="px-6 py-4 text-left">Alerts Sent</th>
-        <th className="px-6 py-4 text-left">Alerts Type</th>
+        <th className="px-6 py-4 text-left leading-4">Alert Credits</th>
+        <th className="px-6 py-4 text-left leading-4">Check-Ins</th>
+        <th className="px-6 py-4 text-left leading-4">Alerts Sent</th>
+        <th className="px-6 py-4 text-left leading-4">Alerts Type</th>
         <th className="px-6 py-4 text-left">Status</th>
       </tr>
     </thead>

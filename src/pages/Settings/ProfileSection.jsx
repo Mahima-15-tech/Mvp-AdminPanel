@@ -8,6 +8,7 @@ const [profile,setProfile] = useState(null);
 const [form,setForm] = useState({});
 const [edit,setEdit] = useState(false);
 
+
 const fileRef = useRef();
 
 useEffect(()=>{
@@ -135,7 +136,7 @@ className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 <div className="relative">
 
   {/* IMAGE */}
-  <div className="w-36 h-36 rounded-full border-[5px] border-[#78bcc4] overflow-hidden shadow-md">
+  <div className="w-40 h-40 rounded-full border-[5px] border-[#78bcc4] overflow-hidden shadow-md">
     <img
       src={form.profileImage || "https://i.pravatar.cc/200"}
       className="w-full h-full object-cover"

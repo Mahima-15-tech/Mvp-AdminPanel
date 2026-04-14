@@ -343,7 +343,13 @@ function Subscription({ data , showHistory, setShowHistory}) {
   if (!s) {
     return (
       <div className="px-10 py-8">
-        <p className="text-[#5a6c7d]">No active subscription</p>
+        <div className="px-1 ">
+
+<p className="text-lg font-semibold text-[#5a6c7d]">
+  No history found
+</p>
+
+</div>
       </div>
     );
   }
@@ -453,7 +459,17 @@ value={getExpiryDate(s.nextRenewalDate)}
           ))}
         </div>
       ) : (
-        <p className="text-[#5a6c7d]">No history found</p>
+        <div className="text-center py-10">
+
+        <p className="text-lg font-semibold text-[#5a6c7d]">
+          No history found
+        </p>
+      
+        <p className="text-sm text-[#a0a0a0] mt-1">
+          Add a subscription to see history
+        </p>
+      
+      </div>
       )}
 
     </div>
@@ -734,138 +750,109 @@ function formatAlertType(type){
     }
 
 
-function RecentAlerts({ data }) {
+    function RecentAlerts({ data }) {
 
-  const alerts = data?.recentAlerts?.length
-    ? data.recentAlerts
-    : [
-        {
-          type: "Missed Check-in",
-          status: "SMS Pending Retry",
-          creditsUsed: 1,
-          retryCount: 2,
-          createdAt: "2026-03-03T10:00:00",
-        },
-      ];
-
-  const a = alerts[0];
-
-  return (
-
-    <div>
-
-      <SectionTitle>Recent Alerts</SectionTitle>
-
-      <div className="border border-[#CFD5DB]  overflow-hidden">
-
-        {/* ROW 1 */}
-
-        <div className="grid grid-cols-3 px-10 py-6 border-b border-[#CFD5DB]">
-
-          {/* ALERT TYPE */}
-
-          <div>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-              Alert Type
+      const alerts = data?.recentAlerts || [];
+    
+      // ❌ NO DATA → SIMPLE TEXT (like subscription)
+      if (alerts.length === 0) {
+        return (
+          <div className="px-10 py-8">
+    
+            <p className="text-lg font-semibold text-[#5a6c7d]">
+              No recent alerts found
             </p>
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#ee6a59]">
-            {formatAlertType(a.type)}
-            </p>
-
+    
+            {/* <p className="text-sm text-[#a0a0a0] mt-1">
+              Alerts will appear here once triggered
+            </p> */}
+    
           </div>
-
-
-          {/* STATUS */}
-
-          <div>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-              Status
-            </p>
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
-            {formatAlertStatus(a.status)}
-            </p>
-
+        );
+      }
+    
+      // ✅ DATA AVAILABLE → SHOW FULL UI
+      const a = alerts[0];
+    
+      return (
+    
+        <div>
+    
+          <SectionTitle>Recent Alerts</SectionTitle>
+    
+          <div className="border border-[#CFD5DB] overflow-hidden">
+    
+            {/* ROW 1 */}
+            <div className="grid grid-cols-3 px-10 py-6 border-b border-[#CFD5DB]">
+    
+              <div>
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  Alert Type
+                </p>
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#ee6a59]">
+                  {formatAlertType(a.type)}
+                </p>
+              </div>
+    
+              <div>
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  Status
+                </p>
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {formatAlertStatus(a.status)}
+                </p>
+              </div>
+    
+              <div>
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  Alert Credits Used
+                </p>
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {a.creditsUsed}
+                </p>
+              </div>
+    
+            </div>
+    
+            {/* ROW 2 */}
+            <div className="grid grid-cols-3 px-10 py-6">
+    
+              <div>
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  Date | Time
+                </p>
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {formatDateTime(a.createdAt)}
+                </p>
+              </div>
+    
+              <div>
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  Attempts
+                </p>
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {a.retryCount ?? 0} | 5
+                </p>
+              </div>
+    
+              <div>
+                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                  Alert Credits Balance
+                </p>
+                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                  {data?.currentBalance ?? 0}
+                </p>
+              </div>
+    
+            </div>
+    
           </div>
-
-
-          {/* CREDITS USED */}
-
-          <div>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-              Alert Credits Used
-            </p>
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
-              {a.creditsUsed}
-            </p>
-
-          </div>
-
+    
         </div>
-
-
-        {/* ROW 2 */}
-
-        <div className="grid grid-cols-3 px-10 py-6">
-
-          {/* DATE */}
-
-          <div>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-              Date | Time
-            </p>
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
-{formatDateTime(a.createdAt)}
-</p>
-
-          </div>
-
-
-          {/* ATTEMPTS */}
-
-          <div>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-              Attempts
-            </p>
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
-            {a.retryCount ?? 0} | 5
-            </p>
-
-          </div>
-
-
-          {/* BALANCE */}
-
-          <div>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-              Alert Credits Balance
-            </p>
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
-              {data?.currentBalance ?? 2}
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  );
-
-}
+    
+      );
+    
+    }
 
 /* =====================================================
    CHECKIN
@@ -955,7 +942,7 @@ function Checkin({ data }) {
   if (!c) {
     return (
       <div className="px-10 py-8">
-        <p className="text-[#5a6c7d]">No check-in schedule set.</p>
+        <p className="text-lg font-semibold text-[#5a6c7d]">No check-in schedule set</p>
       </div>
     );
   }
@@ -1360,6 +1347,7 @@ function Credits({ data, refresh }) {
 ===================================================== */
 
 function AdminNotes({ data, refresh }) {
+  const [showHistory, setShowHistory] = useState(false);
 
   const [note, setNote] = useState("");
 
@@ -1394,53 +1382,86 @@ function AdminNotes({ data, refresh }) {
           className="w-full h-32 border border-[#BDC7CE] rounded-[28px] text-[#002c3e] px-6 py-4 outline-none resize-none text-lg"
         />
 
-        <button
-          onClick={addNote}
-          className="mt-6 bg-[#002c3e] text-white px-8 py-3 rounded-full font-semibold"
-        >
-          Add Note
-        </button>
+<div className="mt-6 flex items-center gap-4">
+
+<button
+  onClick={addNote}
+  className="bg-[#002c3e] text-white px-8 py-3 rounded-full font-semibold"
+>
+  Add Note
+</button>
+
+<button
+  onClick={() => setShowHistory(!showHistory)}
+  className={`px-8 py-3 rounded-full font-semibold border
+${showHistory 
+  ? "bg-[#002c3e] text-white" 
+  : "bg-[#f5f5f5] text-[#002c3e]"
+}`}
+>
+  View History
+</button>
+
+</div>
 
       </div>
 
 
-      {/* HISTORY TITLE */}
+      {showHistory && (
 
-      <div className="border-t border-[#C7D0D6] px-10 py-5">
+<>
+  {/* TITLE */}
+  <div className="border-t border-[#C7D0D6] px-10 py-5">
+    <p className="text-xl font-semibold text-[#002c3e]">
+      History
+    </p>
+  </div>
 
-        <p className="text-xl font-semibold text-[#002c3e]">
-          View History
+  {/* LIST / EMPTY */}
+  <div>
+
+    {data.adminNotes?.length === 0 ? (
+
+      <div className="px-10 py-10 text-center">
+
+        <p className="text-lg font-semibold text-[#5a6c7d]">
+          No history found
+        </p>
+
+        <p className="text-sm text-[#a0a0a0] mt-1">
+          Add a note to see history
         </p>
 
       </div>
 
+    ) : (
 
-      {/* HISTORY LIST */}
+      data.adminNotes.map((n) => (
 
-      <div>
+        <div
+          key={n._id}
+          className="px-10 py-6 border-t border-[#C7D0D6]"
+        >
 
-        {data.adminNotes?.map((n) => (
+          <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+            {n.note}
+          </p>
 
-          <div
-            key={n._id}
-            className="px-10 py-6 border-t border-[#C7D0D6]"
-          >
-
-            <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
-              {n.note}
-            </p>
-
-            <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
-
+          <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
             {formatDateTime(n.createdAt)}
+          </p>
 
-            </p>
+        </div>
 
-          </div>
+      ))
 
-        ))}
+    )}
 
-      </div>
+  </div>
+
+</>
+
+)}
 
     </div>
 
