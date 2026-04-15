@@ -254,8 +254,8 @@ const pieOptions = {
 
           </div>
 
-          <p className="text-xs text-[#5a6c7d] mt-4">
-            *Net after app store commission
+          <p className="text-xs text-[#5a6c7d] mt-4 ml-2">
+            Net after app store commission
           </p>
 
         </div>

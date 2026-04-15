@@ -224,7 +224,7 @@ const handleExport = async (type) => {
   
     if (parts.length === 1) return parts[0];
   
-    return parts[0] + "..."; // space hata diya clean look ke liye
+    return parts[0] + "..."; 
   };
 
 return(
@@ -244,14 +244,14 @@ className="bg-white rounded-full px-6 py-3 w-[340px] outline-none text-[#002c3e]
 />
 
 <button
-onClick={fetchUsers}
-className="bg-white w-12 h-10  rounded-full flex items-center justify-center"
+  onClick={fetchUsers}
+  className="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink-0"
 >
-<img 
-  src="/refreshicon.svg" 
-  alt="refresh" 
-  className="w-10 h-10"
-/>
+  <img 
+    src="/refreshicon.svg" 
+    alt="refresh" 
+    className="w-10 h-10"
+  />
 </button>
 
 <CustomDatePicker
@@ -370,7 +370,7 @@ Apply
 
 <div 
   id="users-table"
-  className={`bg-white rounded-4xl w-[1090px]  overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
+  className={`bg-white rounded-4xl w-full max-w-[1100px] mx-auto overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
     highlight ? "ring-4 ring-[#78bcc4]" : ""
   }`}
 >

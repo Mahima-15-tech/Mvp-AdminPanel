@@ -215,7 +215,7 @@ export default function AdminRevenue() {
 
 const [data,setData] = useState([]);
 
-const [month,setMonth] = useState("ALL");
+const [month,setMonth] = useState("THIS_MONTH");
 const [openMonth,setOpenMonth] = useState(false);
 
 const [from,setFrom] = useState("");
@@ -244,18 +244,35 @@ const [googleCommission, setGoogleCommission] = useState(20);
 
 const titleMonth = () => {
 
-    if(month === "ALL") return "All Time";
-    if(month === "THIS_MONTH") return new Date().toLocaleDateString("en-GB",{month:"short",year:"numeric"});
-    if(month === "LAST_MONTH"){
-    const d = new Date();
-    d.setMonth(d.getMonth()-1);
-    return d.toLocaleDateString("en-GB",{month:"short",year:"numeric"});
-    }
-    if(month === "LAST_3") return "Last 3 Months";
-    if(month === "YTD") return "Year to Date";
-    
-    return "Revenue";
-    };
+  const now = new Date();
+
+  if (month === "CUSTOM" && from && to) {
+    return `${new Date(from).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    })} - ${new Date(to).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    })}`;
+  }
+
+  if (month === "THIS_MONTH") {
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+      .toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  }
+
+  if (month === "LAST_MONTH") {
+    return new Date(now.getFullYear(), now.getMonth() - 1, 1)
+      .toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  }
+
+  if (month === "LAST_3") return "Last 3 Months";
+  if (month === "YTD") return "Year to Date";
+
+  return "All Time";
+};
 
 const exportCSV = ()=>{
 
@@ -364,7 +381,7 @@ return(
 
 
 {/* ================= FILTER BAR ================= */}
-<div className="bg-[#B5B9B2] rounded-4xl px-8  py-5 flex items-center gap-3 flex-wrap">
+<div className="bg-[#B5B9B2] rounded-4xl px-6   py-5 flex items-center gap-3 flex-wrap">
 {/* MONTH */}
 
 <div className="relative">
@@ -497,9 +514,9 @@ setTo("");
 setMonth("ALL");
 fetchRevenue();
 }}
-className="bg-[#f5f5f5] rounded-full p-3"
+className="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink- "
 >
-<img src="/exchange.png" className="w-4 h-4"/>
+<img src="/refreshicon.svg" className="w-10 h-10"/>
 </button>
 
 
@@ -547,14 +564,12 @@ Apply
 <Card 
   label="Gross Revenue" 
   value={`$${grossTotal.toFixed(2)}`} 
-
 />
 
 <Card 
   label="Net Revenue" 
   value={`$${netTotal.toFixed(2)}`} 
-  
-/>
+  />
 
 </div>
 
@@ -687,150 +702,127 @@ Next
 
 {/* ================= REVENUE SUMMARY ================= */}
 
-<div 
-  id="revenue-summary"
-  className="flex items-center gap-2 -ml-8 whitespace-nowrap"
->
+<div id="revenue-summary" className="w-full flex flex-col gap-4">
 
-  {/* REVENUE */}
-  <div className="flex flex-col min-w-max">
-    <p className="text-2xl font-semibold text-[#002c3e] flex items-center gap-2">
-      Revenue
-      <span className="text-lg text-[#5a6c7d]">
-        {titleMonth()}
-      </span>
-    </p>
+  {/* ================= TOP ROW ================= */}
+  <div className="flex flex-wrap items-end gap-6">
 
-    <p className="text-sm text-[#5a6c7d]">
-      Net after app store commission
-    </p>
-  </div>
+    {/* LEFT SIDE */}
+    <div className="flex items-end gap-6 flex-wrap">
 
+      {/* TITLE */}
+      <div className="flex flex-col leading-tight">
+  
+  {/* Revenue */}
+  <p className="text-3xl font-semibold text-[#002c3e]">
+    Revenue
+  </p>
 
-  {/* GROSS */}
-  <div className="bg-[#f5f5f5] px-3 py-2 rounded-full flex items-center gap-2 min-w-max">
-    <span className="text-[#5a6c7d] text-lg font-semibold">Gross</span>
-    <span className="text-[#002c3e] text-3xl font-semibold">
-      ${grossTotal.toFixed(2)}
-    </span>
-  </div>
+  {/* Date (auto next line) */}
+  <p className="text-md text-[#5a6c7d] font-medium wrap-break-word max-w-[100px]">
+    {titleMonth()}
+  </p>
 
+</div>
 
-  {/* NET */}
-  <div className="bg-[#f5f5f5] px-3 py-2 rounded-full flex items-center gap-2 min-w-max">
-    <span className="text-[#5a6c7d] text-lg font-semibold">Net</span>
-    <span className="text-[#002c3e] text-3xl font-semibold">
-      ${netTotal.toFixed(2)}
-    </span>
-  </div>
-
-
-  {/* COMMISSION TITLE */}
-  <div className="flex flex-col min-w-max">
-    <p className="text-2xl ml-4 font-semibold text-[#002c3e]">
-      Commission
-    </p>
-    <p className="text-sm ml-4 text-[#5a6c7d]">
-      Edit app store rates
-    </p>
-  </div>
-
-
-  {/* COMMISSION BOX */}
-  <div className="bg-[#f5f5f5] rounded-4xl px-4 py-4 flex items-center gap-8 min-w-max">
-
-    {/* LEFT */}
-    <div className="flex flex-col gap-3">
-
-      {/* APPLE */}
-      <div className="flex items-center ">
-
-        <p className="text-[#5a6c7d] font-semibold w-[160px]">
-          Apple App Store
-        </p>
-
-        <div className="flex items-center gap-2">
-
-          <span className="text-[#002c3e] font-semibold text-lg">
-            {appleCommission}%
-          </span>
-
-          {/* SIDE ARROWS */}
-          <div className="flex items-center gap-1">
-
-            <button
-              onClick={() => setAppleCommission(p => p + 1)}
-              className="text-xs  px-1 bg-[#e0e0e0] text-black rounded"
-            >
-              ▲
-            </button>
-
-            <button
-              onClick={() => setAppleCommission(p => Math.max(0, p - 1))}
-              className="text-xs px-1 bg-[#e0e0e0] text-black rounded"
-            >
-              ▼
-            </button>
-
-          </div>
-
-        </div>
-
+      {/* GROSS */}
+      <div className="bg-[#f5f5f5] px-4 py-2 rounded-full flex items-center gap-2">
+        <span className="text-[#5a6c7d] font-semibold">Gross</span>
+        <span className="text-[#002c3e] text-2xl font-semibold">
+          ${grossTotal.toFixed(2)}
+        </span>
       </div>
 
-<hr />
+      {/* NET */}
+      <div className="bg-[#f5f5f5] px-4 py-2 rounded-full flex items-center gap-2">
+        <span className="text-[#5a6c7d] font-semibold">Net</span>
+        <span className="text-[#002c3e] text-2xl font-semibold">
+          ${netTotal.toFixed(2)}
+        </span>
+      </div>
 
-      {/* GOOGLE */}
-      <div className="flex items-center ">
+    </div>
 
-        <p className="text-[#5a6c7d] font-semibold w-[160px]">
-          Google Play Store
+    {/* RIGHT SIDE */}
+    <div className="flex items-end gap-4 ml-auto flex-wrap">
+
+      {/* COMMISSION TEXT */}
+      <div className="flex flex-col">
+        <p className="text-2xl font-semibold text-[#002c3e]">
+          Commission
         </p>
+        <p className="text-sm text-[#5a6c7d]">
+          Edit app store rates
+        </p>
+      </div>
 
-        <div className="flex items-center gap-1">
+      {/* BOX */}
+      <div className="bg-[#f5f5f5] rounded-4xl px-4 py-4 flex flex-col sm:flex-row gap-4">
 
-          <span className="text-[#002c3e] font-semibold text-lg">
-            {googleCommission}%
-          </span>
+        <div className="flex flex-col gap-3">
 
-          <div className="flex items-center gap-1">
+          {/* APPLE */}
+          <div className="flex items-center gap-2">
+            <p className="text-[#5a6c7d]  font-semibold min-w-[140px]">
+              Apple App Store
+            </p>
 
-            <button
-              onClick={() => setGoogleCommission(p => p + 1)}
-              className="text-xs px-1 bg-[#e0e0e0] text-black rounded"
-            >
-              ▲
-            </button>
+            <span className="text-[#002c3e] font-semibold">
+              {appleCommission}%
+            </span>
 
-            <button
-              onClick={() => setGoogleCommission(p => Math.max(0, p - 1))}
-              className="text-xs px-1 bg-[#e0e0e0] text-black rounded"
-            >
-              ▼
-            </button>
+            <div className="flex gap-1">
+              <button onClick={() => setAppleCommission(p => p + 1)} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▲</button>
+              <button onClick={() => setAppleCommission(p => Math.max(0, p - 1))} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▼</button>
+            </div>
+          </div>
 
+          <hr />
+
+          {/* GOOGLE */}
+          <div className="flex items-center gap-2">
+            <p className="text-[#5a6c7d] font-semibold min-w-[140px]">
+              Google Play Store
+            </p>
+
+            <span className="text-[#002c3e] font-semibold">
+              {googleCommission}%
+            </span>
+
+            <div className="flex gap-1">
+              <button onClick={() => setGoogleCommission(p => p + 1)} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▲</button>
+              <button onClick={() => setGoogleCommission(p => Math.max(0, p - 1))} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▼</button>
+            </div>
           </div>
 
         </div>
+
+        <button
+          onClick={async () => {
+            await api.post("/admin/set-commission", {
+              apple: appleCommission,
+              google: googleCommission
+            });
+            fetchRevenue();
+          }}
+          className="bg-[#002c3e] text-white px-4 py-2 h-12 mt-4 rounded-4xl  font-semibold"
+        >
+          Save
+        </button>
 
       </div>
 
     </div>
 
+  </div>
 
-    {/* SAVE */}
-    <button
-      onClick={async () => {
-        await api.post("/admin/set-commission", {
-          apple: appleCommission,
-          google: googleCommission
-        });
-        fetchRevenue();
-      }}
-      className="bg-[#002c3e] text-white px-4 py-2 rounded-full font-semibold"
-    >
-      Save
-    </button>
+  {/* ================= BOTTOM ROW ================= */}
+  <div className="flex justify-between items-end">
+
+    {/* LEFT → DISCLAIMER */}
+    <p className="text-sm text-[#5a6c7d]">
+      Net after app store commission
+    </p>
 
   </div>
 
@@ -850,9 +842,11 @@ function Card({ label, value, error, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="bg-[#f5f5f5] rounded-4xl px-8 py-6 
-      cursor-pointer transition-all duration-200 
-      hover:scale-[1.03] hover:shadow-md"
+      className={`
+      bg-[#f5f5f5] rounded-4xl px-8 py-6
+      ${onClick ? "cursor-pointer hover:scale-[1.03] hover:shadow-md" : ""}
+      transition-all duration-200
+      `}
     >
       <p className="text-[#5a6c7d] text-lg font-semibold">
         {label}

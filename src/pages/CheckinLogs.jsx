@@ -83,6 +83,9 @@ flex
 items-center
 gap-2
 
+flex-nowrap
+overflow-x-auto
+thin-scrollbar   /* ✅ ADD THIS */
 "
 >
 
@@ -99,7 +102,9 @@ bg-white
 rounded-full
 px-4
 py-3
-w-[260px]
+min-w-[200px]
+max-w-[260px]
+w-full
 outline-none
 text-[#002c3e]
 "
@@ -121,6 +126,7 @@ rounded-full
 flex
 items-center
 gap-2
+flex-shrink-0
 
 "
 >
@@ -196,6 +202,7 @@ py-3
 rounded-full
 font-semibold
 tracking-wide
+flex-shrink-0
 ${status===s
 ? "bg-[#002c3e] text-white"
 : "bg-white text-[#5a6c7d]"
@@ -222,14 +229,16 @@ ${status===s
     }, 0);
   }}
   className="
-  bg-[#002c3e]
-  text-white
-  px-10
-  py-3
-  rounded-full
-  font-semibold
-  ml-auto
-  "
+bg-[#002c3e]
+text-white
+px-8
+py-3
+rounded-full
+font-semibold
+
+
+flex-shrink-0   /* ✅ IMPORTANT */
+"
 >
   Reset
 </button>

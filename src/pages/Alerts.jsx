@@ -238,7 +238,7 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
 
   {/* ================= SUMMARY ================= */}
 
-  <div className="grid grid-cols-5 gap-6">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
 
   <Card 
   label="Users Triggered" 
@@ -305,17 +305,24 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
 
         {/* ✅ HEADER ALWAYS */}
         <thead className="bg-[#78bcc4] text-white">
-          <tr>
-            <th className="px-6 py-5 text-left">User ID</th>
-            <th className="px-6 py-5 text-left leading-tight">User Name</th>
-            <th className="px-6 py-5 text-left">Plan</th>
-            <th className="px-6 py-5 text-left leading-tight">Alerts Type</th>
-            <th className="px-6 py-5 text-left leading-tight">Alert Sent At</th>
-            <th className="px-6 py-5 text-left">Status</th>
-            <th className="px-6 py-5 text-left leading-tight">Alerts Sent</th>
-            <th className="px-6 py-5 text-left leading-tight">Alert Credits</th>
-          </tr>
-        </thead>
+  <tr>
+    <th className="px-6 py-5 text-left w-[14%]">User ID</th>
+    <th className="px-6 py-5 text-left w-[14%]">User Name</th>
+    <th className="px-6 py-5 text-left w-[10%]">Plan</th>
+    
+    <th className="px-4 py-5 text-left w-[14%]">
+      Alerts Type
+    </th>
+
+    <th className="px-4 py-5 text-left w-[18%] whitespace-nowrap">
+      Alert Sent At
+    </th>
+
+    <th className="px-6 py-5 text-left w-[10%]">Status</th>
+    <th className="px-6 py-5 text-left w-[10%] leading-tight">Alerts Sent</th>
+    <th className="px-6 py-5 text-left w-[10%] leading-tight">Alert Credits</th>
+  </tr>
+</thead>
 
         <tbody className="text-[#5a6c7d]">
 
@@ -329,14 +336,14 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
 
   {/* ✅ PERFECT CENTER */}
   <td colSpan="2" className="px-6">
-    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
+    <div className="flex flex-col  h-full  gap-2">
       
-      <p className="text-lg leading-4 font-semibold text-[#5a6c7d]">
+      <p className="text-lg leading-4  font-semibold text-[#5a6c7d]">
         No alert records found
       </p>
 
       <p className="text-sm text-[#a0a0a0]">
-        Adjust your filters or search.
+        Adjust your filters or search
       </p>
 
     </div>
@@ -381,14 +388,12 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
                     {a.planType?.charAt(0) + a.planType?.slice(1).toLowerCase()}
                   </td>
 
-                  <td className="px-6 py-4 font-semibold text-[#ee6a59]">
-                    {a.alertType === "MISSED_CHECKIN" ? "Missed" : a.alertType}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {formattedDate}
-                  </td>
-
+                  <td className="px-4 py-4 font-semibold text-[#ee6a59]">
+  {a.alertType === "MISSED_CHECKIN" ? "Missed" : a.alertType}
+</td>
+                  <td className="px-4 py-4">
+  {formattedDate}
+</td>
                   <td className={`px-6 py-4 font-semibold ${
                     a.status==="SMS_SENT"
                       ? "text-[#78bcc4]"
@@ -456,20 +461,47 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   /* ================= CARD ================= */
 
   function Card({ label, value, error, onClick }) {
-      return (
-        <div
-          onClick={onClick}
-          className="bg-[#f5f5f5] rounded-4xl px-8 py-6 
-          cursor-pointer transition-all duration-200 
-          hover:scale-[1.03] hover:shadow-md"
+    return (
+      <div
+        onClick={onClick}
+        className="
+          bg-[#f5f5f5] 
+          rounded-4xl 
+          px-4   py-7
+  
+          h-37                /* ✅ FIXED HEIGHT */
+          flex flex-col justify-between   /* ✅ ALIGNMENT FIX */
+  
+          cursor-pointer 
+          transition-all duration-200 
+          hover:scale-[1.03] hover:shadow-md
+        "
+      >
+        {/* LABEL */}
+        <p className="
+          text-[#5a6c7d] 
+          text-[16px]              /* ✅ SAME AS USER PAGE */
+          font-semibold
+          leading-[18px]
+  
+          h-[36px]                 /* ✅ FIXED HEIGHT (2 lines max) */
+          line-clamp-2            /* ✅ prevent overflow */
+        ">
+          {label}
+        </p>
+  
+        {/* VALUE */}
+        <p
+          className={`
+            text-[48px]            /* ✅ SAME SIZE EVERYWHERE */
+            font-semibold
+            leading-none          /* ✅ PERFECT ALIGNMENT */
+  
+            ${error ? "text-[#ee6a59]" : "text-[#002c3e]"}
+          `}
         >
-          <p className="text-[#5a6c7d] text-lg font-semibold leading-tight">{label}</p>
-    
-          <p className={`text-[48px] font-semibold mt-2 ${
-            error ? "text-[#ee6a59]" : "text-[#002c3e]"
-          }`}>
-            {value}
-          </p>
-        </div>
-      );
-    }
+          {value}
+        </p>
+      </div>
+    );
+  }
