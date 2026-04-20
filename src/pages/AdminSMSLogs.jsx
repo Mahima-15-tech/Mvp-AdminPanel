@@ -241,6 +241,12 @@ const [commission, setCommission] = useState(15);
 const [appleCommission, setAppleCommission] = useState(15);
 const [googleCommission, setGoogleCommission] = useState(20);
 
+const [showFullGross, setShowFullGross] = useState(false);
+const [showFullNet, setShowFullNet] = useState(false);
+
+const grossValue = 888899000.00;
+const netValue = 6808.80;
+
 
 const titleMonth = () => {
 
@@ -364,6 +370,38 @@ const scrollToSummary = () => {
 };
 
 
+
+const AutoFitText = ({ text }) => {
+  const ref = useRef(null);
+  const [fontSize, setFontSize] = useState(20);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let size = 20; // starting size
+
+    // reduce font until it fits
+    while (el.scrollWidth > el.offsetWidth && size > 10) {
+      size -= 1;
+      el.style.fontSize = size + "px";
+    }
+
+    setFontSize(size);
+  }, [text]);
+
+  return (
+    <span
+      ref={ref}
+      className="font-semibold whitespace-nowrap text-right block"
+      style={{ fontSize }}
+    >
+      {text}
+    </span>
+  );
+};
+
+
 /* ================= MONTH OPTIONS ================= */
 
 const months = [
@@ -374,6 +412,16 @@ const months = [
     {label:"Year to Date",value:"YTD"}
     ];
 
+    const formatCompact = (num) =>
+  new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 2,
+  }).format(num);
+
+
+  
+
+  
 
 return(
 
@@ -702,101 +750,121 @@ Next
 
 {/* ================= REVENUE SUMMARY ================= */}
 
-<div id="revenue-summary" className="w-full flex flex-col gap-4">
+<div className="w-full  rounded-xl px-6 py-5 flex flex-col gap-4">
 
-  {/* ================= TOP ROW ================= */}
-  <div className="flex flex-wrap items-end gap-6">
+  {/* ================= TOP ================= */}
+  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
 
-    {/* LEFT SIDE */}
-    <div className="flex items-end gap-6 flex-wrap">
+    {/* ================= LEFT ================= */}
+    <div className="flex flex-col gap-3">
 
-      {/* TITLE */}
-      <div className="flex flex-col leading-tight">
+      {/* TITLE + DATE */}
+      <div className="flex items-center gap-3">
+        <p className="text-2xl  font-semibold text-[#002c3e]">
+          Revenue
+        </p>
+
+        <p className="text-sm text-[#5a6c7d] mt-1.5 font-medium whitespace-nowrap">
+          {titleMonth()}
+        </p>
+      </div>
+
+      {/* GROSS + NET */}
+      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-3">
+      <div className="flex gap-3">
+
+{/* GROSS */}
+<div className="flex gap-3 flex-nowrap">
+
+  {/* GROSS */}
+  <div className="flex gap-3">
+
+{/* GROSS */}
+<div className="bg-white px-3 py-2 rounded-full flex items-center justify-between">
   
-  {/* Revenue */}
-  <p className="text-3xl font-semibold text-[#002c3e]">
-    Revenue
-  </p>
+  <span className="text-[#5a6c7d] font-semibold whitespace-nowrap">
+    Gross
+  </span>
 
-  {/* Date (auto next line) */}
-  <p className="text-md text-[#5a6c7d] font-medium wrap-break-word max-w-[100px]">
-    {titleMonth()}
-  </p>
+  <span className="text-[#002c3e] ml-2 font-semibold whitespace-nowrap">
+  ${grossTotal?.toFixed(2) || "0.00"}
+  </span>
 
 </div>
 
-      {/* GROSS */}
-      <div className="bg-[#f5f5f5] px-4 py-2 rounded-full flex items-center gap-2">
-        <span className="text-[#5a6c7d] font-semibold">Gross</span>
-        <span className="text-[#002c3e] text-2xl font-semibold">
-          ${grossTotal.toFixed(2)}
-        </span>
-      </div>
+{/* NET */}
+<div className="bg-white px-4 py-2 rounded-full flex items-center justify-between">
+  
+  <span className="text-[#5a6c7d] font-semibold whitespace-nowrap">
+    Net
+  </span>
 
-      {/* NET */}
-      <div className="bg-[#f5f5f5] px-4 py-2 rounded-full flex items-center gap-2">
-        <span className="text-[#5a6c7d] font-semibold">Net</span>
-        <span className="text-[#002c3e] text-2xl font-semibold">
-          ${netTotal.toFixed(2)}
-        </span>
-      </div>
+  <span className="text-[#002c3e] ml-2 font-semibold whitespace-nowrap">
+  ${netTotal?.toFixed(2) || "0.00"} 
+  </span>
 
+</div>
+
+
+</div>
+</div>
+
+</div>
+</div>
+      </div>
     </div>
 
-    {/* RIGHT SIDE */}
-    <div className="flex items-end gap-4 ml-auto flex-wrap">
+    {/* ================= RIGHT ================= */}
+    <div className="flex flex-col gap-3 w-full lg:w-auto">
 
-      {/* COMMISSION TEXT */}
-      <div className="flex flex-col">
-        <p className="text-2xl font-semibold text-[#002c3e]">
+      {/* COMMISSION TITLE + LINE */}
+      <div className="flex items-center gap-4">
+        <p className="text-2xl font-semibold -mt-1 text-[#002c3e]">
           Commission
         </p>
-        <p className="text-sm text-[#5a6c7d]">
+
+        <p className="text-sm mt-0.5 text-[#5a6c7d] whitespace-nowrap">
           Edit app store rates
         </p>
       </div>
 
-      {/* BOX */}
-      <div className="bg-[#f5f5f5] rounded-4xl px-4 py-4 flex flex-col sm:flex-row gap-4">
+      {/* PILLS + SAVE */}
+      <div className="flex items-center gap-3 flex-wrap lg:flex-nowrap">
 
-        <div className="flex flex-col gap-3">
+        {/* APPLE */}
+        <div className="bg-white px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap">
+          <span className="text-[#5a6c7d] font-semibold">
+            Apple App Store
+          </span>
 
-          {/* APPLE */}
-          <div className="flex items-center gap-2">
-            <p className="text-[#5a6c7d]  font-semibold min-w-[140px]">
-              Apple App Store
-            </p>
+          <span className="text-[#002c3e] font-semibold">
+            {appleCommission}%
+          </span>
 
-            <span className="text-[#002c3e] font-semibold">
-              {appleCommission}%
-            </span>
-
-            <div className="flex gap-1">
-              <button onClick={() => setAppleCommission(p => p + 1)} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▲</button>
-              <button onClick={() => setAppleCommission(p => Math.max(0, p - 1))} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▼</button>
-            </div>
+          <div className="flex gap-1 text-xs text-black">
+            <button className="hover:bg-[#e3e9ef]" onClick={() => setAppleCommission(p => p + 1)}>▲</button>
+            <button  className="hover:bg-[#e3e9ef]" onClick={() => setAppleCommission(p => Math.max(0, p - 1))}>▼</button>
           </div>
-
-          <hr />
-
-          {/* GOOGLE */}
-          <div className="flex items-center gap-2">
-            <p className="text-[#5a6c7d] font-semibold min-w-[140px]">
-              Google Play Store
-            </p>
-
-            <span className="text-[#002c3e] font-semibold">
-              {googleCommission}%
-            </span>
-
-            <div className="flex gap-1">
-              <button onClick={() => setGoogleCommission(p => p + 1)} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▲</button>
-              <button onClick={() => setGoogleCommission(p => Math.max(0, p - 1))} className="text-xs px-1 hover:bg-[#cfcfcf] text-black rounded">▼</button>
-            </div>
-          </div>
-
         </div>
 
+        {/* GOOGLE */}
+        <div className="bg-white px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap">
+          <span className="text-[#5a6c7d] font-semibold">
+            Google Play Store
+          </span>
+
+          <span className="text-[#002c3e] font-semibold">
+            {googleCommission}%
+          </span>
+
+          <div className="flex gap-1 text-xs text-black ">
+            <button className="hover:bg-[#e3e9ef] " onClick={() => setGoogleCommission(p => p + 1)}>▲</button>
+            <button className="hover:bg-[#e3e9ef]" onClick={() => setGoogleCommission(p => Math.max(0, p - 1))}>▼</button>
+          </div>
+        </div>
+
+        {/* SAVE BUTTON */}
         <button
           onClick={async () => {
             await api.post("/admin/set-commission", {
@@ -805,26 +873,17 @@ Next
             });
             fetchRevenue();
           }}
-          className="bg-[#002c3e] text-white px-4 py-2 h-12 mt-4 rounded-4xl  font-semibold"
+          className="bg-[#002c3e] text-white px-6 py-2 rounded-full font-semibold whitespace-nowrap"
         >
           Save
         </button>
 
       </div>
-
     </div>
 
   </div>
 
-  {/* ================= BOTTOM ROW ================= */}
-  <div className="flex justify-between items-end">
-
-    {/* LEFT → DISCLAIMER */}
-    <p className="text-sm text-[#5a6c7d]">
-      Net after app store commission
-    </p>
-
-  </div>
+ 
 
 </div>
 
@@ -848,7 +907,7 @@ function Card({ label, value, error, onClick }) {
       transition-all duration-200
       `}
     >
-      <p className="text-[#5a6c7d] text-lg font-semibold">
+      <p className="text-[#5a6c7d] text-[16px] font-semibold">
         {label}
       </p>
 

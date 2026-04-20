@@ -34,30 +34,21 @@ export default function AdminLayout({ children }) {
   <div className="flex-1 relative overflow-hidden">
 
 {/* 🔹 MAIN BG */}
-<div 
-  className="
-  absolute inset-0 
-  bg-[#d8dbd6]
-  rounded-tl-[90px]
-  ml-4
-  z-10
-"
-/>
+{/* 🔹 MAIN BG */}
+<div className="absolute inset-0 bg-[#d8dbd6] rounded-tl-[90px] ml-4 z-0" />
 
-{/* 🔥 REAL CURVE BORDER (same shape) */}
+{/* 🔥 CURVE BORDER */}
 <div
   className={`
-  absolute inset-0
-  ml-4
-  rounded-tl-[90px]
-  pointer-events-none
-  z-[999]
+    absolute inset-0 ml-4 rounded-tl-[90px]
+    pointer-events-none
+    z-20   // 🔥 border above content
 
-  ${
-    scrolled
-      ? "border-t-10 border-[#d8dbd6]/70 mix-blend-multiply"
-      : "border-t-10 border-[#c6cbc3]"
-  }
+    ${
+      scrolled
+        ? "border-t-10 border-[#d8dbd6]/70 mix-blend-multiply"
+        : "border-t-10 border-[#c6cbc3]"
+    }
   `}
 />
 
@@ -65,15 +56,12 @@ export default function AdminLayout({ children }) {
 <div
   id="main-scroll"
   className="
-  absolute
-  inset-0
-  ml-10
-  pt-10
-  px-10
-  pb-10
-  overflow-y-auto
-  z-30
-"
+    absolute inset-0
+    ml-8   // 🔥 FIX (was ml-10)
+    pt-10 px-10 pb-10
+    overflow-y-auto
+    z-10
+  "
 >
   {children}
 </div>

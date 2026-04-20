@@ -480,12 +480,12 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
         {/* LABEL */}
         <p className="
           text-[#5a6c7d] 
-          text-[16px]              /* ✅ SAME AS USER PAGE */
+          text-[16px]              
           font-semibold
           leading-[18px]
   
-          h-[36px]                 /* ✅ FIXED HEIGHT (2 lines max) */
-          line-clamp-2            /* ✅ prevent overflow */
+          h-[36px]               
+          line-clamp-2            
         ">
           {label}
         </p>
@@ -493,9 +493,9 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
         {/* VALUE */}
         <p
           className={`
-            text-[48px]            /* ✅ SAME SIZE EVERYWHERE */
+            text-[48px]           
             font-semibold
-            leading-none          /* ✅ PERFECT ALIGNMENT */
+            leading-none          
   
             ${error ? "text-[#ee6a59]" : "text-[#002c3e]"}
           `}

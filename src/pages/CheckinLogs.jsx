@@ -286,15 +286,15 @@ Loading...
 
 <th className="px-6 py-5 text-left">Consent</th>
 
-<th className="px-6 py-5 text-left leading-tight ">Alerts Type</th>
+<th className="px-6 py-5 text-left w-[16%] whitespace-nowrap ">Alerts Type</th>
 
-<th className="px-4 py-5 text-left leading-tight">Alert Sent At</th>
+<th className="px-4 py-5 text-left w-[16%] whitespace-nowrap">Alert Sent At</th>
 
 <th className="px-6 py-5 text-left">Status</th>
 
 <th className="px-6 py-5 text-left">Attempts</th>
 
-<th className="px-6 py-5 text-left leading-tight">Failure Reason</th>
+<th className="px-6 py-5 text-left w-[16%]  whitespace-nowrap">Failure Reason</th>
 
 </tr>
 

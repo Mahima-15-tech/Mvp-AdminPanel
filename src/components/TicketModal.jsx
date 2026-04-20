@@ -1,23 +1,19 @@
 import { useState } from "react";
 import api from "../api/axios";
+import { createPortal } from "react-dom";
 
 export default function TicketModal({ ticket, onClose, refresh }) {
 
-  const [status, setStatus] = useState(ticket?.status);
-  const [priority, setPriority] = useState(ticket?.priority);
+  const [status, setStatus] = useState(ticket?.status || "OPEN");
+  const [priority, setPriority] = useState(ticket?.priority || "MEDIUM");
   const [reply, setReply] = useState("");
+  const [messages, setMessages] = useState(ticket?.replies || []);
 
-  const updateTicket = async () => {
-    await api.put(`/support/${ticket._id}`, { status, priority });
-    refresh();
-  };
+  const [openStatus, setOpenStatus] = useState(false);
+  const [openPriority, setOpenPriority] = useState(false);
 
-  const sendReply = async () => {
-    if (!reply) return;
-    await api.post(`/support/${ticket._id}/reply`, { message: reply });
-    setReply("");
-    refresh();
-  };
+  
+ 
 
   const getSlaHours = () => {
     const created = new Date(ticket.createdAt);
@@ -25,207 +21,265 @@ export default function TicketModal({ ticket, onClose, refresh }) {
     return Math.floor((now - created) / (1000 * 60 * 60));
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-6">
+  const statusColors = {
+    OPEN: "#ee6a59",
+    IN_PROGRESS: "#f6c663",
+    RESOLVED: "#9acd78"
+  };
 
-      <div className="bg-white w-full max-w-4xl rounded-[30px] shadow-[0_30px_80px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[92vh]">
+  const formatLabel = (text) => {
+    return text
+      .toLowerCase()
+      .replaceAll("_", " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  };
 
-        {/* ================= HEADER ================= */}
-        <div className="px-8 py-6 border-b border-gray-200 flex justify-between items-start bg-white">
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-[0.5px] flex items-center justify-center p-6">
 
-          <div>
-            <h2 className="text-2xl font-semibold text-[#002c3e]">
-              {ticket.subject}
-            </h2>
+      {/* MAIN CARD */}
+      <div className="bg-white w-full pb-3 max-w-[40%] mx-auto rounded-[30px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.3)] flex flex-col max-h-[82vh]">
 
-            <div className="flex gap-3 mt-3">
+        {/* HEADER */}
+        <div className="px-8 pt-6 pb-4 relative border-b border-[#8a99a6]/40">
 
-              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                SLA {getSlaHours()} hrs
-              </span>
-
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold
-                ${priority==="HIGH"
-                  ? "bg-red-100 text-red-600"
-                  : priority==="MEDIUM"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-green-100 text-green-600"
-                }`}>
-                {priority}
-              </span>
-
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold
-                ${status==="OPEN"
-                  ? "bg-red-100 text-red-600"
-                  : status==="IN_PROGRESS"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-green-100 text-green-600"
-                }`}>
-                {status.replace("_"," ")}
-              </span>
-
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 text-lg"
-          >
-            ✕
-          </button>
-
-        </div>
-
-        {/* ================= BODY ================= */}
-        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6 bg-[#fafafa]">
-
-          {/* CONTROLS */}
-          <div className="
-flex gap-3 
-bg-[#beced2] 
-p-3 
-rounded-2xl 
-shadow-[inset_0_2px_6px_rgba(0,0,0,0.05)]
-w-fit
-">
-
-<div className="relative">
-
-<select
-  value={status}
-  onChange={(e)=>setStatus(e.target.value)}
-  className="
-  appearance-none
-  px-5 py-2.5
-  rounded-full
-  bg-white/90
-  backdrop-blur-md
-  text-[#002c3e]
-  text-sm font-semibold
-  shadow-[0_2px_6px_rgba(0,0,0,0.1)]
-  border border-white/40
-  focus:border-[#002c3e]
-  focus:ring-2 focus:ring-[#002c3e]/10
-  cursor-pointer
-  pr-10
-  transition
-  hover:shadow-md
-  "
+{/* TOP RIGHT CROSS */}
+<button
+  onClick={onClose}
+  className="absolute top-4 right-6 w-9 h-9 rounded-full hover:bg-[#e5e7eb] flex items-center justify-center text-[#5a6c7d]"
 >
-  <option>OPEN</option>
-  <option>IN_PROGRESS</option>
-  <option>RESOLVED</option>
-</select>
+  ✕
+</button>
 
-{/* CUSTOM ARROW */}
-<span className="
-absolute right-4 top-1/2 -translate-y-1/2
-text-[#5a6c7d] text-xs pointer-events-none
-">
-  ▼
-</span>
+<div className="flex items-center justify-between">
+
+  {/* LEFT (ICON + NAME + EMAIL) */}
+  <div className="flex items-center gap-3">
+    <span
+      className="w-6 h-6 rounded-full"
+      style={{ background: statusColors[status] }}
+    />
+
+    <div>
+      <p className="font-semibold text-xl text-[#002c3e]">
+        {ticket.userName || "Spencer Koh"}
+      </p>
+      <p className="text-sm text-[#5a6c7d]">
+        {ticket.email}
+      </p>
+    </div>
+  </div>
+
+  {/* RIGHT (PRIORITY aligned with email) */}
+  <div className="flex flex-col items-end justify-center ">
+    <span className="text-sm text-[#5a6c7d] font-semibold mt-6">
+      {formatLabel(priority)}
+    </span>
+  </div>
 
 </div>
 
-<select
-  value={priority}
-  onChange={(e)=>setPriority(e.target.value)}
-  className="
-  appearance-none
-  px-5 py-2
-  rounded-full
-  bg-white
-  text-[#002c3e]
-  text-sm font-semibold
-  shadow-sm
-  border border-transparent
-  focus:border-[#002c3e]
-  focus:ring-2 focus:ring-[#002c3e]/10
-  cursor-pointer
-  pr-10
-  "
->
-  <option>LOW</option>
-  <option>MEDIUM</option>
-  <option>HIGH</option>
-</select>
+</div>
 
-            <button
-              onClick={updateTicket}
-              className="bg-[#002c3e] text-white px-6 py-2 rounded-full text-sm font-semibold hover:opacity-90"
-            >
-              Update Ticket
-            </button>
-
-          </div>
-
-          {/* ORIGINAL MESSAGE */}
-          <div className="bg-white border rounded-2xl px-6 py-5 shadow-sm">
-            <p className="text-[#002c3e] text-[15px] leading-relaxed font-medium">
-              {ticket.description}
-            </p>
-          </div>
-
-          {/* CHAT */}
-          <div className="space-y-4">
-
-            {ticket.replies.map((r,i)=>{
-              const isAdmin = r.sender === "ADMIN";
-
-              return(
-                <div key={i} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
-
-                  <div className={`
-                    max-w-md px-5 py-3 rounded-2xl text-sm shadow-sm
-                    ${isAdmin
-                      ? "bg-[#002c3e] text-white"
-                      : "bg-white border text-[#002c3e]"
-                    }
-                  `}>
-
-                    <p className="text-[11px] font-semibold opacity-60 mb-1">
-                      {r.sender}
-                    </p>
-
-                    <p className="leading-relaxed">
-                      {r.message}
-                    </p>
-
-                  </div>
-
-                </div>
-              );
-            })}
-
-          </div>
-
+        {/* SUBJECT */}
+        <div className="px-8 py-4">
+          <p className="text-sm font-semibold text-[#5a6c7d]">Subject</p>
+          <p className="text-2xl font-semibold text-[#002c3e]">
+            {ticket.subject}
+          </p>
         </div>
 
-        {/* ================= FOOTER ================= */}
-        <div className="border-t bg-white px-8 py-6">
+        {/* CONTROLS */}
+        <div className="px-8 ">
+
+{/* FULL WIDTH CAPSULE */}
+<div className="bg-[#b6b9b3] py-3 px-4 mb-4  rounded-3xl flex items-center justify-between w-full min-h-[52px]">
+
+  {/* LEFT SIDE (STATUS + PRIORITY) */}
+  <div className="flex items-center gap-3">
+
+    {/* STATUS */}
+    <div className="relative">
+      <button
+        onClick={() => {
+          setOpenStatus(prev => {
+            if (!prev) setOpenPriority(false);
+            return !prev;
+          });
+        }}
+        className="bg-[#002c3e] text-white px-5 py-2 font-semibold rounded-full text-sm flex items-center gap-10"
+      >
+       {formatLabel(status)}
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={`w-4 h-4 transition ${openStatus ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10l5 5 5-5" />
+        </svg>
+      </button>
+
+      {openStatus && (
+        <div className="absolute top-12 left-0 bg-[#6f736f] rounded-2xl p-2 shadow-[0_10px_25px_rgba(0,0,0,0.2)] w-[150px] z-50">
+          {["OPEN", "IN_PROGRESS", "RESOLVED"].map(s => (
+            <div
+              key={s}
+              onClick={() => {
+                setStatus(s);
+                setOpenStatus(false);
+              }}
+              className={`px-4 py-1.5 rounded-lg cursor-pointer text-white  text-sm
+                ${status === s ? "bg-[#4f534f]" : "hover:bg-[#5f6360]"}
+              `}
+            >
+            {formatLabel(s)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* PRIORITY */}
+    <div className="relative">
+      <button
+        onClick={() => {
+          setOpenPriority(prev => {
+            if (!prev) setOpenStatus(false);
+            return !prev;
+          });
+        }}
+        className="bg-[#f5f5f5] text-[#5a6c7d] font-semibold px-5 py-2 rounded-full text-sm flex items-center gap-10"
+      >
+      {formatLabel(priority)}
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={`w-4 h-4 transition ${openPriority ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10l5 5 5-5" />
+        </svg>
+      </button>
+
+      {openPriority && (
+        <div className="absolute top-12 left-0 bg-[#6f736f] rounded-2xl p-2 shadow-[0_10px_25px_rgba(0,0,0,0.2)] w-[130px] z-50">
+          {["LOW", "MEDIUM", "HIGH"].map(p => (
+            <div
+              key={p}
+              onClick={() => {
+                setPriority(p);
+                setOpenPriority(false);
+              }}
+              className={`px-4 py-1.5 rounded-lg cursor-pointer text-white text-sm
+                ${priority === p ? "bg-[#4f534f]" : "hover:bg-[#5f6360]"}
+              `}
+            >
+              {formatLabel(p)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+  </div>
+
+  {/* RIGHT SIDE (SLA) */}
+  <div className="bg-white px-4 py-2  rounded-full text-sm text-[#5a6c7d] font-semibold whitespace-nowrap">
+    SLA - {getSlaHours()}h
+  </div>
+
+</div>
+
+</div>
+
+        {/* CHAT */}
+        <div className="flex-1 overflow-y-auto px-8 py-4 space-y-4 bg-[#f5f5f5] custom-scroll">
+
+          {/* USER MESSAGE */}
+          <div className="bg-white px-5 py-2 text-[#002c3e] font-semibold rounded-3xl max-w-[70%] text-[14px]">
+            {ticket.description}
+          </div>
+
+          {/* REPLIES */}
+          {messages.map((r, i) => {
+            const isAdmin = r.sender === "ADMIN";
+
+            return (
+              <div key={i} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`px-5 py-2 text-[14px] max-w-[70%]
+                  ${isAdmin
+                      ? "bg-[#002c3e] text-[#f5f5f5] font-semibold rounded-3xl"
+                      : "bg-white text-[#002c3e] rounded-2xl"
+                    }`}
+                >
+                  {r.message}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* FOOTER */}
+        <div className="px-8 py-4 bg-white ">
 
           <textarea
             value={reply}
-            onChange={(e)=>setReply(e.target.value)}
+            onChange={(e) => setReply(e.target.value)}
             placeholder="Write reply..."
-            rows={3}
-            className="w-full border rounded-2xl px-5 py-4 outline-none resize-none focus:ring-2 focus:ring-[#002c3e]/20 text-[#002c3e] placeholder-gray-400"
+            className="w-full  placeholder-shown:text-[#5a6c7d] text-[#5a6c7d] rounded-[20px] px-5 py-4 outline-none resize-none border border-[#8a99a6]"
           />
 
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-between items-center mt-2">
 
-            <button
-              onClick={sendReply}
-              className="bg-[#002c3e] text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 shadow"
-            >
-              Send Reply
-            </button>
+            {/* ATTACH */}
+            <div className="w-12 h-12  rounded-full  flex items-center justify-center text-[#f5f5f5]">
+            <img src="/clip.svg" alt="clip" className="w-14 h-14" />
+            </div>
 
+            <div className="flex gap-3">
+
+              <button
+                onClick={onClose}
+                className="bg-[#b6b9b3] text-[#f5f5f5] font-semibold px-4 py-2 rounded-full"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (!reply) return;
+
+                  const newMsg = {
+                    message: reply,
+                    sender: "ADMIN"
+                  };
+
+                  setMessages(prev => [...prev, newMsg]); // instant UI
+                  setReply("");
+
+                  await api.post(`/support/${ticket._id}/reply`, { message: reply });
+
+                  refresh();
+                }}
+                className="bg-[#002c3e] text-[#f5f5f5] font-semibold px-5 py-2 rounded-full"
+              >
+                Send
+              </button>
+
+            </div>
           </div>
 
         </div>
 
       </div>
-    </div>
+
+    </div>,
+    document.body
   );
 }
