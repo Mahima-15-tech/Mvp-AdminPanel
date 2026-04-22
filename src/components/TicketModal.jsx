@@ -225,7 +225,7 @@ export default function TicketModal({ ticket, onClose, refresh }) {
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-[#f5f5f5] custom-scroll">
 
           {/* USER MESSAGE */}
-          <div className="bg-white px-6 ml-2.5 py-2 text-[#002c3e] font-semibold rounded-3xl max-w-[70%] text-[13px]">
+          <div className="bg-white px-6 ml-2.5 py-2 text-[#002c3e] font-medium rounded-3xl max-w-[70%] text-[13px]">
             {ticket.description}
           </div>
 
@@ -242,7 +242,7 @@ export default function TicketModal({ ticket, onClose, refresh }) {
               <div
                 className={`px-5 py-2 text-[13px] max-w-[70%]
                 ${isAdmin
-                  ? "bg-[#002c3e] text-[#f5f5f5] font-semibold rounded-3xl"
+                  ? "bg-[#002c3e] text-[#f5f5f5] font-medium rounded-3xl"
                   : "bg-white text-[#002c3e] rounded-2xl"
                 }`}
               >

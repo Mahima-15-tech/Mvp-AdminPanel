@@ -215,7 +215,7 @@ ${filter===s.value
         {getEmptyMessage()}
       </p>
 
-      <p className="text-sm text-[#a0a0a0]">
+      <p className="text-sm -mt-2.5 text-[#a0a0a0]">
         Try adjusting filters or search
       </p>
 

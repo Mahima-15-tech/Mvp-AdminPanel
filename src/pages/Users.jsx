@@ -395,18 +395,27 @@ Apply
     <tbody className="text-[#5a6c7d]">
 
 
-{users.length === 0 ? (
+    {users.length === 0 ? (
 
-<tr>
-  <td colSpan="10">
-    <EmptyState
-      title="No users found"
-      subtitle="Try adjusting filters or search"
-    />
+<tr className="h-[160px]">
+
+  <td colSpan="10" className="px-6">
+    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
+      
+      <p className="text-lg font-semibold text-[#5a6c7d]">
+        No users found
+      </p>
+
+      <p className="text-sm -mt-2.5 text-[#a0a0a0]">
+        Try adjusting filters or search
+      </p>
+
+    </div>
   </td>
+
 </tr>
 
-) :
+)  :
 
 users.map((user)=>(
         <tr

@@ -9,7 +9,7 @@ export default function EmptyState({
           {title}
         </p>
   
-        <p className="text-sm text-[#a0a0a0] mt-1">
+        <p className="text-sm text-[#a0a0a0] -mt-0.5">
           {subtitle}
         </p>
   

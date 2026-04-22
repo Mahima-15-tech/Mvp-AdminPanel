@@ -338,7 +338,7 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
         No alert records found
       </p>
 
-      <p className="text-sm text-[#a0a0a0]">
+      <p className="text-sm -mt-2.5  text-[#a0a0a0]">
         Adjust your filters or search
       </p>
 
