@@ -329,16 +329,12 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
           {/* ✅ EMPTY STATE (FIXED LIKE USERS/REVENUE) */}
           {alerts.length === 0 ? (
 
-<tr className="h-[140px]">
-  <td className="px-6"></td>
-  <td className="px-6"></td>
-  <td className="px-6"></td>
+<tr className="h-[160px]">
 
-  {/* ✅ PERFECT CENTER */}
-  <td colSpan="2" className="px-6">
-    <div className="flex flex-col  h-full  gap-2">
+  <td colSpan="8" className="px-6">
+    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
       
-      <p className="text-lg leading-4  font-semibold text-[#5a6c7d]">
+      <p className="text-lg font-semibold text-[#5a6c7d]">
         No alert records found
       </p>
 
@@ -349,12 +345,9 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
     </div>
   </td>
 
-  <td className="px-6"></td>
-  <td className="px-6"></td>
-  <td className="px-6"></td>
 </tr>
 
-          ) : (
+) : (
 
             alerts.map((a,i)=>{
 

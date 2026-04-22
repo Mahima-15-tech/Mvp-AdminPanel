@@ -206,30 +206,25 @@ ${filter===s.value
       {/* ✅ EMPTY STATE INSIDE TABLE */}
       {filtered.length === 0 ? (
 
-<tr className="h-[140px]">
-  <td className="px-6"></td>
-  <td className="px-6"></td>
+<tr className="h-[160px]">
 
-  {/* ✅ CENTER */}
-  <td colSpan="2" className="px-6">
+  <td colSpan="7" className="px-6">
     <div className="flex flex-col items-center justify-center h-full text-center gap-2">
       
       <p className="text-lg font-semibold text-[#5a6c7d]">
         {getEmptyMessage()}
       </p>
 
-      <p className="text-sm leading-1 text-[#a0a0a0]">
+      <p className="text-sm text-[#a0a0a0]">
         Try adjusting filters or search
       </p>
 
     </div>
   </td>
 
-  <td className="px-6"></td>
-  <td className="px-6"></td>
 </tr>
 
-      ) : (
+)  : (
 
         paginatedData.map((t,i)=>(
 

@@ -304,17 +304,12 @@ Loading...
 <tbody className="text-[#5a6c7d]">
 
 {data.length === 0 ? (
-  <tr className="h-[140px]">
-    
-    <td className="px-6"></td>
-    <td className="px-6"></td>
-    <td className="px-6"></td>
+  <tr className="h-[160px]">
 
-    {/* ✅ CENTER */}
-    <td colSpan="2" className="px-6">
+    <td colSpan="8" className="px-6">
       <div className="flex flex-col items-center justify-center h-full text-center gap-2">
         
-        <p className="text-lg leading-4 font-semibold text-[#5a6c7d]">
+        <p className="text-lg font-semibold text-[#5a6c7d]">
           No SMS records found
         </p>
 
@@ -324,10 +319,6 @@ Loading...
 
       </div>
     </td>
-
-    <td className="px-6"></td>
-    <td className="px-6"></td>
-    <td className="px-6"></td>
 
   </tr>
 ) :   data.map((row,i)=>(

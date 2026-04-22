@@ -34,6 +34,30 @@ export default function TicketModal({ ticket, onClose, refresh }) {
       .replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  const formatTime = (date) => {
+    const d = new Date(date);
+  
+    const hours = d.getHours();
+    const minutes = d.getMinutes().toString().padStart(2, "0");
+  
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const formattedHour = hours % 12 || 12;
+  
+    return `${formattedHour}:${minutes} ${ampm}`;
+  };
+  
+  const formatDateLabel = (date) => {
+    const d = new Date(date);
+    const today = new Date();
+  
+    const isToday =
+      d.toDateString() === today.toDateString();
+  
+    return isToday
+      ? `Today, ${formatTime(d)}`
+      : `Yesterday, ${formatTime(d)}`; // simple version
+  };
+
   return createPortal(
     <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-[0.5px] flex items-center justify-center p-6">
 
@@ -46,7 +70,7 @@ export default function TicketModal({ ticket, onClose, refresh }) {
 {/* TOP RIGHT CROSS */}
 <button
   onClick={onClose}
-  className="absolute top-4 right-6 w-9 h-9 rounded-full hover:bg-[#e5e7eb] flex items-center justify-center text-[#5a6c7d]"
+  className="absolute top-4 right-8  w-9 h-9 rounded-full hover:bg-[#e5e7eb] flex items-center justify-center text-[#5a6c7d]"
 >
   ✕
 </button>
@@ -71,7 +95,7 @@ export default function TicketModal({ ticket, onClose, refresh }) {
   </div>
 
   {/* RIGHT (PRIORITY aligned with email) */}
-  <div className="flex flex-col items-end justify-center ">
+  <div className="flex flex-col mr-3 items-end justify-center ">
     <span className="text-sm text-[#5a6c7d] font-semibold mt-6">
       {formatLabel(priority)}
     </span>
@@ -93,23 +117,23 @@ export default function TicketModal({ ticket, onClose, refresh }) {
         <div className="px-8 ">
 
 {/* FULL WIDTH CAPSULE */}
-<div className="bg-[#b6b9b3] py-3 px-4 mb-4  rounded-3xl flex items-center justify-between w-full min-h-[52px]">
+<div className="bg-[#b6b9b3] py-3 px-4 mb-4 rounded-3xl flex items-center justify-between w-full min-h-[48px]">
 
   {/* LEFT SIDE (STATUS + PRIORITY) */}
   <div className="flex items-center gap-3">
 
     {/* STATUS */}
     <div className="relative">
-      <button
-        onClick={() => {
-          setOpenStatus(prev => {
-            if (!prev) setOpenPriority(false);
-            return !prev;
-          });
-        }}
-        className="bg-[#002c3e] text-white px-5 py-2 font-semibold rounded-full text-sm flex items-center gap-10"
-      >
-       {formatLabel(status)}
+    <button
+  onClick={() => {
+    setOpenStatus(prev => {
+      if (!prev) setOpenPriority(false);
+      return !prev;
+    });
+  }}
+  className="h-[40px] min-w-[140px] bg-[#002c3e] font-semibold text-white px-5 rounded-full text-sm flex items-center justify-between"
+>
+  {formatLabel(status)}
 
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -144,16 +168,16 @@ export default function TicketModal({ ticket, onClose, refresh }) {
 
     {/* PRIORITY */}
     <div className="relative">
-      <button
-        onClick={() => {
-          setOpenPriority(prev => {
-            if (!prev) setOpenStatus(false);
-            return !prev;
-          });
-        }}
-        className="bg-[#f5f5f5] text-[#5a6c7d] font-semibold px-5 py-2 rounded-full text-sm flex items-center gap-10"
-      >
-      {formatLabel(priority)}
+    <button
+  onClick={() => {
+    setOpenPriority(prev => {
+      if (!prev) setOpenStatus(false);
+      return !prev;
+    });
+  }}
+  className="h-[40px] min-w-[140px] bg-[#f5f5f5] font-semibold text-[#5a6c7d] px-5 rounded-full text-sm flex items-center justify-between"
+>
+  {formatLabel(priority)}
 
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -189,7 +213,7 @@ export default function TicketModal({ ticket, onClose, refresh }) {
   </div>
 
   {/* RIGHT SIDE (SLA) */}
-  <div className="bg-white px-4 py-2  rounded-full text-sm text-[#5a6c7d] font-semibold whitespace-nowrap">
+  <div className="bg-white px-3 py-2  rounded-full text-sm text-[#5a6c7d] font-semibold whitespace-nowrap">
     SLA - {getSlaHours()}h
   </div>
 
@@ -198,29 +222,39 @@ export default function TicketModal({ ticket, onClose, refresh }) {
 </div>
 
         {/* CHAT */}
-        <div className="flex-1 overflow-y-auto px-8 py-4 space-y-4 bg-[#f5f5f5] custom-scroll">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-[#f5f5f5] custom-scroll">
 
           {/* USER MESSAGE */}
-          <div className="bg-white px-5 py-2 text-[#002c3e] font-semibold rounded-3xl max-w-[70%] text-[14px]">
+          <div className="bg-white px-6 ml-2.5 py-2 text-[#002c3e] font-semibold rounded-3xl max-w-[70%] text-[13px]">
             {ticket.description}
           </div>
 
+          <p className="text-[10px] text-[#5a6c7d] ml-9 -mt-3">
+  {formatDateLabel(ticket.createdAt)}
+</p>
           {/* REPLIES */}
           {messages.map((r, i) => {
             const isAdmin = r.sender === "ADMIN";
 
             return (
-              <div key={i} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`px-5 py-2 text-[14px] max-w-[70%]
-                  ${isAdmin
-                      ? "bg-[#002c3e] text-[#f5f5f5] font-semibold rounded-3xl"
-                      : "bg-white text-[#002c3e] rounded-2xl"
-                    }`}
-                >
-                  {r.message}
-                </div>
+              <div key={i} className={`flex flex-col ${isAdmin ? "items-end" : "items-start"}`}>
+  
+              <div
+                className={`px-5 py-2 text-[13px] max-w-[70%]
+                ${isAdmin
+                  ? "bg-[#002c3e] text-[#f5f5f5] font-semibold rounded-3xl"
+                  : "bg-white text-[#002c3e] rounded-2xl"
+                }`}
+              >
+                {r.message}
               </div>
+            
+              {/* ✅ TIMESTAMP */}
+              <p className="text-[10px] text-[#5a6c7d] mt-1 px-4">
+                {formatDateLabel(r.createdAt)}
+              </p>
+            
+            </div>
             );
           })}
         </div>
@@ -232,32 +266,31 @@ export default function TicketModal({ ticket, onClose, refresh }) {
             value={reply}
             onChange={(e) => setReply(e.target.value)}
             placeholder="Write reply..."
-            className="w-full  placeholder-shown:text-[#5a6c7d] text-[#5a6c7d] rounded-[20px] px-5 py-4 outline-none resize-none border border-[#8a99a6]"
+            className="w-full  placeholder-shown:text-[#5a6c7d] text-[#5a6c7d] rounded-[20px] px-5 py-4 outline-none resize-none text-[13px] border border-[#8a99a6]"
           />
 
           <div className="flex justify-between items-center mt-2">
 
             {/* ATTACH */}
-            <div className="w-12 h-12  rounded-full  flex items-center justify-center text-[#f5f5f5]">
-            <img src="/clip.svg" alt="clip" className="w-14 h-14" />
+            <div className="w-12 h-12 -ml-1  rounded-full  flex items-center justify-center text-[#f5f5f5]">
+            <img src="/clip.svg" alt="clip" />
             </div>
 
             <div className="flex gap-3">
-
-              <button
-                onClick={onClose}
-                className="bg-[#b6b9b3] text-[#f5f5f5] font-semibold px-4 py-2 rounded-full"
-              >
-                Cancel
-              </button>
+            <button
+  onClick={onClose}
+  className="h-[40px] px-8 bg-[#b6b9b3] text-white font-semibold rounded-full"
+>
+  Cancel
+</button>
 
               <button
                 onClick={async () => {
                   if (!reply) return;
-
                   const newMsg = {
                     message: reply,
-                    sender: "ADMIN"
+                    sender: "ADMIN",
+                    createdAt: new Date() // ✅ important
                   };
 
                   setMessages(prev => [...prev, newMsg]); // instant UI
@@ -267,7 +300,7 @@ export default function TicketModal({ ticket, onClose, refresh }) {
 
                   refresh();
                 }}
-                className="bg-[#002c3e] text-[#f5f5f5] font-semibold px-5 py-2 rounded-full"
+                className="h-[40px] px-10 bg-[#002c3e] text-white font-semibold rounded-full"
               >
                 Send
               </button>

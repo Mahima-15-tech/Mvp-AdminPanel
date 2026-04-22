@@ -653,15 +653,12 @@ Apply
       {/* ✅ EMPTY STATE (ONLY CHANGE) */}
       {data.length === 0 ? (
 
-<tr className="h-[140px]">
-  <td className="px-6"></td>
-  <td className="px-6"></td>
+<tr className="h-[160px]">
 
-  {/* ✅ PERFECT CENTER */}
-  <td colSpan="2" className="px-6">
-    <div className="flex flex-col items-center justify-center h-full text-center">
+  <td colSpan="6" className="px-6">
+    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
       
-      <p className="text-lg leading-6 font-semibold text-[#5a6c7d]">
+      <p className="text-lg font-semibold text-[#5a6c7d]">
         No revenue data found
       </p>
 
@@ -672,11 +669,9 @@ Apply
     </div>
   </td>
 
-  <td className="px-6"></td>
-  <td className="px-6"></td>
 </tr>
 
-      ) : (
+) : (
 
         /* DATA SAME AS YOURS */
         paginatedData.map((r,i)=>(
@@ -750,7 +745,7 @@ Next
 
 {/* ================= REVENUE SUMMARY ================= */}
 
-<div className="w-full  rounded-xl px-6 py-5 flex flex-col gap-4">
+<div className="w-full  rounded-xl px- py-5 flex flex-col gap-4">
 
   {/* ================= TOP ================= */}
   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -819,21 +814,21 @@ Next
     <div className="flex flex-col gap-3 w-full lg:w-auto">
 
       {/* COMMISSION TITLE + LINE */}
-      <div className="flex items-center gap-4">
-        <p className="text-2xl font-semibold -mt-1 text-[#002c3e]">
+      <div className="flex items-center  gap-4">
+        <p className="text-2xl font-semibold mt-0.5 text-[#002c3e]">
           Commission
         </p>
 
-        <p className="text-sm mt-0.5 text-[#5a6c7d] whitespace-nowrap">
+        <p className="text-sm mt-1.5  text-[#5a6c7d] whitespace-nowrap">
           Edit app store rates
         </p>
       </div>
 
       {/* PILLS + SAVE */}
-      <div className="flex items-center gap-3 flex-wrap lg:flex-nowrap">
+      <div className="flex items-center  gap-3 flex-wrap lg:flex-nowrap">
 
         {/* APPLE */}
-        <div className="bg-white px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap">
+        <div className="bg-white px-4 py-2  rounded-full flex items-center gap-2 whitespace-nowrap">
           <span className="text-[#5a6c7d] font-semibold">
             Apple App Store
           </span>
@@ -849,7 +844,7 @@ Next
         </div>
 
         {/* GOOGLE */}
-        <div className="bg-white px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap">
+        <div className="bg-white px-4 py-2 -mt-1 rounded-full flex items-center gap-2 whitespace-nowrap">
           <span className="text-[#5a6c7d] font-semibold">
             Google Play Store
           </span>
@@ -873,7 +868,7 @@ Next
             });
             fetchRevenue();
           }}
-          className="bg-[#002c3e] text-white px-6 py-2 rounded-full font-semibold whitespace-nowrap"
+          className="bg-[#002c3e] text-white px-6 py-2  -mt-1 rounded-full font-semibold whitespace-nowrap"
         >
           Save
         </button>

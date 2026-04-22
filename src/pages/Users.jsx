@@ -370,7 +370,7 @@ Apply
 
 <div 
   id="users-table"
-  className={`bg-white rounded-4xl w-full max-w-[1100px] mx-auto overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
+  className={`bg-white rounded-4xl w-full mx-auto overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
     highlight ? "ring-4 ring-[#78bcc4]" : ""
   }`}
 >
