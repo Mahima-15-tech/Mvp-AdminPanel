@@ -833,9 +833,19 @@ Next
             Apple App Store
           </span>
 
-          <span className="text-[#002c3e] font-semibold">
-            {appleCommission}%
-          </span>
+          <div className="flex items-center -ml-2 ">
+
+{/* NUMBER BOX (FIXED WIDTH) */}
+<span className="text-[#002c3e] font-semibold w-[32px] text-right tabular-nums">
+  {appleCommission}
+</span>
+
+{/* % FIXED */}
+<span className="text-[#002c3e] font-semibold">
+  %
+</span>
+
+</div>
 
           <div className="flex gap-1 text-xs text-black">
             <button className="hover:bg-[#e3e9ef]" onClick={() => setAppleCommission(p => p + 1)}>▲</button>
@@ -849,9 +859,17 @@ Next
             Google Play Store
           </span>
 
-          <span className="text-[#002c3e] font-semibold">
-            {googleCommission}%
-          </span>
+          <div className="flex items-center -ml-2">
+
+<span className="text-[#002c3e] font-semibold w-[32px] text-right tabular-nums">
+  {googleCommission}
+</span>
+
+<span className="text-[#002c3e] font-semibold">
+  %
+</span>
+
+</div>
 
           <div className="flex gap-1 text-xs text-black ">
             <button className="hover:bg-[#e3e9ef] " onClick={() => setGoogleCommission(p => p + 1)}>▲</button>

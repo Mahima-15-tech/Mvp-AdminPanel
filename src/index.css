@@ -599,3 +599,7 @@ body {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: #9ea39b;
 }
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
