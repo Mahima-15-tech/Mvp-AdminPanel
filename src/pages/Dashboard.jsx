@@ -8,6 +8,7 @@ import {
   Legend
 } from "chart.js";
 
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function Dashboard() {
@@ -27,6 +28,8 @@ export default function Dashboard() {
   // ✅ SINGLE useEffect
   useEffect(() => {
     load();
+
+
 
     const interval = setInterval(load, 10000);
 

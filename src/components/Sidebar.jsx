@@ -9,7 +9,8 @@ import {
   Settings,
   LogOut,
   ChevronDown,
-
+  Megaphone ,
+  Ticket 
 } from "lucide-react";
 
 
@@ -70,6 +71,18 @@ export default function Sidebar() {
           label="Revenue"
           icon={MessageSquare}
         />
+
+<SidebarItem
+  to="/broadcast"
+  label="Broadcast"
+  icon={Megaphone}
+/>
+
+<SidebarItem
+  to="/promo-codes"
+  label="Promo Codes"
+  icon={Ticket}
+/>
 
         <SidebarItem
           to="/support"

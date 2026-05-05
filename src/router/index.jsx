@@ -17,6 +17,8 @@ import AdminSMSLogs from "../pages/AdminSMSLogs";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import SupportTickets from "../pages/SupportTickets";
+import Broadcast from "../pages/Broadcast";
+import PromoCodes from "../pages/PromoCodes";
 
 export default function AppRouter() {
   const [darkMode, setDarkMode] = useState(false);
@@ -94,6 +96,27 @@ export default function AppRouter() {
   }
 />
 
+<Route
+  path="/broadcast"
+  element={
+    <AdminGuard>
+      <AdminLayout >
+        <Broadcast />
+      </AdminLayout>
+    </AdminGuard>
+  }
+/>
+
+<Route
+  path="/promo-codes"
+  element={
+    <AdminGuard>
+      <AdminLayout >
+        <PromoCodes />
+      </AdminLayout>
+    </AdminGuard>
+  }
+/>
 
 <Route
   path="/support"

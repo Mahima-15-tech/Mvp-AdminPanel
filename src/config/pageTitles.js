@@ -25,6 +25,16 @@ export const pageTitles = {
     subtitle: "Income from Subscriptions and Top‑ups",
   },
 
+  "/broadcast": {
+    title: "Broadcast",
+    subtitle: "Send Push Notifications to All Users",
+  },
+
+  "/promo-codes": {
+    title: "Promo Codes",
+    subtitle: "Generate and Send Free Access Codes to Users",
+  },
+
   "/support": {
     title: "Support",
     subtitle: "View and Manage User Inquiries",

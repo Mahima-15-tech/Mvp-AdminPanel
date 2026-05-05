@@ -603,3 +603,29 @@ body {
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+/* Figma style minimal scrollbar */
+.figma-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.figma-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0; /* top-bottom gap (important for floating look) */
+}
+
+.figma-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+}
+
+/* Hover effect (optional but nice) */
+.figma-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+/* Firefox */
+.figma-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}

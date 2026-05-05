@@ -564,9 +564,9 @@ function Contacts({ data, showContactHistory, setShowContactHistory  }) {
 
             <div className="flex items-center gap-2 -ml-1">
 
-              <div className="w-10 h-10 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-sm font-semibold">
-                {index + 1}
-              </div>
+            <div className="w-10 h-10 min-w-[40px] min-h-[40px] shrink-0 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-xl font-semibold leading-none">
+  {index + 1}
+</div>
 
               <div>
 
@@ -993,7 +993,7 @@ function Checkin({ data }) {
 
             <div className="flex items-center gap-2 ">
 
-              <div className="w-12 h-12 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-xl font-semibold">
+              <div className="w-10 h-10 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-xl font-semibold">
                 {index + 1}
               </div>
 
@@ -1064,7 +1064,7 @@ function Checkin({ data }) {
 
 function Credits({ data, refresh }) {
 
-  const [amount, setAmount] = useState(2);
+  const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const history = data.creditHistory || [];
@@ -1198,19 +1198,37 @@ function Credits({ data, refresh }) {
               className="w-38 px-4 py-2 text-[#5a6c7d] text-xl bg-white rounded-full outline-none"
             />
 
-            <button
-              onClick={() => setAmount(amount + 1)}
-              className="w-12 h-12 rounded-full bg-white text-4xl text-[#5a6c7d] flex items-center justify-center"
-            >
-              +
-            </button>
+<button
+  onClick={() => setAmount(amount + 1)}
+  className="w-11 h-11 rounded-full bg-white flex items-center justify-center"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-5 h-5 text-[#5a6c7d]"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth="3"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+  </svg>
+</button>
 
-            <button
-              onClick={() => setAmount(amount - 1)}
-              className="w-12 h-12 rounded-full bg-white text-4xl text-[#5a6c7d] flex items-center justify-center"
-            >
-              −
-            </button>
+<button
+  onClick={() => setAmount(amount - 1)}
+  className="w-11 h-11 rounded-full bg-white flex items-center justify-center"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-5 h-5 text-[#5a6c7d]"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth="3"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+  </svg>
+</button>
 
             <button
               onClick={adjustCredit}
@@ -1258,12 +1276,34 @@ function Credits({ data, refresh }) {
               <div className="flex items-center gap-4">
 
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-2xl font-bold ${
-                    isAdd ? "bg-[#0cb4ab]" : "bg-[#ee6a59]"
-                  }`}
-                >
-                  {isAdd ? "+" : "−"}
-                </div>
+  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+    isAdd ? "bg-[#0cb4ab]" : "bg-[#ee6a59]"
+  }`}
+>
+  {isAdd ? (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5 text-white"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="3"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+    </svg>
+  ) : (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5 text-white"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="3"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+    </svg>
+  )}
+</div>
 
                 <div>
 
@@ -1374,7 +1414,7 @@ function AdminNotes({ data, refresh }) {
 
       {/* TEXTAREA */}
 
-      <div className="px-10 py-6">
+      <div className="px-10 mb-8">
 
         <textarea
           value={note}
