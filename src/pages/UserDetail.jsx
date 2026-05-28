@@ -10,23 +10,26 @@ import PastContactsModal from "../components/PastContactsModal";
 
 function formatDate(date){
 
+  // 🔥 STEP 1: null / undefined check
+  if (!date) return "-"
+
   const d = new Date(date)
-  
+
+  // 🔥 STEP 2: invalid date check
+  if (isNaN(d)) return "-"
+
   const day = d.getDate()
-  
   const month = d.toLocaleString("en",{month:"short"})
-  
   const year = d.getFullYear()
-  
+
   const time = d.toLocaleString("en",{
-  hour:"numeric",
-  minute:"2-digit",
-  hour12:true
+    hour:"numeric",
+    minute:"2-digit",
+    hour12:true
   })
-  
+
   return `${day} ${month} ${year} | ${time}`
-  
-  }
+}
 
 export default function UserDetail() {
   const { id } = useParams();
@@ -328,13 +331,16 @@ function Overview({ data }) {
 
       function getExpiryDate(date){
 
+        if (!date) return "-"        // 🔥 ADD THIS
+      
         const d = new Date(date)
-        
+      
+        if (isNaN(d)) return "-"     // 🔥 ADD THIS
+      
         d.setDate(d.getDate() - 1)
-        
+      
         return formatDate(d)
-        
-        }
+      }
 
 function Subscription({ data , showHistory, setShowHistory}) {
 
@@ -393,10 +399,8 @@ function Subscription({ data , showHistory, setShowHistory}) {
             value={formatDate(s.startDate)}
           />
 
-          <Info
-            label="Next Renewal Date"
-            value={formatDate(s.nextRenewalDate)}
-          />
+<Info label="Next Renewal Date" value={formatDate(s.nextRenewalDate)} />
+
 
         </div>
 
@@ -409,10 +413,7 @@ function Subscription({ data , showHistory, setShowHistory}) {
             value={s.autoRenew ? "Yes" : "No"}
           />
 
-<Info
-label="Expiry Date"
-value={getExpiryDate(s.nextRenewalDate)}
-/>
+<Info label="Expiry Date" value={getExpiryDate(s.nextRenewalDate)} />
 
           <Info
             label="Status"

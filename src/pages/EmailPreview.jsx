@@ -1,0 +1,313 @@
+  export default function EmailPreview() {
+      const code = "SOLOFREE";
+      const duration = "1 Month";
+    
+      const html = `
+      <div style="margin:0; padding:0;">
+
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td align="center">
+    
+            <!-- MAIN CONTAINER -->
+            <table width="600" cellpadding="0" cellspacing="0"
+              style="
+                max-width:600px;
+                width:100%;
+                font-family:Arial, sans-serif;
+                background:#0e2a34;
+                margin:0 auto;
+              ">
+      <tr>
+        <td align="center">
+
+          <!-- CONTAINER -->
+          <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; font-family:Arial, sans-serif;">
+
+            <!-- LOGO (FIX: alignment + size) -->
+            <tr>
+            <td style="padding:10px 49px 0; line-height:0;">
+    <img src="/logo3.png" width="170" style="display:block;" />
+  </td>
+            </tr>
+
+            <!-- CARD -->
+            <tr>
+            <td style="padding:0 25px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F5F5; border-radius:28px; overflow:hidden; margin-top:-20px;">
+                  <!-- CONTENT -->
+                  <tr>
+                    <td style="padding:28px;">
+
+                      <!-- HEADING -->
+                      <h1 style="
+                      font-size:48px;
+                      margin:0 0 16px;
+                      color:#002c3e;
+                      line-height:1.15;
+                      font-weight:600;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                      letter-spacing:2px;
+                    ">
+                      Here’s<br/>
+                      Something<br/>
+                      Wonderful
+                    </h1>
+
+                      <!-- SUBHEAD -->
+                      <p style="
+                      font-size:25px;
+                      margin:0 0 18px;
+                      margin-top:-10px;
+                      color:#002c3e;
+                      line-height:1.2;
+                      font-weight:500;
+                      letter-spacing:0.6px;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    ">
+                      Free access to SOLO<br/>
+                      Because you matter
+                    </p>
+
+                      <!-- TEXT -->
+                      <p style="
+    font-size:15px;
+    color:#5A6C7D;
+    margin:30px 0 14px;
+    line-height:1.6;
+    // color:#002c3e;
+  ">
+    We're glad to have you with us.
+  </p>
+
+                      <!-- FIX: run-on line -->
+                      <p style="
+                      font-size:15px;
+                      margin:0 0 18px;
+                      line-height:1.6;
+                      color:#5a6c7d;
+                    ">
+                      This is a one-time code. Please use it within 3 days.
+                      <span style="white-space:nowrap;">After that, it expires.</span>
+                    </p>
+
+
+                      <!-- CODE SECTION -->
+                      <p style="
+                      margin:0 0 4px;
+                      font-size:15px;
+                      color:#002c3e;
+                    ">
+                      <span style="font-weight:600;">Code:</span>
+                      <span style="color:#5a6c7d; font-weight:600; font-size:16px;"> ${code}</span>
+                    </p>
+                    
+                    <p style="
+                      margin:0 0 18px;
+                      font-size:15px;
+                      color:#002c3e;
+                    ">
+                      <span style="font-weight:600;">Valid for:</span>
+                      <span style="color:#5a6c7d; font-weight:600; font-size:16px;"> ${duration}</span>
+                    </p>
+
+                      <!-- FOOT -->
+                      <p style="
+    font-size:15px;
+    margin:0;
+    color:#5a6c7d;
+    line-height:1.5;
+  ">
+    Take care,<br/>
+    <span style="font-weight:700;">Team SOLO</span>
+  </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- REDEEM -->
+                  <tr>
+    <td style="background:#78bcc4; padding:24px 28px; border-bottom-left-radius:28px; border-bottom-right-radius:28px;">
+
+      <!-- HEADING (Inter Medium feel) -->
+      <p style="
+        margin:0 0 14px;
+        font-size:20px;
+        color:#002c3e;
+        font-weight:600;
+        line-height:1.3;
+      ">
+        How to redeem your code
+      </p>
+
+      <!-- LIST (PERFECT ALIGN FIX 🔥) -->
+      <table cellpadding="0" cellspacing="0" style="margin:0;">
+
+    <tr>
+      <td style="
+        vertical-align:middle;
+        font-weight:600;
+        color:#002c3e;
+        padding-right:8px;
+        font-size:15px;
+        line-height:1.6;
+      ">1.</td>
+
+      <td style="
+        color:#002c3e;
+        font-size:15px;
+        line-height:1.6;
+      ">
+        Open the <b>SOLO app</b>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="
+        vertical-align:middle;
+        font-weight:600;
+        color:#002c3e;
+        padding-right:8px;
+        font-size:15px;
+        line-height:1.6;
+      ">2.</td>
+
+      <td style="
+        color:#002c3e;
+        font-size:15px;
+        line-height:1.6;
+      ">
+        Go to the <b>subscription plan</b> page
+      </td>
+    </tr>
+
+    <tr>
+      <td style="
+        vertical-align:middle;
+        font-weight:600;
+        color:#002c3e;
+        padding-right:8px;
+        font-size:15px;
+        line-height:1.6;
+      ">3.</td>
+
+      <td style="
+        color:#002c3e;
+        font-size:15px;
+        line-height:1.6;
+      ">
+        Enter the <b>code</b> above
+      </td>
+    </tr>
+
+    <tr>
+      <td style="
+        vertical-align:middle;
+        font-weight:600;
+        color:#002c3e;
+        padding-right:8px;
+        font-size:15px;
+        line-height:1.6;
+      ">4.</td>
+
+      <td style="
+        color:#002c3e;
+        font-size:15px;
+        line-height:1.6;
+      ">
+        Tap <b>Redeem</b>
+      </td>
+    </tr>
+
+  </table>
+
+
+      <!-- FOOT TEXT -->
+      <p style="
+        margin:14px 0 0;
+        font-size:14px;
+        color:#002c3e;
+        line-height:1.5;
+      ">
+        No payment needed. No auto-renewal.
+      </p>
+
+    </td>
+  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- FOOTER -->
+            <tr>
+            <td style="padding:18px 43px 26px;">
+          
+              <!-- TEXT -->
+              <p style="
+                color:#ffffff;
+                margin:20px 10px 12px;
+                font-size:14px;
+                line-height:1.4;
+              ">
+              No app? Download now
+              </p>
+          
+              <!-- APP BUTTONS (PERFECT ALIGN 🔥) -->
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:6px 10px 0px;">
+                    <a href="https://apps.apple.com">
+                      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                          width="100"
+                          style="display:block;" />
+                    </a>
+                  </td>
+          
+                  <td style="padding:6px 0px 0px;">
+                    <a href="https://play.google.com">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                          width="110"
+                          style="display:block;" />
+                    </a>
+                  </td>
+                </tr>
+              </table>
+          
+              <!-- FOOTER TEXT -->
+              <p style="
+                color:#8a99a6;
+                font-size:10.5px;
+                margin:46px 10px 0;
+                line-height:1.5;
+
+              ">
+                SOLO © 2026 Social Rebels™ Design. All rights reserved
+              </p>
+          
+              <p style="
+                color:#8a99a6;
+                font-size:10.5px;
+                margin:2px 10px 0;
+                line-height:1.5;
+              ">
+                Use of SOLO is subject to our Terms of Use and Privacy Policy, available in the SOLO app
+              </p>
+          
+            </td>
+          </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </div>
+  `;
+
+    
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      );
+    }

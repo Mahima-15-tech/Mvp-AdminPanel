@@ -15,25 +15,16 @@ export default function CreatePromoModal({ onClose, refresh }) {
   
 
   // ✅ DEFAULT MESSAGE
-  const [message, setMessage] = useState(`Hi there,
+  const [message, setMessage] = useState(`We're glad to have you with us.
 
-Thanks for being part of SOLO.
-
-Use this code to activate your free access:
-[CODE]
-
-Valid for [DURATION]
-
-How to use your code:
-1. Open the SOLO app
-2. Go to the subscription plan page
-3. Enter the code above
-4. Tap "Redeem"
-
-No payment needed. No auto-renewal.
-
-Take care,
-Team SOLO`);
+  This is a one-time code. Please use it within 3 days.
+  After that, it expires.
+  
+  Code: [CODE]
+  Valid for: [DURATION]
+  
+  Take care,
+  Team SOLO`);
 
   // ➕ Add email
   const addEmail = () => {

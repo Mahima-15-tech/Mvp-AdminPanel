@@ -1,5 +1,6 @@
 import { useEffect, useState , useRef } from "react";
 import api from "../api/axios";
+import { createPortal } from "react-dom";
 // import CustomDatePicker from "../components/CustomDatePicker";
 
 import jsPDF from "jspdf";
@@ -247,6 +248,33 @@ const [showFullNet, setShowFullNet] = useState(false);
 const grossValue = 888899000.00;
 const netValue = 6808.80;
 
+const [showRefundModal, setShowRefundModal] = useState(false);
+const [selectedTxn, setSelectedTxn] = useState(null);
+const [refundReason, setRefundReason] = useState("");
+
+const [showHistory, setShowHistory] = useState(false);
+const [historyData, setHistoryData] = useState([]);
+
+const fetchRefundHistory = async () => {
+  try {
+    console.log("CLICKED");
+
+    const res = await api.get("/admin/refund-history");
+
+    console.log(res.data);
+
+    setHistoryData(res.data);
+    setShowHistory(true);
+
+  } catch (err) {
+    console.log("ERROR:", err);
+  }
+};
+
+const openRefundModal = (txn) => {
+  setSelectedTxn(txn);
+  setShowRefundModal(true);
+};
 
 const titleMonth = () => {
 
@@ -418,7 +446,21 @@ const months = [
     maximumFractionDigits: 2,
   }).format(num);
 
-
+  const handleRefundConfirm = async () => {
+    try {
+      await api.post("/admin/refund", {
+        paymentIntentId: selectedTxn.paymentIntentId,
+        reason: refundReason
+      });
+  
+      setShowRefundModal(false);
+      setRefundReason("");
+      fetchRevenue();
+  
+    } catch (err) {
+      alert("Refund failed");
+    }
+  };
   
 
   
@@ -429,7 +471,7 @@ return(
 
 
 {/* ================= FILTER BAR ================= */}
-<div className="bg-[#B5B9B2] rounded-4xl px-6   py-5 flex items-center gap-3 flex-wrap">
+<div className="bg-[#B5B9B2] rounded-4xl px-4 py-5 flex items-center gap-2 whitespace-nowrap">
 {/* MONTH */}
 
 <div className="relative">
@@ -439,7 +481,7 @@ return(
   className="
   bg-[#002c3e]
   text-white
-  px-10
+  px-5
   py-3
   rounded-full
   inline-flex
@@ -502,7 +544,7 @@ className="px-6 py-2 leading-4 hover:bg-[#6f736f] cursor-pointer"
 
 <button
   onClick={() => setOpenExport(!openExport)}
-  className="bg-[#f5f5f5] rounded-full px-9 py-3 font-semibold text-[#5a6c7d] inline-flex items-center gap-2"
+  className="bg-[#f5f5f5] rounded-full px-5  py-3 font-semibold text-[#5a6c7d] inline-flex items-center gap-2"
 >
   Export
 
@@ -562,7 +604,7 @@ setTo("");
 setMonth("ALL");
 fetchRevenue();
 }}
-className="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink- "
+className="bg-white w-10   h-10 rounded-full flex items-center justify-center shrink- "
 >
 <img src="/refreshicon.svg" className="w-10 h-10"/>
 </button>
@@ -591,9 +633,16 @@ onClick={()=>{
       fetchRevenue();
     },0);
     }}
-className="bg-[#002c3e] text-white px-10 font-semibold py-3 rounded-full"
+className="bg-[#002c3e] text-white px-6 font-semibold py-3 rounded-full"
 >
 Apply
+</button>
+
+<button
+  onClick={fetchRefundHistory}
+  className="bg-[#002c3e] text-white px-3 font-semibold py-3 rounded-full"
+>
+  Refund History
 </button>
 
 </div>
@@ -601,7 +650,7 @@ Apply
 
 {/* ================= STATS ================= */}
 
-<div className="grid grid-cols-3 gap-6">
+<div className="grid grid-cols-4 gap-6">
 
 <Card 
   label="Total Transactions" 
@@ -618,6 +667,11 @@ Apply
   label="Net Revenue" 
   value={`$${netTotal.toFixed(2)}`} 
   />
+
+<Card 
+  label="Stripe Fee" 
+  value={`$${data.reduce((a,b)=>a+(b.fee || 0),0).toFixed(2)}`}
+/>
 
 </div>
 
@@ -645,6 +699,8 @@ Apply
     <th className="w-[14%] px-6 py-5 text-left">Plan</th>
     <th className="w-[18%] px-6 py-5 text-left">Gross</th>
     <th className="w-[18%] px-6 py-5 text-left">Net</th>
+    <th className="w-[18%] px-6 py-5 text-left">Status</th>
+<th className="w-[18%] px-6 py-5 text-left">Action</th>
   </tr>
 </thead>
 
@@ -655,19 +711,16 @@ Apply
 
 <tr className="h-[160px]">
 
-  <td colSpan="6" className="px-6">
-    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
-      
-      <p className="text-lg font-semibold text-[#5a6c7d]">
-        No revenue data found
-      </p>
-
-      <p className="text-sm -mt-2.5 text-[#a0a0a0]">
-        Try adjusting filters or date range
-      </p>
-
-    </div>
-  </td>
+<td colSpan="8" className="px-6 py-20 text-center">
+  <div className="flex flex-col items-center justify-center gap-2">
+    <p className="text-lg font-semibold text-[#5a6c7d]">
+      No revenue data found
+    </p>
+    <p className="text-sm text-[#a0a0a0]">
+      Try adjusting filters or date range
+    </p>
+  </div>
+</td>
 
 </tr>
 
@@ -689,7 +742,7 @@ Apply
               })}
             </td>
 
-            <td className="px-6 py-4">
+            <td className=" py-4 whitespace-nowrap">
               {r.userId}
             </td>
 
@@ -697,17 +750,50 @@ Apply
               {r.userName}
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-2 py-4">
               {r.plan?.toLowerCase()}
             </td>
 
             <td className="px-6 py-4 text-[#78bcc4] font-semibold">
-              ${r.gross.toFixed(2)}
+              ${r.gross.toFixed(2)} 
             </td>
 
             <td className="px-6 py-4 text-[#78bcc4] font-semibold">
               ${r.net.toFixed(2)}
             </td>
+
+            <td className="px-6 py-4 text-[#78bcc4] font-semibold">{r.status}</td>
+
+            <td className="px-6 py-4 whitespace-nowrap">
+
+            {r.status === "REFUNDED" ? (
+
+<div
+  className="px-4 py-1.5 rounded-full text-xs"
+  style={{
+    backgroundColor: "#f5a696",
+    color: "#F5F5F5"
+  }}
+>
+  Refunded
+</div>
+
+) : ( 
+
+  <button
+  onClick={() => openRefundModal(r)}
+  className="px-4 py-1.5 rounded-full text-xs"
+  style={{
+    backgroundColor: "#ee6a59",
+    color: "#F5F5F5"
+  }}
+>
+  Refund
+</button>
+
+)}
+
+</td>
 
           </tr>
 
@@ -900,8 +986,213 @@ Next
 
 </div>
 
+{showHistory && createPortal(
+  <div className="fixed inset-0 z-[1000] bg-black/80  flex items-center justify-center">
+   
+  <button
+  onClick={() => setShowHistory(false)}
+  className="absolute top-54 right-64 text-[#b6b9b3] text-[26px] z-10"
+>
+  ✕
+</button>
+<div className="bg-white rounded-[30px] w-[1100px] max-h-[90vh] overflow-hidden relative">
 
+     
+
+
+      {/* ================= TABLE ================= */}
+      <div className="overflow-auto max-h-[65vh]">
+
+      <table className="w-full text-[16px] tracking-wide table-fixed">
+
+{/* HEADER */}
+<thead className="bg-[#78bcc4] text-white">
+  <tr>
+    <th className="w-[16%] px-6 py-5 text-left rounded-tl-[30px]">Date</th>
+    <th className="w-[16%] px-6 py-5 text-left">User ID</th>
+    <th className="w-[18%] px-6 py-5 text-left">User Name</th>
+    <th className="w-[14%] px-6 py-5 text-left">Plan</th>
+    <th className="w-[18%] px-1 py-5 text-left whitespace-nowrap">Refund Amount</th>
+    <th className="w-[22%] px-6 py-5 text-left whitespace-nowrap">Request Reason</th>
+    <th className="w-[14%] px-6 py-5 text-left rounded-tr-[30px]">Status</th>
+  </tr>
+</thead>
+
+<tbody className="text-[#5a6c7d]">
+
+  {historyData.length === 0 ? (
+
+    <tr className="h-[160px]">
+      <td colSpan="7" className="px-6 py-20 text-center">
+        <p className="text-lg font-semibold">
+          No refund requests found
+        </p>
+      </td>
+    </tr>
+
+  ) : (
+
+    historyData.map((h, i) => (
+
+      <tr
+        key={i}
+        className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
+      >
+
+        {/* DATE */}
+        <td className="px-6 py-4 whitespace-nowrap">
+          {new Date(h.date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+          })}
+        </td>
+
+        {/* USER ID */}
+        <td className="px-6 py-4 whitespace-nowrap">
+          {h.userPhone || "-"}
+        </td>
+
+        {/* NAME */}
+        <td className="px-6 py-4 font-semibold">
+          {h.userName}
+        </td>
+
+        {/* PLAN */}
+        <td className="px-6 py-4 capitalize">
+          {h.plan?.toLowerCase()}
+        </td>
+
+        {/* AMOUNT */}
+        <td className="px-6 py-4 text-[#78bcc4] font-semibold">
+          ${h.amount?.toFixed(2)}
+        </td>
+
+        {/* REASON */}
+        <td className="px-6 py-4">
+          {h.refundRequestedReason || "-"}
+        </td>
+
+        {/* STATUS */}
+        <td className="px-6 py-4">
+
+          {/* COMPLETED */}
+          {h.status === "COMPLETED" && (
+            <span className="text-[#5a6c7d] font-semibold">
+              Completed
+            </span>
+          )}
+
+          {/* PENDING */}
+          {h.status === "PENDING" && (
+            <span className="text-[#ee6a59] font-semibold">
+              Pending
+            </span>
+          )}
+
+          {/* FAILED */}
+          {h.status === "FAILED" && (
+            <div className="flex items-center gap-2">
+
+              <span className="text-[#ee6a59] font-semibold">
+                Refund Failed
+              </span>
+
+              {/* CUSTOM RADIO */}
+              <div className="w-5 h-5 rounded-full border-2 border-[#5a6c7d] flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-[#78bcc4] rounded-full" />
+              </div>
+
+            </div>
+          )}
+
+        </td>
+
+      </tr>
+
+    ))
+
+  )}
+
+</tbody>
+
+</table>
+      </div>
+
+    </div>
+
+  </div>,
+  document.body
+)}
+{showRefundModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+    <div className="bg-white rounded-[40px] px-7 py-8 w-[500px] text-center ">
+
+      {/* TITLE */}
+      <h2 className="text-[20px] font-semibold text-[#0b3c49] mb-6">
+        Approve Refund
+      </h2>
+
+      {/* TEXT */}
+      <p className="text-[20px] text-[#0b3c49] leading-relaxed">
+        Are you sure you want to refund this user?
+      </p>
+
+      <p className="text-[20px] text-[#0b3c49] mt-2 mb-6">
+        The amount will be credited via Stripe
+      </p>
+
+      {/* USER REASON (optional but useful) */}
+      {/* <div className="bg-[#f5f5f5] px-4 py-3 rounded-xl text-left text-sm text-[#5a6c7d] mb-8">
+        <b>Reason:</b> {selectedTxn?.refundRequestedReason || "N/A"}
+      </div> */}
+
+      {/* BUTTONS */}
+      <div className="flex justify-center gap-6">
+
+        {/* CANCEL */}
+        <button
+          onClick={() => setShowRefundModal(false)}
+          className="
+            px-10 py-4
+            bg-[#bfc3be]
+            text-white
+            text-[18px]
+            font-semibold
+            rounded-full
+            w-[200px]
+          "
+        >
+          Cancel
+        </button>
+
+        {/* CONFIRM */}
+        <button
+          onClick={handleRefundConfirm}
+          className="
+            px-10 py-4
+            bg-[#002c3e]
+            text-white
+            text-[18px]
+            font-semibold
+            rounded-full
+            w-[200px]
+            hover:opacity-90
+          "
+        >
+          Confirm
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
 </div>
+
+
 
 );
 }
@@ -930,5 +1221,7 @@ function Card({ label, value, error, onClick }) {
         {value}
       </p>
     </div>
+
+
   );
 }

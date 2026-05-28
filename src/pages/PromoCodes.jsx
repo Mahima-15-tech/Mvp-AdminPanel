@@ -18,9 +18,11 @@ export default function PromoCodes() {
   const perPage = 5;
 
   // 🔍 SEARCH FILTER
-  const filteredData = data
+  const filteredData = (Array.isArray(data) ? data : [])
   .filter(d =>
-    d.email.toLowerCase().includes(search.toLowerCase())
+    (d.emails?.join(", ") || "")
+      .toLowerCase()
+      .includes(search.toLowerCase())
   )
   .filter(d => {
     if (status === "ALL") return true;
@@ -55,9 +57,17 @@ export default function PromoCodes() {
   const fetchPromo = async () => {
     try {
       const res = await api.get("/promo");
-      setData(res.data);
+      console.log("PROMO API:", res.data); // 👈 ADD THIS
+  
+      if (Array.isArray(res.data)) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+  
     } catch (err) {
       console.log(err);
+      setData([]);
     }
   };
  
@@ -217,11 +227,11 @@ useEffect(() => {
         </td>
 
         <td className="px-6 py-4 break-all">
-  {row.email}
+        {row.emails?.join(", ")}
 </td>
 
         <td className="px-6 py-4">
-          {row.date}
+        {new Date(row.createdAt).toLocaleDateString()}
         </td>
 
         {/* STATUS WITH COLOR */}
@@ -232,7 +242,9 @@ useEffect(() => {
         </td>
 
         <td className="px-6 py-4">
-          {row.expiry}
+        {row.expiresAt
+    ? new Date(row.expiresAt).toLocaleDateString()
+    : "-"}
         </td>
       </tr>
     ))

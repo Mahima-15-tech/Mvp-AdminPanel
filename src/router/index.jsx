@@ -19,6 +19,7 @@ import ResetPassword from "../pages/ResetPassword";
 import SupportTickets from "../pages/SupportTickets";
 import Broadcast from "../pages/Broadcast";
 import PromoCodes from "../pages/PromoCodes";
+import EmailPreview from "../pages/EmailPreview";
 
 export default function AppRouter() {
   const [darkMode, setDarkMode] = useState(false);
@@ -141,7 +142,7 @@ export default function AppRouter() {
 />
 
 
-
+<Route path="/email-preview" element={<EmailPreview />} />
 
 <Route path="/settings/profile" element={ <AdminGuard>
       <AdminLayout darkMode={darkMode} setDarkMode={setDarkMode}><ProfileSection /></AdminLayout>
