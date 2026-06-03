@@ -225,14 +225,16 @@ const [to,setTo] = useState("");
 const [openExport,setOpenExport] = useState(false);
 
 const [page,setPage] = useState(1);
-const perPage = 4;
 
-const totalPages = Math.ceil(data.length / perPage);
 
-const paginatedData = data.slice(
-(page-1)*perPage,
-page*perPage
-);
+const [summary, setSummary] = useState({
+  gross: 0,
+  net: 0,
+  fee: 0
+});
+
+const [totalPages, setTotalPages] = useState(1);
+
 
 const [highlightTable, setHighlightTable] = useState(false);
 const [highlightSummary, setHighlightSummary] = useState(false);
@@ -255,6 +257,15 @@ const [refundReason, setRefundReason] = useState("");
 const [showHistory, setShowHistory] = useState(false);
 const [historyData, setHistoryData] = useState([]);
 
+
+
+const safeTotalPages = totalPages > 0 ? totalPages : 1;
+const safePage = Math.min(page, safeTotalPages);
+
+
+
+const paginatedData = data;
+
 const fetchRefundHistory = async () => {
   try {
     console.log("CLICKED");
@@ -275,6 +286,12 @@ const openRefundModal = (txn) => {
   setSelectedTxn(txn);
   setShowRefundModal(true);
 };
+
+useEffect(() => {
+  if (data.length === 0) {
+    setPage(1);
+  }
+}, [data]);
 
 const titleMonth = () => {
 
@@ -352,29 +369,43 @@ const exportCSV = ()=>{
         
         };
 
+        const formatDate = (date) => {
+          if (!date) return "";
+        
+          const d = new Date(date);
+        
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+        
+          return `${year}-${month}-${day}`;
+        };
+
 /* ================= DUMMY DATA ================= */
-
-const fetchRevenue = async()=>{
-    const res = await api.get("/admin/revenue",{
-    params:{
-    month,
-    from: from ? new Date(from).toISOString().split("T")[0] : "",
-    to: to ? new Date(to).toISOString().split("T")[0] : ""
+const fetchRevenue = async () => {
+  console.log("FROM SEND:", formatDate(from));  // 👈 ADD HERE
+  console.log("TO SEND:", formatDate(to));      // 👈 ADD HERE
+  
+  const res = await api.get("/admin/revenue", {
+    params: {
+      month,
+      from: from ? formatDate(from) : "",
+      to: to ? formatDate(to) : "",
+      page
     }
-    });
-    
-    setData(res.data);
-    };
+  });
 
-    useEffect(()=>{
-        fetchRevenue();
-        },[month]);
+  setData(res.data.data);
+  setSummary(res.data.summary);
+  setTotalPages(res.data.totalPages);
+};
+
 
 
 /* ================= TOTAL ================= */
 
-const grossTotal = data.reduce((a,b)=>a+b.gross,0);
-const netTotal = data.reduce((a,b)=>a+b.net,0);
+const grossTotal = summary.gross;
+const netTotal = summary.net;
 
 
 const scrollToTable = () => {
@@ -463,6 +494,9 @@ const months = [
   };
   
 
+  useEffect(()=>{
+    fetchRevenue();
+  },[month, from, to, page]);
   
 
 return(
@@ -626,13 +660,9 @@ label="To"
 
 <button
 onClick={()=>{
-    setMonth("CUSTOM");
-    setPage(1);
-    
-    setTimeout(()=>{
-      fetchRevenue();
-    },0);
-    }}
+  setPage(1);        
+  setMonth("CUSTOM");
+}}
 className="bg-[#002c3e] text-white px-6 font-semibold py-3 rounded-full"
 >
 Apply
@@ -809,189 +839,37 @@ Apply
 
 <div className="flex justify-center items-center gap-6 mt-6">
 
-<button
-onClick={()=>setPage(p=>Math.max(p-1,1))}
-className="border border-[#5a6c7d] px-6 py-2 rounded-full text-[#5a6c7d]"
->
-Back
-</button>
+  <button
+    disabled={safePage === 1}
+    onClick={() => setPage(p => Math.max(p - 1, 1))}
+    className="px-6 py-2 rounded-full border text-[#5a6c7d] border-[#5a6c7d] disabled:opacity-40"
+  >
+    Back
+  </button>
 
-<span className="text-[#5a6c7d] font-medium">
-Page {page} of {totalPages}
-</span>
+  <span className="text-[#5a6c7d] font-medium">
+    Page {safePage} of {safeTotalPages}
+  </span>
 
-<button
-onClick={()=>setPage(p=>Math.min(p+1,totalPages))}
-className="bg-[#002c3e] text-white px-6 py-2 rounded-full"
->
-Next
-</button>
+  <button
+    disabled={safePage === safeTotalPages}
+    onClick={() => setPage(p => Math.min(p + 1, safeTotalPages))}
+    className="px-6 py-2 rounded-full bg-[#002c3e] text-white disabled:opacity-40"
+  >
+    Next
+  </button>
 
 </div>
 
 {/* ================= REVENUE SUMMARY ================= */}
 
-<div className="w-full  rounded-xl px- py-5 flex flex-col gap-4">
-
-  {/* ================= TOP ================= */}
-  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-
-    {/* ================= LEFT ================= */}
-    <div className="flex flex-col gap-3">
-
-      {/* TITLE + DATE */}
-      <div className="flex items-center gap-3">
-        <p className="text-2xl  font-semibold text-[#002c3e]">
-          Revenue
-        </p>
-
-        <p className="text-sm text-[#5a6c7d] mt-1.5 font-medium whitespace-nowrap">
-          {titleMonth()}
-        </p>
-      </div>
-
-      {/* GROSS + NET */}
-      <div className="flex gap-3 flex-wrap">
-      <div className="flex gap-3">
-      <div className="flex gap-3">
-
-{/* GROSS */}
-<div className="flex gap-3 flex-nowrap">
-
-  {/* GROSS */}
-  <div className="flex gap-3">
-
-{/* GROSS */}
-<div className="bg-white px-3 py-2 rounded-full flex items-center justify-between">
-  
-  <span className="text-[#5a6c7d] font-semibold whitespace-nowrap">
-    Gross
-  </span>
-
-  <span className="text-[#002c3e] ml-2 font-semibold whitespace-nowrap">
-  ${grossTotal?.toFixed(2) || "0.00"}
-  </span>
-
-</div>
-
-{/* NET */}
-<div className="bg-white px-4 py-2 rounded-full flex items-center justify-between">
-  
-  <span className="text-[#5a6c7d] font-semibold whitespace-nowrap">
-    Net
-  </span>
-
-  <span className="text-[#002c3e] ml-2 font-semibold whitespace-nowrap">
-  ${netTotal?.toFixed(2) || "0.00"} 
-  </span>
-
-</div>
-
-
-</div>
-</div>
-
-</div>
-</div>
-      </div>
-    </div>
-
-    {/* ================= RIGHT ================= */}
-    <div className="flex flex-col gap-3 w-full lg:w-auto">
-
-      {/* COMMISSION TITLE + LINE */}
-      <div className="flex items-center  gap-4">
-        <p className="text-2xl font-semibold mt-0.5 text-[#002c3e]">
-          Commission
-        </p>
-
-        <p className="text-sm mt-1.5  text-[#5a6c7d] whitespace-nowrap">
-          Edit app store rates
-        </p>
-      </div>
-
-      {/* PILLS + SAVE */}
-      <div className="flex items-center  gap-3 flex-wrap lg:flex-nowrap">
-
-        {/* APPLE */}
-        <div className="bg-white px-4 py-2  rounded-full flex items-center gap-2 whitespace-nowrap">
-          <span className="text-[#5a6c7d] font-semibold">
-            Apple App Store
-          </span>
-
-          <div className="flex items-center -ml-2 ">
-
-{/* NUMBER BOX (FIXED WIDTH) */}
-<span className="text-[#002c3e] font-semibold w-[32px] text-right tabular-nums">
-  {appleCommission}
-</span>
-
-{/* % FIXED */}
-<span className="text-[#002c3e] font-semibold">
-  %
-</span>
-
-</div>
-
-          <div className="flex gap-1 text-xs text-black">
-            <button className="hover:bg-[#e3e9ef]" onClick={() => setAppleCommission(p => p + 1)}>▲</button>
-            <button  className="hover:bg-[#e3e9ef]" onClick={() => setAppleCommission(p => Math.max(0, p - 1))}>▼</button>
-          </div>
-        </div>
-
-        {/* GOOGLE */}
-        <div className="bg-white px-4 py-2 -mt-1 rounded-full flex items-center gap-2 whitespace-nowrap">
-          <span className="text-[#5a6c7d] font-semibold">
-            Google Play Store
-          </span>
-
-          <div className="flex items-center -ml-2">
-
-<span className="text-[#002c3e] font-semibold w-[32px] text-right tabular-nums">
-  {googleCommission}
-</span>
-
-<span className="text-[#002c3e] font-semibold">
-  %
-</span>
-
-</div>
-
-          <div className="flex gap-1 text-xs text-black ">
-            <button className="hover:bg-[#e3e9ef] " onClick={() => setGoogleCommission(p => p + 1)}>▲</button>
-            <button className="hover:bg-[#e3e9ef]" onClick={() => setGoogleCommission(p => Math.max(0, p - 1))}>▼</button>
-          </div>
-        </div>
-
-        {/* SAVE BUTTON */}
-        <button
-          onClick={async () => {
-            await api.post("/admin/set-commission", {
-              apple: appleCommission,
-              google: googleCommission
-            });
-            fetchRevenue();
-          }}
-          className="bg-[#002c3e] text-white px-6 py-2  -mt-1 rounded-full font-semibold whitespace-nowrap"
-        >
-          Save
-        </button>
-
-      </div>
-    </div>
-
-  </div>
-
- 
-
-</div>
 
 {showHistory && createPortal(
   <div className="fixed inset-0 z-[1000] bg-black/80  flex items-center justify-center">
    
   <button
   onClick={() => setShowHistory(false)}
-  className="absolute top-54 right-64 text-[#b6b9b3] text-[26px] z-10"
+  className="absolute top-54 right-46 text-[#b6b9b3] text-[26px] z-10"
 >
   ✕
 </button>
@@ -1125,21 +1003,21 @@ Next
   document.body
 )}
 {showRefundModal && (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
 
-    <div className="bg-white rounded-[40px] px-7 py-8 w-[500px] text-center ">
+    <div className="bg-white rounded-[40px] px-6 py-7 w-[500px] text-center ">
 
       {/* TITLE */}
-      <h2 className="text-[20px] font-semibold text-[#0b3c49] mb-6">
+      <h2 className="text-[18px] font-semibold text-[#0b3c49] mb-6">
         Approve Refund
       </h2>
 
       {/* TEXT */}
-      <p className="text-[20px] text-[#0b3c49] leading-relaxed">
+      <p className="text-[18px] text-[#0b3c49] leading-relaxed">
         Are you sure you want to refund this user?
       </p>
 
-      <p className="text-[20px] text-[#0b3c49] mt-2 mb-6">
+      <p className="text-[18px] text-[#0b3c49] mt-2 mb-6">
         The amount will be credited via Stripe
       </p>
 
@@ -1155,13 +1033,13 @@ Next
         <button
           onClick={() => setShowRefundModal(false)}
           className="
-            px-10 py-4
+            px-8 py-4
             bg-[#bfc3be]
             text-white
             text-[18px]
             font-semibold
             rounded-full
-            w-[200px]
+            w-[170px]
           "
         >
           Cancel
@@ -1171,13 +1049,13 @@ Next
         <button
           onClick={handleRefundConfirm}
           className="
-            px-10 py-4
+            px-8 py-4
             bg-[#002c3e]
             text-white
-            text-[18px]
+            text-[17px]
             font-semibold
             rounded-full
-            w-[200px]
+            w-[170px]
             hover:opacity-90
           "
         >
@@ -1206,7 +1084,7 @@ function Card({ label, value, error, onClick }) {
     <div
       onClick={onClick}
       className={`
-      bg-[#f5f5f5] rounded-4xl px-8 py-6
+      bg-[#f5f5f5] rounded-4xl px-4 py-6
       ${onClick ? "cursor-pointer hover:scale-[1.03] hover:shadow-md" : ""}
       transition-all duration-200
       `}

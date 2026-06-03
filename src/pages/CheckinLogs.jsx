@@ -11,13 +11,50 @@ const [search,setSearch] = useState("");
 const [consent,setConsent] = useState("ALL");
 const [status,setStatus] = useState("ALL");
 
+
 const [page,setPage] = useState(1);
+
+const [openRow, setOpenRow] = useState(null);
+
+const [totalPages, setTotalPages] = useState(1);
+
+const [dropdownPos, setDropdownPos] = useState({
+  top: 0,
+  left: 0
+});
+
+useEffect(() => {
+  const close = () => setOpen(false);
+  window.addEventListener("click", close);
+  return () => window.removeEventListener("click", close);
+}, []);
+
+const safeTotalPages = totalPages > 0 ? totalPages : 1;
+const safePage = Math.min(page, safeTotalPages);
+
+useEffect(() => {
+  if (data.length === 0) {
+    setPage(1);
+  }
+}, [data]);
 
 /* ================= FETCH ================= */
 
+useEffect(() => {
+  const handleClickOutside = () => {
+    setOpenRow(null);
+  };
+
+  window.addEventListener("click", handleClickOutside);
+
+  return () => {
+    window.removeEventListener("click", handleClickOutside);
+  };
+}, []);
+
 useEffect(()=>{
 fetchData();
-},[consent,status,page]);
+},[consent,status,page,search]);
 
 const fetchData = async()=>{
 
@@ -34,7 +71,8 @@ page
 }
 });
 
-setData(res.data);
+setData(res.data.data);
+setTotalPages(res.data.totalPages);
 
 }
 catch(err){
@@ -66,6 +104,11 @@ const consentOptions = [
 "Pending"
 ];
 
+const formatText = (text) => {
+  if (!text) return "-";
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+};
+
 
 return(
 
@@ -96,7 +139,7 @@ type="text"
 placeholder="Search Recipient..."
 value={search}
 onChange={(e)=>setSearch(e.target.value)}
-onBlur={fetchData}
+
 className="
 bg-white
 rounded-full
@@ -116,21 +159,33 @@ text-[#002c3e]
 <div className="relative">
 
 <button
-onClick={()=>setOpen(!open)}
-className="
-bg-[#002c3e]
-text-white
-px-4
-py-2
-rounded-full
-flex
-items-center
-gap-2
-flex-shrink-0
+  onClick={(e) => {
+    e.stopPropagation();
 
-"
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setDropdownPos({
+      top: rect.bottom + 6,
+      left: rect.left
+    });
+
+    setOpen(!open);
+  }}
+  className="
+    bg-[#002c3e]
+    text-white
+    px-4
+    py-2
+    rounded-full
+    flex
+    items-center
+    gap-2
+  "
 >
-Consent  <svg
+  {consent === "ALL" ? "Consent" : consent}
+
+  {/* 🔽 ARROW ICON */}
+  <svg
     xmlns="http://www.w3.org/2000/svg"
     className={`w-4 h-4 transition ${open ? "rotate-180" : ""}`}
     fill="none"
@@ -141,50 +196,43 @@ Consent  <svg
   </svg>
 </button>
 
-{open && (
-
-<div
-className="
-absolute
-top-13
-left-0
-bg-[#7f837f]
-text-white
-rounded-4xl
-overflow-hidden
-shadow-lg
-py-2
-"
->
-
-{consentOptions.map(opt=>(
-
-<div
-key={opt}
-onClick={()=>{
-
-setConsent(opt);
-setOpen(false);
-
-}}
-className="
-px-4
-py-2
-cursor-pointer
-hover:bg-[#6f736f]
-
-"
->
-
-{opt.replace("_"," ")}
-
-</div>
-
-))}
-
-</div>
-
-)}
+  {open && (
+    <div
+      className="
+        fixed   /* 🔥 MAIN FIX */
+        bg-[#7f837f]
+        text-white
+        rounded-xl
+        shadow-xl
+        py-2
+        min-w-[160px]
+        z-[9999]
+      "
+      style={{
+        top: dropdownPos.top,
+        left: dropdownPos.left
+      }}
+    >
+      {consentOptions.map((opt) => (
+        <div
+          key={opt}
+          onClick={(e) => {
+            e.stopPropagation();
+            setConsent(opt);
+            setOpen(false);
+          }}
+          className="
+            px-4
+            py-2
+            cursor-pointer
+            hover:bg-[#6f736f]
+          "
+        >
+          {opt}
+        </div>
+      ))}
+    </div>
+  )}
 
 </div>
 
@@ -274,27 +322,27 @@ Loading...
 
 ):(
 
-<table className="w-full text-[16px] table-fixed">
+<table className="w-full text-[15px]">
 
 <thead className="bg-[#78bcc4] text-white tracking-wide">
 
 <tr>
 
-<th className="px-6 py-5 text-left">Recipient</th>
+<th className="px-3 py-4 text-left whitespace-nowrap">Recipient</th>
 
-<th className="px-6 py-5 text-left">Phone</th>
+<th className="px-3 py-5 text-left">Phone</th>
 
-<th className="px-6 py-5 text-left">Consent</th>
+<th className="px-3 py-5 text-left">Consent</th>
 
-<th className="px-6 py-5 text-left w-[16%] whitespace-nowrap ">Alerts Type</th>
+<th className="px-3 py-5 text-left w-[16%] whitespace-nowrap ">Alerts Type</th>
 
-<th className="px-4 py-5 text-left w-[16%] whitespace-nowrap">Alert Sent At</th>
+<th className="px-3 py-5 text-left w-[16%] whitespace-nowrap">Alert Sent At</th>
 
-<th className="px-6 py-5 text-left">Status</th>
+<th className="px-3 py-5 text-left">Status</th>
 
-<th className="px-6 py-5 text-left">Attempts</th>
+<th className="px-3 py-5 text-left">Attempts</th>
 
-<th className="px-6 py-5 text-left w-[16%]  whitespace-nowrap">Failure Reason</th>
+<th className="px-3 py-5 text-left w-[16%]  whitespace-nowrap">Failure Reason</th>
 
 </tr>
 
@@ -332,52 +380,97 @@ hover:bg-[#f7f8f3]
 "
 >
 
-<td className="px-6 py-4 font-semibold">
+<td className="px-3 py-4 font-semibold">
 {row.name}
 </td>
 
-<td className="px-6 py-4">
+<td className="px-3 py-4">
 {row.phone}
 </td>
 
-<td className="px-6 py-4">
+<td className="px-3 py-4">
 {row.consent}
 </td>
 
 <td
 className={`
-px-6 py-4 font-semibold
+px-3 py-4 font-medium
 ${row.alertType==="MISSED" || row.alertType==="SOS"
 ? "text-[#ee6a59]"
 : ""
 }
 `}
 >
-{row.alertType}
+{formatText(row.alertType)}
 </td>
 
-<td className="px-6 py-4">
+<td className="px-3 py-4 whitespace-nowrap">
 {new Date(row.createdAt).toLocaleString()}
 </td>
 
 <td
 className={`
-px-6 py-4 font-semibold
+px-3 py-4 font-medium
 ${row.status==="SENT"
 ? "text-[#78bcc4]"
 : "text-[#ee6a59]"
 }
 `}
 >
-{row.status}
+
+  {formatText(row.status)}
+
 </td>
 
-<td className="px-6 py-4">
+<td className="px-3 py-4">
 {row.retryCount} | 5
 </td>
 
-<td className="px-6 py-4">
-{row.failureReason || "-"}
+<td className="px-5 py-4 max-w-[240px] relative">
+
+  <div className="flex items-center gap-2">
+
+    <span className="text-sm text-gray-600 truncate max-w-[150px]">
+      {row.failureReason || "-"}
+    </span>
+
+    {row.failureReason && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpenRow(openRow === i ? null : i);
+        }}
+        className="text-blue-500 font-bold text-lg leading-none"
+      >
+        ⋯
+      </button>
+    )}
+
+  </div>
+
+  {/* 🔥 YE MISSING THA */}
+  {openRow === i && (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="
+        absolute
+        right-0
+        top-10
+        bg-white
+        border
+        shadow-xl
+        rounded-xl
+        p-3
+        w-[260px]
+        z-50
+        text-xs
+        break-words
+      "
+    >
+      {row.failureReason}
+    </div>
+  )}
+
 </td>
 
 </tr>
@@ -396,39 +489,27 @@ ${row.status==="SENT"
 
 {/* ================= PAGINATION ================= */}
 
-<div className="flex justify-center items-center gap-6">
+<div className="flex justify-center items-center gap-6 mt-8">
 
-<button
-onClick={()=>setPage(p=>Math.max(p-1,1))}
-className="
-border-[#5a6c7d]
-border-2
-text-[#5a6c7d]
-font-semibold
-px-6
-py-2
-rounded-full
-"
->
-Back
-</button>
+  <button
+    disabled={safePage === 1}
+    onClick={() => setPage(p => Math.max(p - 1, 1))}
+    className="px-6 py-2 rounded-full border text-[#5a6c7d] border-[#5a6c7d] disabled:opacity-40"
+  >
+    Back
+  </button>
 
-<span className="text-[#5a6c7d]">
-Page {page}
-</span>
+  <span className="text-[#5a6c7d] font-medium">
+    Page {safePage} of {safeTotalPages}
+  </span>
 
-<button
-onClick={()=>setPage(p=>p+1)}
-className="
-bg-[#002c3e]
-text-white
-px-6
-py-2
-rounded-full
-"
->
-Next
-</button>
+  <button
+    disabled={safePage === safeTotalPages}
+    onClick={() => setPage(p => Math.min(p + 1, safeTotalPages))}
+    className="px-6 py-2 rounded-full bg-[#002c3e] text-white disabled:opacity-40"
+  >
+    Next
+  </button>
 
 </div>
 

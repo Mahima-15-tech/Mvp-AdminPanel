@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import CreatePromoModal from "../components/CreatePromoModal";
 import api from "../api/axios";
 import { useEffect } from "react";
@@ -10,8 +10,15 @@ export default function PromoCodes() {
   const [status, setStatus] = useState("ALL");
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
+  const [highlightType, setHighlightType] = useState(null);
+const tableRef = useRef(null);
+
+const scrollToTable = () => {
+  tableRef.current?.scrollIntoView({ behavior: "smooth" });
+};
 
 //   const [data, setData] = useState([]);
+
 
 
   const [page, setPage] = useState(1);
@@ -37,13 +44,20 @@ export default function PromoCodes() {
     return true;
   });
 
-  // 📄 PAGINATION
-  const totalPages = Math.ceil(filteredData.length / perPage);
-  
-  const paginatedData = filteredData.slice(
-    (page - 1) * perPage,
-    page * perPage
-  );
+
+const totalPages = Math.ceil(filteredData.length / perPage);
+
+const safeTotalPages = totalPages > 0 ? totalPages : 1;
+const safePage = Math.min(page, safeTotalPages);
+
+const paginatedData = filteredData.slice(
+  (safePage - 1) * perPage,
+  safePage * perPage
+);
+useEffect(() => {
+  setPage(1);
+}, [search, status]);
+
 
   const statusOptions = [
     { label: "All Status", value: "ALL" },
@@ -87,6 +101,13 @@ const notRedeemed = total - redeemed - expired;
 useEffect(() => {
   setPage(1);
 }, [search, status]);
+
+const handleRefresh = async () => {
+  setStatus("ALL");   
+  setSearch("");     
+  setPage(1);         
+  await fetchPromo(); 
+};
 
 
   return (
@@ -149,7 +170,7 @@ useEffect(() => {
 
           {/* REFRESH */}
           <button
-  onClick={fetchPromo}
+  onClick={handleRefresh}
   className="bg-white w-10 h-10 rounded-full flex items-center justify-center"
 >
             <img src="/refreshicon.svg" className="w-12 h-12"/>
@@ -170,16 +191,49 @@ useEffect(() => {
       {/* ================= STATS (REFERENCE CARD) ================= */}
       <div className="grid grid-cols-4 gap-6">
 
-      <Card label="Total Codes Sent" value={total} />
-<Card label="Not Redeemed" value={notRedeemed} />
-<Card label="Redeemed" value={redeemed} />
-<Card label="Expired" value={expired} />
+      <Card 
+  label="Total Codes Sent" 
+  value={total} 
+  onClick={() => {
+    setHighlightType("ALL");
+    scrollToTable();
+  }} 
+/>
+
+<Card 
+  label="Not Redeemed" 
+  value={notRedeemed} 
+  onClick={() => {
+    setHighlightType("NOT_REDEEMED");
+    scrollToTable();
+  }} 
+/>
+
+<Card 
+  label="Redeemed" 
+  value={redeemed} 
+  onClick={() => {
+    setHighlightType("REDEEMED");
+    scrollToTable();
+  }} 
+/>
+
+<Card 
+  label="Expired" 
+  value={expired} 
+  onClick={() => {
+    setHighlightType("EXPIRED");
+    scrollToTable();
+  }} 
+/>
 
       </div>
 
       {/* ================= TABLE (REFERENCE EXACT) ================= */}
-      <div className="bg-white rounded-4xl border border-[#e6e6e6] overflow-hidden">
-
+      <div 
+  ref={tableRef}
+  className="bg-white rounded-4xl border border-[#e6e6e6] overflow-hidden"
+>
   {/* SCROLL CONTAINER */}
   <div className="max-h-[400px] overflow-y-auto">
 
@@ -215,9 +269,23 @@ useEffect(() => {
     
     paginatedData.map((row, i) => (
       <tr
-        key={i}
-        className="border-b border-[#e5e5e5] text-sm hover:bg-[#f7f8f3]"
-      >
+      key={i}
+      className={`border-b border-[#e5e5e5] text-sm transition-all duration-300
+        ${
+          highlightType === "REDEEMED" && row.status === "Redeemed"
+            ? "bg-green-100"
+            : highlightType === "EXPIRED" && row.status === "Expired"
+            ? "bg-red-100"
+            : highlightType === "NOT_REDEEMED" &&
+              row.status !== "Redeemed" &&
+              row.status !== "Expired"
+            ? "bg-yellow-100"
+            : highlightType === "ALL"
+            ? "bg-blue-50"
+            : "hover:bg-[#f7f8f3]"
+        }
+      `}
+    >
         <td className="px-6 py-4 font-semibold">
           {row.code}
         </td>
@@ -257,27 +325,29 @@ useEffect(() => {
 </div>
 
       {/* ================= PAGINATION ================= */}
-      <div className="flex justify-center items-center gap-6">
+      <div className="flex justify-center items-center gap-6 mt-6">
 
-        <button
-          onClick={() => setPage(p => Math.max(p - 1, 1))}
-          className="border border-[#5a6c7d] px-6 py-2 rounded-full text-[#5a6c7d]"
-        >
-          Back
-        </button>
+<button
+  disabled={safePage === 1}
+  onClick={() => setPage(p => Math.max(p - 1, 1))}
+  className="px-6 py-2 rounded-full border text-[#5a6c7d] border-[#5a6c7d] disabled:opacity-40"
+>
+  Back
+</button>
 
-        <span className="text-[#5a6c7d] font-medium">
-          Page {page} of {totalPages || 1}
-        </span>
+<span className="text-[#5a6c7d] font-medium">
+  Page {safePage} of {safeTotalPages}
+</span>
 
-        <button
-          onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-          className="bg-[#002c3e] text-white px-6 py-2 rounded-full"
-        >
-          Next
-        </button>
+<button
+  disabled={safePage === safeTotalPages}
+  onClick={() => setPage(p => Math.min(p + 1, safeTotalPages))}
+  className="px-6 py-2 rounded-full bg-[#002c3e] text-white disabled:opacity-40"
+>
+  Next
+</button>
 
-      </div>
+</div>
 
       {/* ================= MODAL ================= */}
       {showModal && (
@@ -294,10 +364,19 @@ useEffect(() => {
 
 /* ================= SAME CARD COMPONENT ================= */
 
-function Card({ label, value }) {
+function Card({ label, value, onClick }) {
   return (
-    <div className="bg-[#f5f5f5] rounded-4xl px-8 py-4 ">
-
+    <div
+      onClick={onClick}   // ✅ THIS WAS MISSING
+      className="
+        bg-[#f5f5f5] 
+        rounded-4xl 
+        px-8 py-4 
+        cursor-pointer   /* 👈 important */
+        transition-all duration-200
+        hover:scale-[1.03] hover:shadow-md
+      "
+    >
       <p className="text-[#5a6c7d] mt-1 text-[16px] font-semibold">
         {label}
       </p>
@@ -305,7 +384,6 @@ function Card({ label, value }) {
       <p className="text-[48px] font-semibold mt-2 text-[#002c3e]">
         {value}
       </p>
-
     </div>
   );
 }

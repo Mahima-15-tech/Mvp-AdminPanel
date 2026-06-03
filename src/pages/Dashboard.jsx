@@ -11,6 +11,8 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+
+
 export default function Dashboard() {
 
   const [data, setData] = useState(null);
@@ -118,6 +120,13 @@ const pieOptions = {
   maintainAspectRatio: false
 };
 
+const monthName = new Date().toLocaleString("default", {
+  month: "short",
+  year: "numeric"
+});
+
+const formatAmount = (num) => Number(num || 0).toFixed(2);
+
   return (
 
     <div className="space-y-8 ">
@@ -178,30 +187,32 @@ const pieOptions = {
 
         {/* SUBSCRIPTION REVENUE */}
 
-        <div id="activity-section" className="bg-[#f5f5f5] rounded-[30px] p-8">
+        <div id="activity-section" className="bg-[#f5f5f5] rounded-[30px] p-7">
 
         <h2 className="text-3xl font-semibold text-[#002c3e] leading-8 mb-6 tracking-wide">
   Subscription <br />
   Revenue
-  <span className="text-[14px] text-[#5a6c7d] ml-2">Mar 2026</span>
+  <span className="text-[14px] text-[#5a6c7d] ml-2">
+  {monthName}
+</span>
 </h2>
 
           <div className="space-y-2">
 
             {/* MONTHLY */}
 
-            <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#04bade] text-white py-3 px-6">
+            <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#04bade] text-white py-3 px-7">
 
 {/* LEFT */}
 <div className="pr-6  mt-2">
-  <p className="text-md font-semibold leading-5">Monthly <br /> Plan Gross</p>
-  <p className="text-3xl font-medium mt-2">${data.revenue?.monthly?.gross || 0}</p>
+  <p className="text-md font-semibold leading-5 -ml-4">Monthly <br /> Plan Gross</p>
+  <p className="text-3xl font-medium mt-2 -ml-4">${formatAmount(data.revenue?.monthly?.gross)}</p>
 </div>
 
 {/* RIGHT */}
 <div className="pl-8  mt-2">
-  <p className="text-md font-semibold  leading-5">Monthly <br /> Plan Net</p>
-  <p className="text-3xl font-medium mt-2">${data.revenue?.monthly?.net || 0}</p>
+  <p className="text-md font-semibold  leading-5 -ml-4">Monthly <br /> Plan Net</p>
+  <p className="text-3xl font-medium mt-2 -ml-4">${formatAmount(data.revenue?.monthly?.net)}</p>
 </div>
 
 {/* DIVIDER */}
@@ -212,19 +223,19 @@ const pieOptions = {
 
             {/* YEARLY */}
 
-            <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#f6c663] text-white py-3 px-6">
+            <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#f6c663] text-white py-3 px-7">
 
-            <div className="pr-6 mt-2">
-  <p className="text-md font-semibold leading-5">Yearly <br /> Plan Gross</p>
-  <p className="text-3xl mt-2">
-    ${data.revenue?.yearly?.gross || 0}
+            <div className="pr-6 mt-2 ">
+  <p className="text-md font-semibold leading-5 -ml-4">Yearly <br /> Plan Gross</p>
+  <p className="text-3xl mt-2 -ml-4">
+  ${formatAmount(data.revenue?.yearly?.gross)}
   </p>
 </div>
 
 <div className="pl-8 mt-2">
-  <p className="text-md font-semibold leading-5">Yearly <br /> Plan Net</p>
-  <p className="text-3xl mt-2">
-    ${data.revenue?.yearly?.net || 0}
+  <p className="text-md font-semibold leading-5 -ml-4">Yearly <br /> Plan Net</p>
+  <p className="text-3xl mt-2 -ml-4">
+  ${formatAmount(data.revenue?.yearly?.net)}
   </p>
 </div>
 
@@ -235,19 +246,19 @@ const pieOptions = {
 
             {/* TOP UPS */}
 
-            <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#fc867d] text-white py-3 px-6">
+            <div className="relative grid grid-cols-2 rounded-3xl overflow-hidden bg-[#fc867d] text-white py-3 px-7">
 
             <div className="pr-6 mt-2">
-  <p className="text-md font-semibold leading-5">Top-ups <br /> Gross</p>
-  <p className="text-3xl mt-2">
-    ${data.revenue?.topups?.gross || 0}
+  <p className="text-md font-semibold leading-5 -ml-4">Top-ups <br /> Gross</p>
+  <p className="text-3xl mt-2 -ml-4">
+  ${formatAmount(data.revenue?.topups?.gross)}
   </p>
 </div>
 
 <div className="pl-8 mt-2">
-  <p className="text-md font-semibold leading-5">Top-ups <br /> Net</p>
-  <p className="text-3xl mt-2">
-    ${data.revenue?.topups?.net || 0}
+  <p className="text-md font-semibold leading-5 -ml-4">Top-ups <br /> Net</p>
+  <p className="text-3xl mt-2 -ml-4">
+  ${formatAmount(data.revenue?.topups?.net)}
   </p>
 </div>
 
@@ -258,7 +269,7 @@ const pieOptions = {
           </div>
 
           <p className="text-xs text-[#5a6c7d] mt-4 ml-2">
-            Net after app store commission
+            Net after Stripe Fees
           </p>
 
         </div>

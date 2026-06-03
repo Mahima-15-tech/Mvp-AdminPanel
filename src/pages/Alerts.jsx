@@ -19,6 +19,8 @@
   const [openType,setOpenType] = useState(false);
   const [openPlan,setOpenPlan] = useState(false);
 
+  const [totalPages, setTotalPages] = useState(1);
+
   // const [alerts,setAlerts] = useState([]); // filtered (table)
 const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
 
@@ -45,8 +47,10 @@ const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
         params:{ page, type, status:statusFilter, plan, search }
       });
   
-      setAlerts(res.data);
+      setAlerts(res.data.data || res.data); // depending API
+setTotalPages(res.data.pages || 1); 
   
+
       // 👉 FULL DATA (stats ke liye)
       const fullRes = await api.get("/admin/alert-monitoring",{
         params:{ page:1, type:"ALL", status:"ALL", plan:"ALL", search:"" }
@@ -60,6 +64,15 @@ const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
       setLoading(false);
     }
   };
+
+  const safeTotalPages = totalPages > 0 ? totalPages : 1;
+const safePage = Math.min(page, safeTotalPages);
+
+useEffect(() => {
+  if (alerts.length === 0) {
+    setPage(1);
+  }
+}, [alerts]);
 
   const scrollToSection = (id) => {
       const el = document.getElementById(id);
@@ -425,27 +438,29 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
 
   {/* ================= PAGINATION ================= */}
 
-  <div className="flex justify-center items-center gap-6">
+  <div className="flex justify-center items-center gap-6 mt-8">
 
   <button
-  onClick={()=>setPage(p=>Math.max(p-1,1))}
-  className="border-[#5a6c7d] border-2 text-[#5a6c7d] font-semibold px-6 py-2 rounded-full"
+    disabled={safePage === 1}
+    onClick={() => setPage(p => Math.max(p - 1, 1))}
+    className="px-6 py-2 rounded-full border text-[#5a6c7d] border-[#5a6c7d] disabled:opacity-40"
   >
-  Back
+    Back
   </button>
 
   <span className="text-[#5a6c7d] font-medium">
-  Page {page}
+    Page {safePage} of {safeTotalPages}
   </span>
 
   <button
-  onClick={()=>setPage(p=>p+1)}
-  className="bg-[#002c3e] text-white px-6 py-2 rounded-full"
+    disabled={safePage === safeTotalPages}
+    onClick={() => setPage(p => Math.min(p + 1, safeTotalPages))}
+    className="px-6 py-2 rounded-full bg-[#002c3e] text-white disabled:opacity-40"
   >
-  Next
+    Next
   </button>
 
-  </div>
+</div>
 
   </div>
   );

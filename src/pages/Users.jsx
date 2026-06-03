@@ -72,6 +72,14 @@ const handleCardClick = (type) => {
 };
 
 
+const handleRefresh = () => {
+  setFromDate("");
+  setToDate("");
+  setSearchInput("");
+  setSearch("");
+  setPage(1);
+};
+
 const formatPlan = (plan) => {
   if (!plan) return "-";
 
@@ -88,7 +96,7 @@ const formatPlan = (plan) => {
 const navigate=useNavigate()
 useEffect(()=>{
   fetchUsers()
-  },[page,rowsPerPage,search])
+},[page, rowsPerPage, search, fromDate, toDate])
 
 useEffect(()=>{
 
@@ -115,9 +123,10 @@ from:fromDate,
 to:toDate
 }
 })
+const pages = res.data.users.pages;
 
 setUsers(res.data.users.data)
-setTotalPages(res.data.users.pages)
+setTotalPages(res.data.users.pages || 1);
 
 setStats(res.data.stats)
 setRegions(res.data.regions)
@@ -132,6 +141,12 @@ setLoading(false)
 }
 
 }
+
+useEffect(() => {
+  if (users.length === 0) {
+    setPage(1);
+  }
+}, [users]);
 
 const toggleBan = async (user) => {
 
@@ -227,6 +242,9 @@ const handleExport = async (type) => {
     return parts[0] + "..."; 
   };
 
+  const safeTotalPages = totalPages > 0 ? totalPages : 1;
+const safePage = Math.min(page, safeTotalPages);
+
 return(
 
 <div className="space-y-8">
@@ -244,7 +262,7 @@ className="bg-white rounded-full px-6 py-3 w-[340px] outline-none text-[#002c3e]
 />
 
 <button
-  onClick={fetchUsers}
+  onClick={handleRefresh}
   className="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink-0"
 >
   <img 
@@ -513,20 +531,20 @@ users.map((user)=>(
 <div className="flex items-center justify-center gap-6 mt-10">
 
 <button
-disabled={page===1}
-onClick={()=>setPage(page-1)}
+disabled={safePage === 1}
+onClick={() => setPage(p => Math.max(p - 1, 1))}
 className="px-6 py-2 rounded-full border text-[#5a6c7d] border-[#5a6c7d] disabled:opacity-40"
 >
 Back
 </button>
 
 <span className="text-[#5a6c7d] font-medium">
-Page {page} of {totalPages}
+Page {safePage} of {safeTotalPages}
 </span>
 
 <button
-disabled={page===totalPages}
-onClick={()=>setPage(page+1)}
+disabled={safePage === safeTotalPages}
+onClick={() => setPage(p => Math.min(p + 1, safeTotalPages))}
 className="px-6 py-2 rounded-full bg-[#002c3e] text-white disabled:opacity-40"
 >
 Next
@@ -539,7 +557,7 @@ Next
 
 {confirmUser && (
 
-<div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+<div className="fixed inset-0 bg-black/80  flex items-center justify-center z-50">
 
   <div className="bg-white rounded-[28px] w-[380px] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
 
@@ -638,119 +656,118 @@ function StatCard({ title, value, red, onClick }) {
   );
 }
 
-function RegionCard({regions}){
+function RegionCard({ regions }) {
 
-  return(
-  
-  <div className="bg-[#f5f5f5] rounded-3xl p-8 relative">
-  
-  {/* HEADER */}
-  <h3 className="font-semibold text-2xl text-[#002c3e] mb-5 ">
-    Users by Region
-  </h3>
-  
-  {/* 👉 ICON aligned with numbers column */}
-  <img 
-    src="/Globe Icon.svg"
-    alt="icon"
-    className="absolute right-2 top-3 w-18 h-18 opacity-70"
-  />
-  
-  <RegionRow label="APAC" value={regions.APAC || 0} color="#fc867d"/>
-  <RegionRow label="EMEA" value={regions.EMEA || 0} color="#f5c475"/>
-  <RegionRow label="LATAM" value={regions.LATAM || 0} color="#b5d43c"/>
-  <RegionRow label="Other" value={regions.OTHER || 0} color="#0cb4ab"/>
-  
-  </div>
-  
-  )
-  }
-function RegionRow({label,value,color}){
+  const values = [
+    regions.APAC || 0,
+    regions.EMEA || 0,
+    regions.LATAM || 0,
+    regions.OTHER || 0
+  ];
 
-return(
+  const max = Math.max(...values, 1); // 👈 important
 
-<div className="mb-3">
+  return (
+    <div className="bg-[#f5f5f5] rounded-3xl p-8 relative">
 
-<div className="flex justify-between text-md mb-1">
+      <h3 className="font-semibold text-2xl text-[#002c3e] mb-5 ">
+        Users by Region
+      </h3>
 
-<span className="text-[#5a6c7d] font-semibold">{label}</span>
-<span className="text-[#5a6c7d] font-semibold">{value}</span>
+      <img 
+        src="/Globe Icon.svg"
+        alt="icon"
+        className="absolute right-2 top-3 w-18 h-18 opacity-70"
+      />
 
-</div>
+      <RegionRow label="APAC" value={regions.APAC || 0} max={max} color="#fc867d"/>
+      <RegionRow label="EMEA" value={regions.EMEA || 0} max={max} color="#f5c475"/>
+      <RegionRow label="LATAM" value={regions.LATAM || 0} max={max} color="#b5d43c"/>
+      <RegionRow label="Other" value={regions.OTHER || 0} max={max} color="#0cb4ab"/>
 
-<div className="h-3 bg-[#dcdcdc] rounded-full">
+    </div>
+  );
+}
 
-<div
-style={{width:`${value/2}%`,background:color}}
-className="h-3 rounded-full"
-/>
 
-</div>
+function RegionRow({ label, value, color, max }) {
 
-</div>
+  const percent = (value / max) * 100;
 
-)
+  return (
+    <div className="mb-3">
 
+      <div className="flex justify-between text-md mb-1">
+        <span className="text-[#5a6c7d] font-semibold">{label}</span>
+        <span className="text-[#5a6c7d] font-semibold">{value}</span>
+      </div>
+
+      <div className="h-3 bg-[#dcdcdc] rounded-full overflow-hidden">
+        <div
+          style={{ width: `${percent}%`, background: color }}
+          className="h-3 rounded-full transition-all duration-500"
+        />
+      </div>
+
+    </div>
+  );
 }
 
 const colors = ["#fc867d", "#f5c475", "#b5d43c", "#0cb4ab"];
 
-function CountriesCard({countries}){
+function CountriesCard({ countries }) {
 
-  return(
-  
-  <div className="bg-[#f5f5f5] rounded-3xl p-8 relative">
-  
-  <h3 className="font-semibold text-2xl text-[#002c3e] mb-5">
-    Top Countries
-  </h3>
-  
-  <img 
-    src="/Locator Pin Icon.svg"
-    alt="icon"
-    className="absolute right-1 top-3 w-18 h-18 opacity-70"
-  />
-  
-  {countries.map((c,i)=>(
-  <CountryRow
-    key={i}
-    country={c._id}
-    value={c.users}
-    color={colors[i % colors.length]}   // ✅ dynamic color
-  />
-))}
-  
-  </div>
-  
-  )
-  }
+  const max = Math.max(...countries.map(c => c.users), 1); // avoid 0
+
+  return (
+    <div className="bg-[#f5f5f5] rounded-3xl p-8 relative">
+
+      <h3 className="font-semibold text-2xl text-[#002c3e] mb-5">
+        Top Countries
+      </h3>
+
+      <img 
+        src="/Locator Pin Icon.svg"
+        alt="icon"
+        className="absolute right-1 top-3 w-18 h-18 opacity-70"
+      />
+
+      {countries.map((c, i) => (
+        <CountryRow
+          key={i}
+          country={c._id}
+          value={c.users}
+          max={max}   // 👈 pass max
+          color={colors[i % colors.length]}
+        />
+      ))}
+
+    </div>
+  );
+}
 
 
 
-  function CountryRow({country,value,color}){
+function CountryRow({ country, value, color, max }) {
 
-    return(
-    
+  const percent = (value / max) * 100;
+
+  return (
     <div className="mb-3">
-    
-    <div className="flex justify-between text-md mb-1">
-    
-    <span className="text-[#5a6c7d] font-semibold">{country}</span>
-    <span className="text-[#5a6c7d] font-semibold">{value}</span>
-    
+
+      <div className="flex justify-between text-md mb-1">
+        <span className="text-[#5a6c7d] font-semibold">{country}</span>
+        <span className="text-[#5a6c7d] font-semibold">{value}</span>
+      </div>
+
+      <div className="h-3 bg-[#dcdcdc] rounded-full overflow-hidden">
+        <div
+          style={{ width: `${percent}%`, background: color }}
+          className="h-3 rounded-full transition-all duration-500"
+        />
+      </div>
+
     </div>
-    
-    <div className="h-3 bg-[#dcdcdc] rounded-full">
-    
-    <div
-    style={{width:`${value}%`,background:color}}   // ✅ dynamic
-    className="h-3 rounded-full"
-    />
-    
-    </div>
-    
-    </div>
-    
-    )
-  }
+  );
+}
  

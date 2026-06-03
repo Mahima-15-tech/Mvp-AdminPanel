@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
 import PastContactsModal from "../components/PastContactsModal";
-
+import { createPortal } from "react-dom";
 
 /* =====================================================
    MAIN COMPONENT
@@ -77,6 +77,10 @@ export default function UserDetail() {
         User not found
       </div>
     );
+
+  
+
+
 
   return (
     <div className="min-h-screen ">
@@ -342,6 +346,77 @@ function Overview({ data }) {
         return formatDate(d)
       }
 
+      function SubscriptionHistoryModal({ data, onClose }) {
+
+        return createPortal(
+      
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center">
+      
+            {/* OVERLAY */}
+            <div
+              onClick={onClose}
+              className="absolute inset-0 bg-black/80"
+            />
+      
+            {/* MODAL */}
+            <div className="relative z-10 bg-white w-[600px] rounded-3xl p-6 shadow-2xl">
+      
+              {/* CLOSE */}
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 text-xl font-bold text-gray-500"
+              >
+                ✕
+              </button>
+      
+              {/* TITLE */}
+              <h2 className="text-2xl font-semibold text-[#002c3e] mb-4">
+                Subscription History
+              </h2>
+      
+              {/* SCROLL AREA */}
+              <div className="max-h-[60vh] overflow-y-auto pr-2">
+      
+                {data.subscriptionHistory?.length ? (
+                  <div className="space-y-3">
+      
+                    {data.subscriptionHistory.map((s) => (
+                      <div
+                        key={s._id}
+                        className="bg-[#f5f5f5] rounded-2xl p-4"
+                      >
+                        <p className="font-semibold text-[#002c3e]">
+                          {s.previousPlan} → {s.newPlan}
+                        </p>
+      
+                        <p className="text-sm text-[#5a6c7d] mt-1">
+                          {new Date(s.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+      
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-lg font-semibold text-[#5a6c7d]">
+                      No history found
+                    </p>
+                    <p className="text-sm text-[#a0a0a0] mt-1">
+                      Add a subscription to see history
+                    </p>
+                  </div>
+                )}
+      
+              </div>
+      
+            </div>
+      
+          </div>,
+      
+          document.body
+        );
+      }
+
 function Subscription({ data , showHistory, setShowHistory}) {
 
   const s = data.subscription;
@@ -425,56 +500,10 @@ function Subscription({ data , showHistory, setShowHistory}) {
       </div>
 
       {showHistory && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-    <div className="bg-white w-[600px] max-h-[80vh] overflow-y-auto rounded-3xl p-6 relative">
-
-      {/* CLOSE BUTTON */}
-      <button
-        onClick={() => setShowHistory(false)}
-        className="absolute top-4 right-4 text-xl font-bold text-gray-500"
-      >
-        ✕
-      </button>
-
-      {/* TITLE */}
-      <h2 className="text-2xl font-semibold text-[#002c3e] mb-4">
-        Subscription History
-      </h2>
-
-      {/* HISTORY LIST */}
-      {data.subscriptionHistory?.length ? (
-        <div className="space-y-3">
-          {data.subscriptionHistory.map((s) => (
-            <div
-              key={s._id}
-              className="bg-[#f5f5f5] rounded-2xl p-4"
-            >
-              <p className="font-semibold text-[#002c3e]">
-                {s.previousPlan} → {s.newPlan}
-              </p>
-              <p className="text-sm text-[#5a6c7d] mt-1">
-                {new Date(s.createdAt).toLocaleString()}
-              </p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-10">
-
-        <p className="text-lg font-semibold text-[#5a6c7d]">
-          No history found
-        </p>
-      
-        <p className="text-sm text-[#a0a0a0] mt-1">
-          Add a subscription to see history
-        </p>
-      
-      </div>
-      )}
-
-    </div>
-  </div>
+  <SubscriptionHistoryModal
+    data={data}
+    onClose={() => setShowHistory(false)}
+  />
 )}
 
     </div>
@@ -521,6 +550,94 @@ function SubscriptionHistory({ data }) {
 /* =====================================================
    CONTACTS
 ===================================================== */
+
+
+
+function ContactHistoryModal({ data, onClose }) {
+
+  return createPortal(
+
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center">
+
+      {/* OVERLAY */}
+      <div
+        onClick={onClose}
+        className="absolute inset-0 bg-black/80"
+      />
+
+      {/* MODAL */}
+      <div className="relative z-10 bg-white w-[650px] rounded-3xl p-6 shadow-2xl">
+
+        {/* CLOSE */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-xl font-bold text-gray-500"
+        >
+          ✕
+        </button>
+
+        {/* TITLE */}
+        <h2 className="text-2xl font-semibold text-[#002c3e] mb-4">
+          Contact History
+        </h2>
+
+        {/* SCROLL */}
+        <div className="max-h-[60vh] overflow-y-auto pr-2">
+
+          {data.contactHistory?.length ? (
+            <div className="space-y-3">
+
+              {data.contactHistory.map((c) => (
+                <div
+                  key={c._id}
+                  className="bg-[#f5f5f5] rounded-2xl p-4 flex justify-between items-center"
+                >
+
+                  {/* LEFT */}
+                  <div>
+                    <p className="font-semibold text-[#002c3e]">
+                      {c.name} ({c.phone})
+                    </p>
+
+                    <p className="text-sm text-[#5a6c7d] mt-1">
+                      {new Date(c.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+
+                  {/* RIGHT BADGE */}
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      c.action === "ADDED"
+                        ? "bg-green-100 text-green-700"
+                        : c.action === "UPDATED"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {c.action}
+                  </span>
+
+                </div>
+              ))}
+
+            </div>
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-lg font-semibold text-[#5a6c7d]">
+                No history found
+              </p>
+            </div>
+          )}
+
+        </div>
+
+      </div>
+
+    </div>,
+
+    document.body
+  );
+}
 
 function Contacts({ data, showContactHistory, setShowContactHistory  }) {
 
@@ -652,70 +769,10 @@ function Contacts({ data, showContactHistory, setShowContactHistory  }) {
       </div>
 
       {showContactHistory && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-    <div className="bg-white w-[650px] max-h-[80vh] overflow-y-auto rounded-3xl p-6 relative">
-
-      {/* CLOSE */}
-      <button
-        onClick={() => setShowContactHistory(false)}
-        className="absolute top-4 right-4 text-xl font-bold text-gray-500"
-      >
-        ✕
-      </button>
-
-      {/* TITLE */}
-      <h2 className="text-2xl font-semibold text-[#002c3e] mb-4">
-        Contact History
-      </h2>
-
-      {/* HISTORY */}
-      {data.contactHistory?.length ? (
-        <div className="space-y-3">
-
-          {data.contactHistory.map((c) => (
-
-            <div
-              key={c._id}
-              className="bg-[#f5f5f5] rounded-2xl p-4 flex justify-between items-center"
-            >
-
-              {/* LEFT */}
-              <div>
-                <p className="font-semibold text-[#002c3e]">
-                  {c.name} ({c.phone})
-                </p>
-
-                <p className="text-sm text-[#5a6c7d] mt-1">
-                  {new Date(c.createdAt).toLocaleString()}
-                </p>
-              </div>
-
-              {/* RIGHT (ACTION BADGE) */}
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  c.action === "ADDED"
-                    ? "bg-green-100 text-green-700"
-                    : c.action === "UPDATED"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-red-100 text-red-700"
-                }`}
-              >
-                {c.action}
-              </span>
-
-            </div>
-
-          ))}
-
-        </div>
-      ) : (
-        <p className="text-[#5a6c7d]">No history found</p>
-      )}
-
-    </div>
-
-  </div>
+  <ContactHistoryModal
+    data={data}
+    onClose={() => setShowContactHistory(false)}
+  />
 )}
 
     </div>
@@ -1114,24 +1171,25 @@ function Credits({ data, refresh }) {
   const adjustCredit = async () => {
 
     if (!amount) return;
-
+  
     try {
-
       setLoading(true);
-
+  
       await api.post(`/admin/users/${data.basicInfo._id}/adjust-credits`, {
         amount: Number(amount),
         reason: "ADMIN_ADJUSTMENT",
       });
-
+  
       refresh();
-
+  
+      // ✅ ADD THIS
+      setAmount(0);
+  
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-
   };
 
   return (
@@ -1231,13 +1289,26 @@ function Credits({ data, refresh }) {
   </svg>
 </button>
 
-            <button
-              onClick={adjustCredit}
-              disabled={loading}
-              className="bg-[#002c3e] text-white px-14 py-3 rounded-full font-semibold"
-            >
-              {loading ? "..." : "Apply"}
-            </button>
+<button
+  onClick={adjustCredit}
+  disabled={loading}
+  className="
+    relative
+    bg-[#002c3e] text-white
+    px-14 py-3 rounded-full font-semibold
+    min-w-[140px] flex items-center justify-center
+  "
+>
+  {/* Original text (invisible when loading) */}
+  <span className={loading ? "opacity-0" : "opacity-100"}>
+    Apply
+  </span>
+
+  {/* Loader overlay */}
+  {loading && (
+  <div className="absolute w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+)}
+</button>
 
           </div>
 

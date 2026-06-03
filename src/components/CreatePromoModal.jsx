@@ -8,6 +8,8 @@ export default function CreatePromoModal({ onClose, refresh }) {
   const [openDuration, setOpenDuration] = useState(false);
   const [duration, setDuration] = useState("Duration");
   const [code, setCode] = useState("");
+  const [showToast, setShowToast] = useState(false);
+const [sentCount, setSentCount] = useState(0);
 
   const durations = ["1 Month", "1 Year", "Unlimited"];
 
@@ -61,17 +63,35 @@ export default function CreatePromoModal({ onClose, refresh }) {
         message
       });
   
-      alert("✅ Promo Created & Email Sent");
+      // ✅ SHOW TOAST
+      setSentCount(validEmails.length);
+      setShowToast(true);
   
-      refresh(); // ✅ yaha hona chahiye
+      // ✅ REFRESH DATA (IMPORTANT)
+      await refresh();
   
-      onClose();
+      // ✅ AUTO HIDE + CLOSE
+      setTimeout(() => {
+        setShowToast(false);
+        onClose(); // 👈 delay ke baad close hoga (smooth feel)
+      }, 3000);
   
     } catch (err) {
       console.log(err);
       alert("❌ Error creating promo");
     }
   };
+
+
+  const validEmails = emails.filter(e => e.trim() !== "");
+
+  const isFormValid =
+    code.trim() !== "" &&
+    duration !== "Duration" &&
+    validEmails.length > 0;
+  
+  const isMaxReached = emails.length >= 3;
+  
 
 
   return createPortal(
@@ -81,7 +101,7 @@ export default function CreatePromoModal({ onClose, refresh }) {
       {/* OVERLAY */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-[0.5px]"
+        className="absolute inset-0 bg-black/80 "
       />
 
       {/* MODAL */}
@@ -115,9 +135,18 @@ export default function CreatePromoModal({ onClose, refresh }) {
             <div className="relative">
               <button
                 onClick={() => setOpenDuration(!openDuration)}
-                className="bg-[#002c3e] text-white px-5 py-2 font-semibold rounded-full text-sm flex items-center gap-2"
+                className="
+  w-[140px]               
+  bg-[#002c3e] 
+  text-white 
+  px-4 py-2 
+  font-semibold 
+  rounded-full 
+  text-sm 
+  flex items-center justify-between
+"
               >
-                {duration}
+             <span className="truncate">{duration}</span>
 
                 <svg
                   className={`w-4 h-4 transition ${openDuration ? "rotate-180" : ""}`}
@@ -182,9 +211,13 @@ const isActive = i < emails.length - 1; // jo already used ho chuke
                   {/* ➕ ONLY LAST ACTIVE */}
                   <button
   onClick={addEmail}
-  disabled={!canAdd}
+  disabled={!isFormValid || (isLast && isMaxReached)}
   className={`w-9 h-9 rounded-full flex items-center justify-center
-    ${isActive ? "bg-[#002c3e]" : "bg-[#7f9aa8]"}`}
+    ${
+      !isFormValid || (isLast && isMaxReached)
+        ? "bg-[#7f9aa8] cursor-not-allowed opacity-50"
+        : "bg-[#002c3e] cursor-pointer"
+    }`}
 >
   <Plus size={16} className="text-white" />
 </button>
@@ -192,7 +225,13 @@ const isActive = i < emails.length - 1; // jo already used ho chuke
                   {/* ➖ */}
                   <button
   onClick={() => removeEmail(i)}
-  className="w-9 h-9 bg-[#002c3e] rounded-full flex items-center justify-center"
+  disabled={!isFormValid}
+  className={`w-9 h-9 rounded-full flex items-center justify-center
+    ${
+      !isFormValid
+        ? "bg-[#7f9aa8] cursor-not-allowed opacity-50"
+        : "bg-[#002c3e] cursor-pointer"
+    }`}
 >
   <Minus size={16} className="text-white" />
 </button>
@@ -214,23 +253,35 @@ const isActive = i < emails.length - 1; // jo already used ho chuke
         </div>
 
         {/* ACTIONS */}
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex items-start mt-6 gap-4">
 
-          <button
-            onClick={onClose}
-            className="px-6 py-2 rounded-full font-semibold bg-[#b6b9b3] text-white text-sm"
-          >
-            Cancel
-          </button>
+{/* ✅ LEFT TEXT (flexible but controlled) */}
+<div className="flex-1 max-w-[60%] min-h-[20px]">
+  {showToast && (
+    <p className="text-[12px] font-semibold text-[#5A6C7D] leading-tight animate-fadeOut">
+      Promo Code sent to {sentCount} recipient{sentCount > 1 ? "s" : ""}
+    </p>
+  )}
+</div>
 
-         <button
-  onClick={handleSubmit}
-  className="px-6 py-2 rounded-full font-semibold bg-[#002c3e] text-white text-sm"
->
-  Send Code via Email
-</button>
+{/* ✅ RIGHT BUTTONS (stable) */}
+<div className="ml-auto flex gap-3 shrink-0">
+  <button
+    onClick={onClose}
+    className="px-6 py-2 rounded-full font-semibold bg-[#b6b9b3] text-white text-sm"
+  >
+    Cancel
+  </button>
 
-        </div>
+  <button
+    onClick={handleSubmit}
+    className="px-6 py-2 rounded-full font-semibold bg-[#002c3e] text-white text-sm"
+  >
+    Send Code via Email
+  </button>
+</div>
+
+</div>
 
       </div>
     </div>,

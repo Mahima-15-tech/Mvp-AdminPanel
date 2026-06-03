@@ -1,21 +1,28 @@
 import { useState } from "react";
 import {  useEffect } from "react";
 import api from "../api/axios";
+import { useRef } from "react";
+
+
+
+
 
 export default function Broadcast() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
+
+
   const [tab, setTab] = useState("recent");
   
-
+  const bottomRef = useRef(null);
 
   const sendMessage = async () => {
     if (!message) return;
   
     try {
       await api.post("/broadcast/send", {
-        title: "Broadcast",
+        title: "Message from SOLO",
         message,
       });
   
@@ -27,14 +34,23 @@ export default function Broadcast() {
     }
   };
 
+  const isArchive = tab === "archive";
+
   const fetchMessages = async () => {
     try {
       const res = await api.get(`/broadcast?type=${tab}`);
-      setMessages(res.data);
+  
+      // ✅ IMPORTANT
+      setMessages(res.data.reverse());
+  
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     fetchMessages();
@@ -61,36 +77,39 @@ export default function Broadcast() {
 
       
           {/* MESSAGE LIST */}
-          <div className="bg-[#c2c5bf] mt-4 rounded-xl p-3 h-[220px]  overflow-y-auto space-y-4 figma-scrollbar">
+          <div className="bg-[#c2c5bf] mt-4 rounded-xl p-3 h-[220px] overflow-y-auto space-y-4 figma-scrollbar">
 
-            {messages.map((m, i) => {
-              const isRecent =
-                new Date() - new Date(m.createdAt) < 24 * 60 * 60 * 1000;
+{messages.map((m, i) => {
+  const isRecent =
+    new Date() - new Date(m.createdAt) < 24 * 60 * 60 * 1000;
 
-              return (
-                <div key={i}>
-                <div
-                  className={`rounded-2xl px-5 py-3 mt-2 text-[12px] font-semibold leading-4  ${
-                    isRecent
-                      ? "bg-[#002c3e] text-[#f5f5f5]"
-                      : "bg-[#7f9aa8] text-[#f5f5f5]"
-                  }`}
-                >
-                  {m.message}
-                </div>
-              
-                {/* TIMESTAMP */}
-                <p className="text-[9px] text-[#5a6c7d] font-semibold   mt-1 ml-5">
-                  {new Date(m.createdAt).toLocaleDateString()} |{" "}
-                  {new Date(m.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-              );
-            })}
-          </div>
+  return (
+    <div key={i}>
+      <div
+        className={`rounded-2xl px-5 py-3 mt-2 text-[12px] font-medium leading-4  ${
+          isRecent
+            ? "bg-[#002c3e] text-[#f5f5f5]"
+            : "bg-[#7f9aa8] text-[#f5f5f5]"
+        }`}
+      >
+        {m.message}
+      </div>
+
+      <p className="text-[9px] text-[#5a6c7d] font-semibold mt-1 ml-5">
+        {new Date(m.createdAt).toLocaleDateString()} |{" "}
+        {new Date(m.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </p>
+    </div>
+  );
+})}
+
+{/* 👇 AUTO SCROLL TARGET */}
+<div ref={bottomRef} />
+
+</div>
 
           {/* INPUT */}
           <div className="mt-4">
@@ -98,7 +117,13 @@ export default function Broadcast() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Enter message..."
-              className="w-full px-4 py-6  rounded-2xl border border-[#CFD5DB] bg-white outline-none text-sm text-[#5a6c7d]"
+              className={`
+              w-full px-4 py-6 rounded-2xl border outline-none text-sm
+              ${isArchive 
+                ? "bg-[#7F9AA8] text-[#f5f5f5] placeholder:text-[#f5f5f5] border-transparent cursor-not-allowed" 
+                : "bg-white text-[#5a6c7d] border-[#CFD5DB]"
+              }
+            `}
             />
           </div>
 
@@ -138,11 +163,19 @@ export default function Broadcast() {
               </button>
 
               <button
-                onClick={sendMessage}
-                className="px-7 py-2 rounded-full bg-[#002c3e] text-white text-sm font-semibold"
-              >
-                Send
-              </button>
+  onClick={sendMessage}
+  disabled={isArchive || !message}
+  className={`
+    px-7 py-2 rounded-full text-sm font-semibold transition
+    ${
+      isArchive
+        ? "bg-[#b6b9b3] text-white cursor-not-allowed"
+        : "bg-[#002c3e] text-white hover:opacity-90"
+    }
+  `}
+>
+  Send
+</button>
 
             </div>
 
