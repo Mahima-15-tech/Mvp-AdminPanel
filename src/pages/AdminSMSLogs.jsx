@@ -52,7 +52,7 @@ const [googleCommission, setGoogleCommission] = useState(20);
       >
 
         {/* LABEL */}
-        <span className="px-4 py-3.5 text-white bg-[#78bcc4] font-semibold text-sm">
+        <span className="px-4 py-3.5 text-white bg-[#002c3e] font-semibold text-sm">
           {label}
         </span>
 
@@ -64,7 +64,7 @@ const [googleCommission, setGoogleCommission] = useState(20);
             : "DD | MM | YY"
           }
 
-          <CalendarDays size={16} className="text-[#002c3e] ml-auto" />
+          <CalendarDays size={16} className="text-[#5a6c7d] ml-auto" />
 
         </div>
 
@@ -72,7 +72,7 @@ const [googleCommission, setGoogleCommission] = useState(20);
 
       {/* DROPDOWN */}
       {open && (
-        <div className="absolute top-[55px] left-0 z-50 bg-white rounded-2xl p-4 w-[280px] shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
+        <div className="absolute top-[55px] -left-6 z-50 bg-white rounded-2xl p-4 w-[260px] shadow-[0_10px_30px_rgba(0,0,0,0.15)]">
 
           <DatePicker
             selected={tempDate}
@@ -261,7 +261,7 @@ const [historyData, setHistoryData] = useState([]);
 
 const safeTotalPages = totalPages > 0 ? totalPages : 1;
 const safePage = Math.min(page, safeTotalPages);
-
+const [totalCount, setTotalCount] = useState(0);
 
 
 const paginatedData = data;
@@ -398,7 +398,9 @@ const fetchRevenue = async () => {
   setData(res.data.data);
   setSummary(res.data.summary);
   setTotalPages(res.data.totalPages);
+  setTotalCount(res.data.totalCount);
 };
+
 
 
 
@@ -464,7 +466,7 @@ const AutoFitText = ({ text }) => {
 /* ================= MONTH OPTIONS ================= */
 
 const months = [
-    {label:"All",value:"ALL"},
+    {label:"All Periods",value:"ALL"},
     {label:"This Month",value:"THIS_MONTH"},
     {label:"Last Month",value:"LAST_MONTH"},
     {label:"Last 3 Months",value:"LAST_3"},
@@ -505,7 +507,7 @@ return(
 
 
 {/* ================= FILTER BAR ================= */}
-<div className="bg-[#B5B9B2] rounded-4xl px-4 py-5 flex items-center gap-2 whitespace-nowrap">
+<div className="bg-[#B5B9B2] rounded-4xl px-6 py-4 flex items-center gap-2 whitespace-nowrap">
 {/* MONTH */}
 
 <div className="relative">
@@ -663,14 +665,14 @@ onClick={()=>{
   setPage(1);        
   setMonth("CUSTOM");
 }}
-className="bg-[#002c3e] text-white px-6 font-semibold py-3 rounded-full"
+className="bg-[#002c3e] text-white px-5 font-semibold py-3 rounded-full"
 >
 Apply
 </button>
 
 <button
   onClick={fetchRefundHistory}
-  className="bg-[#002c3e] text-white px-3 font-semibold py-3 rounded-full"
+  className="bg-[#002c3e] text-white px-3 font-semibold py-3 rounded-full ml-auto"
 >
   Refund History
 </button>
@@ -684,7 +686,7 @@ Apply
 
 <Card 
   label="Total Transactions" 
-  value={data.length} 
+  value={totalCount} 
   onClick={scrollToTable}
 />
 
@@ -729,8 +731,8 @@ Apply
     <th className="w-[14%] px-6 py-5 text-left">Plan</th>
     <th className="w-[18%] px-6 py-5 text-left">Gross</th>
     <th className="w-[18%] px-6 py-5 text-left">Net</th>
-    <th className="w-[18%] px-6 py-5 text-left">Status</th>
-<th className="w-[18%] px-6 py-5 text-left">Action</th>
+    {/* <th className="w-[18%] px-6 py-5 text-left">Status</th> */}
+<th className="w-[18%] px-6 py-5 text-left">Actions</th>
   </tr>
 </thead>
 
@@ -760,11 +762,21 @@ Apply
         paginatedData.map((r,i)=>(
 
           <tr
-            key={i}
-            className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
-          >
+  key={i}
+  className={`
+    border-b border-[#e5e5e5]
+    ${r.status === "REFUNDED"
+      ? "bg-[#f7f7f7] text-[#b6b9b3]"
+      : "hover:bg-[#f7f8f3] text-[#5a6c7d]"
+    }
+  `}
+>
 
-            <td className="px-6 py-4">
+            <td className={`px-6 py-4 font-semibold ${
+  r.status === "REFUNDED"
+    ? "text-[#b6b9b3]"
+    : "text-[#78bcc4]"
+}`}>
               {new Date(r.date).toLocaleDateString("en-GB",{
                 day:"2-digit",
                 month:"short",
@@ -772,54 +784,90 @@ Apply
               })}
             </td>
 
-            <td className=" py-4 whitespace-nowrap">
+            <td className={` py-4 whitespace-nowrap font-semibold ${
+  r.status === "REFUNDED"
+    ? "text-[#b6b9b3]"
+    : "text-[#78bcc4]"
+}`}>
               {r.userId}
             </td>
 
-            <td className="px-6 py-4 font-semibold">
+            <td className={`px-6 py-4 font-semibold ${
+  r.status === "REFUNDED"
+    ? "text-[#b6b9b3]"
+    : "text-[#78bcc4]"
+}`}>
               {r.userName}
             </td>
 
-            <td className="px-2 py-4">
+            <td className={`px-6 py-4 font-semibold ${
+  r.status === "REFUNDED"
+    ? "text-[#b6b9b3]"
+    : "text-[#78bcc4]"
+}`}>
               {r.plan?.toLowerCase()}
             </td>
 
-            <td className="px-6 py-4 text-[#78bcc4] font-semibold">
+            <td className={`px-6 py-4 font-semibold ${
+  r.status === "REFUNDED"
+    ? "text-[#b6b9b3]"
+    : "text-[#78bcc4]"
+}`}>
               ${r.gross.toFixed(2)} 
             </td>
 
-            <td className="px-6 py-4 text-[#78bcc4] font-semibold">
+            <td className={`px-6 py-4 font-semibold ${
+  r.status === "REFUNDED"
+    ? "text-[#b6b9b3]"
+    : "text-[#78bcc4]"
+}`}>
               ${r.net.toFixed(2)}
             </td>
 
-            <td className="px-6 py-4 text-[#78bcc4] font-semibold">{r.status}</td>
+            {/* <td className="px-6 py-4 text-[#78bcc4] font-semibold">{r.status}</td> */}
 
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-2 py-4 whitespace-nowrap">
 
-            {r.status === "REFUNDED" ? (
+{r.status === "REFUNDED" ? (
 
-<div
-  className="px-4 py-1.5 rounded-full text-xs"
-  style={{
-    backgroundColor: "#f5a696",
-    color: "#F5F5F5"
-  }}
->
-  Refunded
-</div>
+  <div
+    className="
+      px-3 py-2
+      rounded-full
+      text-sm font-semibold
+      inline-flex items-center justify-center
+      shadow-sm
+    "
+    style={{
+      background: "linear-gradient(180deg, #f7b3a8 0%, #f5a696 100%)",
+      color: "#ffffff",
+      opacity: 0.9
+    }}
+  >
+    Refunded
+  </div>
 
-) : ( 
+) : (
 
   <button
-  onClick={() => openRefundModal(r)}
-  className="px-4 py-1.5 rounded-full text-xs"
-  style={{
-    backgroundColor: "#ee6a59",
-    color: "#F5F5F5"
-  }}
->
-  Refund
-</button>
+    onClick={() => openRefundModal(r)}
+    className="
+      px-5 py-2
+      rounded-full
+      text-sm font-semibold
+      inline-flex items-center justify-center
+      shadow-md
+      transition
+      hover:scale-[1.05]
+      active:scale-[0.98]
+    "
+    style={{
+      background: "linear-gradient(180deg, #f07c6c 0%, #ee6a59 100%)",
+      color: "#ffffff"
+    }}
+  >
+    Refund
+  </button>
 
 )}
 
@@ -867,9 +915,21 @@ Apply
 {showHistory && createPortal(
   <div className="fixed inset-0 z-[1000] bg-black/80  flex items-center justify-center">
    
-  <button
+   <button
   onClick={() => setShowHistory(false)}
-  className="absolute top-54 right-46 text-[#b6b9b3] text-[26px] z-10"
+  className="
+    absolute top-54 right-46
+    w-8 h-8
+    flex items-center justify-center
+    rounded-full
+    text-white text-sm
+    shadow-md
+    transition
+    hover:scale-110
+  "
+  style={{
+    backgroundColor: "#002c3e"
+  }}
 >
   ✕
 </button>
@@ -1003,70 +1063,64 @@ Apply
   document.body
 )}
 {showRefundModal && (
-  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
 
-    <div className="bg-white rounded-[40px] px-6 py-7 w-[500px] text-center ">
+<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
 
-      {/* TITLE */}
-      <h2 className="text-[18px] font-semibold text-[#0b3c49] mb-6">
-        Approve Refund
-      </h2>
+  <div className="bg-white rounded-[28px] w-[380px] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
 
-      {/* TEXT */}
-      <p className="text-[18px] text-[#0b3c49] leading-relaxed">
-        Are you sure you want to refund this user?
-      </p>
+    {/* TITLE */}
+    <h2 className="text-xl font-semibold text-[#0b3c49] text-center mb-3">
+      Approve Refund
+    </h2>
 
-      <p className="text-[18px] text-[#0b3c49] mt-2 mb-6">
-        The amount will be credited via Stripe
-      </p>
+    {/* TEXT */}
+    <p className="text-[#5a6c7d] text-center mb-8 text-sm leading-relaxed">
+      Are you sure you want to refund this user?
+      <br />
+      The amount will be credited via Stripe
+    </p>
 
-      {/* USER REASON (optional but useful) */}
-      {/* <div className="bg-[#f5f5f5] px-4 py-3 rounded-xl text-left text-sm text-[#5a6c7d] mb-8">
-        <b>Reason:</b> {selectedTxn?.refundRequestedReason || "N/A"}
-      </div> */}
+    {/* BUTTONS */}
+    <div className="flex gap-4 justify-center">
 
-      {/* BUTTONS */}
-      <div className="flex justify-center gap-6">
+      {/* CANCEL */}
+      <button
+        onClick={() => setShowRefundModal(false)}
+        className="
+          px-8 py-3
+          rounded-full
+          bg-[#bfc3be]
+          text-white
+          font-semibold
+          hover:opacity-90
+          transition
+        "
+      >
+        Cancel
+      </button>
 
-        {/* CANCEL */}
-        <button
-          onClick={() => setShowRefundModal(false)}
-          className="
-            px-8 py-4
-            bg-[#bfc3be]
-            text-white
-            text-[18px]
-            font-semibold
-            rounded-full
-            w-[170px]
-          "
-        >
-          Cancel
-        </button>
-
-        {/* CONFIRM */}
-        <button
-          onClick={handleRefundConfirm}
-          className="
-            px-8 py-4
-            bg-[#002c3e]
-            text-white
-            text-[17px]
-            font-semibold
-            rounded-full
-            w-[170px]
-            hover:opacity-90
-          "
-        >
-          Confirm
-        </button>
-
-      </div>
+      {/* CONFIRM */}
+      <button
+        onClick={handleRefundConfirm}
+        className="
+          px-8 py-3
+          rounded-full
+          bg-[#002c3e]
+          text-white
+          font-semibold
+          hover:opacity-90
+          transition
+        "
+      >
+        Confirm
+      </button>
 
     </div>
 
   </div>
+
+</div>
+
 )}
 </div>
 

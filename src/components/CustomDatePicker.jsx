@@ -37,7 +37,7 @@ const months = [
       {/* INPUT */}
       <div
   onClick={() => setOpen(!open)}
-  className="bg-white rounded-full px-8 py-2.5 w-[200px] cursor-pointer flex items-center gap-2 hover:bg-[#f9faf9] transition"
+  className="bg-[#f5f5f5] rounded-full px-8 py-2.5 w-[200px] cursor-pointer flex items-center gap-2 hover:bg-[#f9faf9] transition"
 >
   <span className={`${value ? "text-[#002c3e]" : "text-gray-400"} text-sm`}>
     {value
@@ -45,7 +45,7 @@ const months = [
       : "DD | MM | YY"}
   </span>
 
-  <CalendarDays size={18} className="text-[#002c3e] ml-auto" />
+  <CalendarDays size={18} className="text-[#5a6c7d] ml-auto" />
 </div>
 
       {/* DROPDOWN CALENDAR (NOT MODAL) */}

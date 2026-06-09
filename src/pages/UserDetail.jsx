@@ -8,6 +8,24 @@ import { createPortal } from "react-dom";
    MAIN COMPONENT
 ===================================================== */
 
+function EmptyState({ title, subtitle }) {
+  return (
+    <div className="w-full h-[220px] flex flex-col items-center justify-center text-center">
+      
+      <p className="text-lg font-semibold text-[#5a6c7d]">
+        {title}
+      </p>
+
+      {subtitle && (
+        <p className="text-sm text-[#a0a0a0] mt-1">
+          {subtitle}
+        </p>
+      )}
+
+    </div>
+  );
+}
+
 function formatDate(date){
 
   // 🔥 STEP 1: null / undefined check
@@ -183,11 +201,12 @@ function SectionTitle({ children }) {
 
 function Info({ label, value }) {
   return (
-    <div>
+    <div className="min-w-0 text-center">   {/* 👈 IMPORTANT */}
       <p className="text-md font-semibold tracking-wide text-[#5a6c7d]">
         {label}
       </p>
-      <p className="text-xl font-semibold leading-8 tracking-wide text-[#002c3e] wrap-break-word">
+
+      <p className="text-xl font-semibold leading-8 tracking-wide text-[#002c3e] break-words">
         {value || "—"}
       </p>
     </div>
@@ -283,22 +302,19 @@ function Overview({ data }) {
   
   <div className="border-t border-[#CFD5DB]">
   
-  <div className="grid grid-cols-4 gap-x-12 px-10 py-6 border-b border-[#CFD5DB]">
+  <div className="grid grid-cols-4 gap-x-6 px-10 py-6 border-b border-[#CFD5DB]">
   <Info label="Phone" value={u.phone}/>
   <Info label="Gender" value={u.gender}/>
   <Info label="Location" value={u.profileLocation}/>
   <Info label="Language" value={formatLanguage(u.language)} />
-  
-  </div>
-  
-  <div className="grid grid-cols-4 gap-x-12 px-10 py-6 items-start">
-  
+</div>
+
+<div className="grid grid-cols-4 gap-x-6  px-10 py-6 items-start">
   <Info label="Email" value={u.email}/>
   <Info label="Age" value={u.age}/>
   <Info label="Account Created" value={<span className="tracking-tight">{formatDate(u.createdAt)}</span>}/>
   <Info label="Voice Reminder" value={formatVoice(u.alertVoice)} />
-  
-  </div>
+</div>
   
   </div>
   
@@ -397,14 +413,7 @@ function Overview({ data }) {
       
                   </div>
                 ) : (
-                  <div className="text-center py-10">
-                    <p className="text-lg font-semibold text-[#5a6c7d]">
-                      No history found
-                    </p>
-                    <p className="text-sm text-[#a0a0a0] mt-1">
-                      Add a subscription to see history
-                    </p>
-                  </div>
+                  <EmptyState title="No history found" />
                 )}
       
               </div>
@@ -423,18 +432,11 @@ function Subscription({ data , showHistory, setShowHistory}) {
 
   if (!s) {
     return (
-      <div className="px-10 py-8">
-        <div className="px-1 ">
-
-<p className="text-lg font-semibold text-[#5a6c7d]">
-  No history found
-</p>
-
-</div>
-      </div>
+      <div className="px-10">
+      <EmptyState title="No Subscription records found" />
+    </div>
     );
   }
-
   return (
 
     <div>
@@ -622,10 +624,12 @@ function ContactHistoryModal({ data, onClose }) {
 
             </div>
           ) : (
-            <div className="text-center py-10">
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              
               <p className="text-lg font-semibold text-[#5a6c7d]">
                 No history found
               </p>
+          
             </div>
           )}
 
@@ -815,16 +819,10 @@ function formatAlertType(type){
       // ❌ NO DATA → SIMPLE TEXT (like subscription)
       if (alerts.length === 0) {
         return (
-          <div className="px-10 py-8">
-    
-            <p className="text-lg font-semibold text-[#5a6c7d]">
-              No recent alerts found
-            </p>
-    
-            {/* <p className="text-sm text-[#a0a0a0] mt-1">
-              Alerts will appear here once triggered
-            </p> */}
-    
+          <div className="px-10">
+            <EmptyState
+              title="No alert records found"
+            />
           </div>
         );
       }
@@ -999,8 +997,8 @@ function Checkin({ data }) {
 
   if (!c) {
     return (
-      <div className="px-10 py-8">
-        <p className="text-lg font-semibold text-[#5a6c7d]">No check-in schedule set</p>
+      <div className="px-10">
+        <EmptyState title="No check-in schedule set" />
       </div>
     );
   }
@@ -1531,22 +1529,16 @@ ${showHistory
 
   {/* LIST / EMPTY */}
   <div>
+  {data.adminNotes?.length === 0 ? (
 
-    {data.adminNotes?.length === 0 ? (
+<div className="px-10">
+  <EmptyState 
+    title="No history found" 
+    subtitle="Add a note to see history" 
+  />
+</div>
 
-      <div className="px-10 py-10 text-center">
-
-        <p className="text-lg font-semibold text-[#5a6c7d]">
-          No history found
-        </p>
-
-        <p className="text-sm text-[#a0a0a0] mt-1">
-          Add a note to see history
-        </p>
-
-      </div>
-
-    ) : (
+) : (
 
       data.adminNotes.map((n) => (
 

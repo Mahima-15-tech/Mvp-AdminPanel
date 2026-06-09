@@ -5,6 +5,8 @@ import { RefreshCw } from "lucide-react";
 import { TbRefresh } from "react-icons/tb";
 import CustomDatePicker from "../components/CustomDatePicker";
 import EmptyState from "../components/EmptyState";
+import { useLocation } from "react-router-dom";
+import InlineDatePicker from "../components/InlineDatePicker";
 
 export default function Users() {
 
@@ -22,11 +24,48 @@ const [rowsPerPage,setRowsPerPage]=useState(10)
 const [searchInput,setSearchInput] = useState("")
 const [highlight, setHighlight] = useState(false);
 const [activeFilter, setActiveFilter] = useState(null);
+const location = useLocation();
 
 const [confirmUser,setConfirmUser]=useState(null)
 
 const [openExport, setOpenExport] = useState(false);
 const exportRef = useRef();
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const filter = params.get("filter");
+
+  if (filter) {
+    setActiveFilter(filter);
+
+    // scroll bhi karwa do
+    setTimeout(() => {
+      const el = document.getElementById("users-table");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }, 300);
+  }
+}, [location.search]);
+
+const tableRef = useRef(null);
+
+useEffect(() => {
+  if (!loading && location.hash === "#users-table") {
+    
+    setHighlight(true); // 👈 ADD THIS
+
+    setTimeout(() => {
+      tableRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 100);
+
+    // 👇 REMOVE highlight after 2 sec
+    setTimeout(() => {
+      setHighlight(false);
+    }, 2000);
+  }
+}, [loading, location]);
 
 useEffect(() => {
   const handleClickOutside = (e) => {
@@ -94,9 +133,16 @@ const formatPlan = (plan) => {
 
 
 const navigate=useNavigate()
+
+useEffect(() => {
+  console.log("USERS DATA 👉", users);
+}, [users]);
+
+
 useEffect(()=>{
   fetchUsers()
 },[page, rowsPerPage, search, fromDate, toDate])
+
 
 useEffect(()=>{
 
@@ -115,6 +161,7 @@ try{
 setLoading(true)
 
 const res=await api.get("/admin/users/dashboard-ultra",{
+  
 params:{
 page,
 limit:rowsPerPage,
@@ -123,6 +170,9 @@ from:fromDate,
 to:toDate
 }
 })
+console.log("FULL RESPONSE 👉", res);
+console.log("DATA 👉", res.data);
+console.log("USERS 👉", res.data?.users?.data);
 const pages = res.data.users.pages;
 
 setUsers(res.data.users.data)
@@ -245,106 +295,135 @@ const handleExport = async (type) => {
   const safeTotalPages = totalPages > 0 ? totalPages : 1;
 const safePage = Math.min(page, safeTotalPages);
 
+
+
+
 return(
 
 <div className="space-y-8">
 
 {/* TOOLBAR */}
 
-<div className="bg-[#B5B9B2] rounded-4xl px-4 py-4 flex items-center gap-3">
+<div className="bg-[#B5B9B2] rounded-4xl px-6 py-4 flex items-center gap-2">
 
-<input
-type="text"
-placeholder="Search Users..."
-value={searchInput}
-onChange={(e)=>setSearchInput(e.target.value)}
-className="bg-white rounded-full px-6 py-3 w-[340px] outline-none text-[#002c3e]"
-/>
-
-<button
-  onClick={handleRefresh}
-  className="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink-0"
->
-  <img 
-    src="/refreshicon.svg" 
-    alt="refresh" 
-    className="w-10 h-10"
+  {/* SEARCH (STANDARD SIZE) */}
+  <input
+    type="text"
+    placeholder="Search Users..."
+    value={searchInput}
+    onChange={(e)=>setSearchInput(e.target.value)}
+    className="
+      bg-white
+      rounded-full
+      py-3
+      px-5
+      w-[260px]   /* ✅ STANDARD SIZE */
+      outline-none
+      text-[#002c3e]
+      shrink-0
+    "
   />
-</button>
 
-<CustomDatePicker
-  value={fromDate}
-  onChange={(date) => setFromDate(date)}
-  placeholder="From"
-/>
-
-<CustomDatePicker
-  value={toDate}
-  onChange={(date) => setToDate(date)}
-  placeholder="To"
-/>
-
-<button
-onClick={()=>{
-setPage(1)
-fetchUsers()
-}}
-className="bg-[#002c3e] text-white px-6 py-3 rounded-full"
->
-Apply
-</button>
-
-<div className="relative" ref={exportRef}>
-
-  {/* BUTTON */}
+  {/* REFRESH (MATCH HEIGHT) */}
   <button
-    onClick={() => setOpenExport(!openExport)}
-    className="bg-[#002c3e] text-white px-6 py-3 rounded-full flex items-center gap-2"
+    onClick={handleRefresh}
+    className="
+      bg-white
+      h-10 w-10
+      rounded-full
+      flex items-center justify-center
+      shrink-0
+    "
   >
-    Export
-
-    {/* arrow */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className={`w-4 h-4 transition ${openExport ? "rotate-180" : ""}`}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10l5 5 5-5" />
-    </svg>
+    <img src="/refreshicon.svg" className="w-10 h-10"/>
   </button>
 
-  {/* DROPDOWN */}
-  {openExport && (
-    <div className="absolute right-0 mt-2 w-28 bg-[#7f817d] rounded-xl shadow-lg p-2 z-50">
+  {/* DATE PICKERS */}
+  <div className="flex items-center gap-2 shrink-0">
+    <InlineDatePicker
+      value={fromDate}
+      onChange={setFromDate}
+      label="From"
+    />
 
-    {/* CSV */}
-    <div
-      onClick={() => {
-        handleExport("csv");
-        setOpenExport(false);
-      }}
-      className="px-3 py-1.5 rounded-md cursor-pointer text-[#f5f5f5] hover:bg-[#4c4e4a] transition"
-    >
-      CSV
-    </div>
-  
-    {/* PDF */}
-    <div
-      onClick={() => {
-        handleExport("pdf");
-        setOpenExport(false);
-      }}
-      className="px-3 py-1.5 rounded-md cursor-pointer text-[#f5f5f5] hover:bg-[#4c4e4a] transition"
-    >
-      PDF
-    </div>
-  
+    <InlineDatePicker
+      value={toDate}
+      onChange={setToDate}
+      label="To"
+    />
   </div>
-  )}
 
-</div>
+  {/* APPLY (STANDARD BUTTON) */}
+  <button
+    onClick={()=>{
+      setPage(1)
+      fetchUsers()
+    }}
+    className="
+      bg-[#002c3e]
+      text-white
+      py-3
+      px-5
+      rounded-full
+      font-semibold
+      shrink-0
+    "
+  >
+    Apply
+  </button>
+
+  {/* EXPORT (SAME AS APPLY) */}
+  <div className="relative shrink-0" ref={exportRef}>
+    
+    <button
+      onClick={() => setOpenExport(!openExport)}
+      className="
+        bg-[#002c3e]
+        text-white
+        py-3
+        px-5
+        rounded-full
+        flex items-center gap-2
+        font-semibold
+      "
+    >
+      Export
+
+      <svg
+        className={`w-4 h-4 transition ${openExport ? "rotate-180" : ""}`}
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2"/>
+      </svg>
+    </button>
+
+    {openExport && (
+      <div className="absolute right-0 mt-2 w-28 bg-[#7f817d] rounded-xl shadow-lg p-2 z-50">
+
+        <div
+          onClick={() => {
+            handleExport("csv");
+            setOpenExport(false);
+          }}
+          className="px-3 py-1.5 rounded-md cursor-pointer text-[#f5f5f5] hover:bg-[#4c4e4a]"
+        >
+          CSV
+        </div>
+
+        <div
+          onClick={() => {
+            handleExport("pdf");
+            setOpenExport(false);
+          }}
+          className="px-3 py-1.5 rounded-md cursor-pointer text-[#f5f5f5] hover:bg-[#4c4e4a]"
+        >
+          PDF
+        </div>
+
+      </div>
+    )}
+  </div>
 
 </div>
 
@@ -367,8 +446,17 @@ Apply
 <div className="grid grid-cols-4 gap-6">
 
 <StatCard title="Banned Users" value={stats.bannedUsers || 0} red onClick={() => handleCardClick("BANNED")} />
-<StatCard title="Pending Verification" value={stats.pendingVerification || 0}/>
-<StatCard title="No Contacts Added" value={stats.noContacts || 0}/>
+<StatCard 
+  title="Pending Verification" 
+  value={stats.pendingVerification || 0}
+  onClick={() => handleCardClick("PENDING_VERIFICATION")}
+/>
+
+<StatCard 
+  title="No Contacts Added" 
+  value={stats.noContacts || 0}
+  onClick={() => handleCardClick("NO_CONTACTS")}
+/>
 <StatCard title="Credits Low (<2)" value={stats.lowCredits || 0} onClick={() => handleCardClick("LOW_CREDITS")} />
 
 </div>
@@ -387,6 +475,7 @@ Apply
 {/* USERS TABLE */}
 
 <div 
+ref={tableRef}
   id="users-table"
   className={`bg-white rounded-4xl w-full mx-auto overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
     highlight ? "ring-4 ring-[#78bcc4]" : ""
@@ -410,117 +499,152 @@ Apply
       </tr>
     </thead>
 
+
+
+
     <tbody className="text-[#5a6c7d]">
 
+{users.length === 0 ? (
 
-    {users.length === 0 ? (
+  <tr className="h-[160px]">
+    <td colSpan="10" className="px-6">
+      <div className="flex flex-col items-center justify-center h-full text-center gap-2">
+        <p className="text-lg font-semibold text-[#5a6c7d]">
+          No users found
+        </p>
+        <p className="text-sm -mt-2.5 text-[#a0a0a0]">
+          Try adjusting filters or search
+        </p>
+      </div>
+    </td>
+  </tr>
 
-<tr className="h-[160px]">
+) : (
 
-  <td colSpan="10" className="px-6">
-    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
-      
-      <p className="text-lg font-semibold text-[#5a6c7d]">
-        No users found
-      </p>
+  users.map((user) => {
+    console.log("USER FOUND 👉", user);
 
-      <p className="text-sm -mt-2.5 text-[#a0a0a0]">
-        Try adjusting filters or search
-      </p>
+    const isPending =
+  !user.name ||
+  !user.email ||
+  user.name === "Unnamed" ||
+  user.nameCompleted !== true ||
+  user.emailCompleted !== true;
 
-    </div>
-  </td>
+  console.log("PENDING CHECK 👉", {
+    userId: user.userId,
+    name: user.name,
+    email: user.email,
+    nameCompleted: user.nameCompleted,
+    emailCompleted: user.emailCompleted,
+    isPending
+  });
+  
+    return (
+      <tr
+        key={user._id}
+        className={`
+border-b border-[#e6e6e6] transition
 
-</tr>
+${
+  activeFilter === "PENDING_VERIFICATION"
+    ? isPending
+      ? "bg-[#fff7e6]"   // ✅ highlight
+      : "opacity-40"     // ❌ fade others
 
-)  :
+  : activeFilter === "TRIAL" && user.plan === "TRIAL"
+    ? "bg-[#e6f7ff]"
 
-users.map((user)=>(
-        <tr
-          key={user._id}
-          className={`
-  border-b border-[#e6e6e6] transition
+  // : activeFilter === "ACTIVE" && user.status === "ACTIVE"
+  //   ? "bg-[#e6f7ff]"
 
-  ${
-    activeFilter === "TRIAL" && user.plan === "TRIAL"
-      ? "bg-[#e6f7ff]"
-      : activeFilter === "ACTIVE" && user.status === "ACTIVE"
-      ? "bg-[#e6f7ff]"
-      : activeFilter === "BANNED" && user.status !== "ACTIVE"
-      ? "bg-[#ffecec]"
-      : activeFilter === "LOW_CREDITS" && user.alertCredits < 2
-      ? "bg-[#fff7e6]"
-      : activeFilter && "opacity-40"
-  }
+  : activeFilter === "BANNED" && user.status !== "ACTIVE"
+    ? "bg-[#ffecec]"
 
-  hover:bg-[#f7f8f3]
+  : activeFilter === "LOW_CREDITS" && user.alertCredits < 2
+    ? "bg-[#fff7e6]"
+
+  : activeFilter === "NO_CONTACTS" &&
+    (user.contactsCount || 0) === 0
+    ? "bg-[#ffecec]"
+
+  : activeFilter
+    ? "opacity-80"
+    : ""
+}
+
+hover:bg-[#f7f8f3]
 `}
+      >
+
+        <td className="px-3 py-4 font-medium whitespace-nowrap">
+          {user.userId}
+        </td>
+
+        <td
+          onClick={() => navigate(`/users/${user._id}`)}
+          className="px-6 py-4 font-semibold cursor-pointer whitespace-nowrap"
         >
+          {formatName(user.name)}
+        </td>
 
-<td className="px-3 py-4 font-medium whitespace-nowrap">
-  {user.userId}
-</td>
+        <td className="px-6 py-4">
+          {formatDate(user.joined)}
+        </td>
 
-<td
-  onClick={()=>navigate(`/users/${user._id}`)}
-  className="px-6 py-4 font-semibold cursor-pointer whitespace-nowrap"
->
-  {formatName(user.name)}
-</td>
-
-          <td className="px-6 py-4">
-            {formatDate(user.joined)}
-          </td>
-
-          <td className="px-6 py-4">
+        <td className="px-6 py-4">
           {formatPlan(user.plan)}
-          </td>
+        </td>
 
-          <td className="px-6 py-4">
-            {user.renewal ? formatDate(user.renewal) : "-"}
-          </td>
+        <td className="px-6 py-4">
+          {user.renewal ? formatDate(user.renewal) : "-"}
+        </td>
 
-          <td className="px-6 py-4">
-            {user.alertCredits ?? 0}
-          </td>
+        <td className="px-6 py-4">
+          {user.alertCredits ?? 0}
+        </td>
 
-          <td className="px-6 py-4 break-words">
-            {user.checkinTimes?.join(" | ") || "-"}
-          </td>
+        <td className="px-6 py-4 break-words">
+          {user.checkinTimes?.join(" | ") || "-"}
+        </td>
 
-          <td className="px-6 py-4">
-            {user.alertsSent ?? 0}
-          </td>
+        <td className="px-6 py-4">
+          {user.alertsSent ?? 0}
+        </td>
 
-          <td className="px-6 py-4 font-semibold break-words">
-            <span
-              className={`${
-                user.lastAlertType==="SOS" || user.lastAlertType==="MISSED_CHECKIN"
-                  ? "text-[#ee6a59]"
-                  : ""
-              }`}
-            >
-              {user.lastAlertType === "MISSED_CHECKIN"
-                ? "Missed"
-                : user.lastAlertType || "-"}
-            </span>
-          </td>
-
-          <td
-            onClick={()=>setConfirmUser(user)}
-            className={`px-6 py-4 font-semibold cursor-pointer ${
-              user.status==="ACTIVE"
-                ? "text-[#78bcc4]"
-                : "text-[#ee6a59]"
+        <td className="px-6 py-4 font-semibold break-words">
+          <span
+            className={`${
+              user.lastAlertType === "SOS" ||
+              user.lastAlertType === "MISSED_CHECKIN"
+                ? "text-[#ee6a59]"
+                : ""
             }`}
           >
-            {user.status==="ACTIVE" ? "Active" : "Banned"}
-          </td>
+            {user.lastAlertType === "MISSED_CHECKIN"
+              ? "Missed"
+              : user.lastAlertType || "-"}
+          </span>
+        </td>
 
-        </tr>
-      ))}
+        <td
+          onClick={() => setConfirmUser(user)}
+          className={`px-6 py-4 font-semibold cursor-pointer ${
+            user.status === "ACTIVE"
+              ? "text-[#78bcc4]"
+              : "text-[#ee6a59]"
+          }`}
+        >
+          {user.status === "ACTIVE" ? "Active" : "Banned"}
+        </td>
 
-    </tbody>
+      </tr>
+    );
+  })
+
+)}
+
+</tbody>
 
   </table>
 

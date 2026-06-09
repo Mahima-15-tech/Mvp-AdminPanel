@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../api/axios";
 import EmptyState from "../components/EmptyState";
+import { useLocation } from "react-router-dom";
 
 export default function SmsTracker(){
 
@@ -17,6 +18,32 @@ const [page,setPage] = useState(1);
 const [openRow, setOpenRow] = useState(null);
 
 const [totalPages, setTotalPages] = useState(1);
+
+const location = useLocation();
+
+const tableRef = useRef(null);
+
+const handleCardClick = (type) => {
+  setStatus(type);
+
+  // scroll
+  setTimeout(() => {
+    tableRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 100);
+};
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+
+  const status = params.get("status");
+
+  if (status) {
+    setStatus(status);
+  }
+}, [location.search]);
 
 const [dropdownPos, setDropdownPos] = useState({
   top: 0,
@@ -117,179 +144,160 @@ return(
 {/* ================= FILTER BAR ================= */}
 
 <div
-className="
-bg-[#B5B9B2]
-rounded-4xl
-px-3
-py-5
-flex
-items-center
-gap-2
-
-flex-nowrap
-overflow-x-auto
-thin-scrollbar   /* ✅ ADD THIS */
-"
->
-
-{/* SEARCH */}
-
-<input
-type="text"
-placeholder="Search Recipient..."
-value={search}
-onChange={(e)=>setSearch(e.target.value)}
-
-className="
-bg-white
-rounded-full
-px-4
-py-3
-min-w-[200px]
-max-w-[260px]
-w-full
-outline-none
-text-[#002c3e]
-"
-/>
-
-
-{/* CONSENT DROPDOWN */}
-
-<div className="relative">
-
-<button
-  onClick={(e) => {
-    e.stopPropagation();
-
-    const rect = e.currentTarget.getBoundingClientRect();
-
-    setDropdownPos({
-      top: rect.bottom + 6,
-      left: rect.left
-    });
-
-    setOpen(!open);
-  }}
   className="
-    bg-[#002c3e]
-    text-white
-    px-4
-    py-2
-    rounded-full
+    bg-[#B5B9B2]
+    rounded-4xl
+    px-6
+    py-4
     flex
     items-center
     gap-2
+    overflow-x-auto   /* ✅ SCROLL instead of breaking */
   "
 >
-  {consent === "ALL" ? "Consent" : consent}
 
-  {/* 🔽 ARROW ICON */}
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={`w-4 h-4 transition ${open ? "rotate-180" : ""}`}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10l5 5 5-5" />
-  </svg>
-</button>
+  {/* SEARCH */}
+  <input
+    type="text"
+    placeholder="Search Recipient..."
+    value={search}
+    onChange={(e)=>setSearch(e.target.value)}
+    className="
+      bg-white
+      rounded-full
+      px-5
+      py-3
+      w-[260px]
+      outline-none
+      text-[#002c3e]
+      shrink-0
+    "
+  />
 
-  {open && (
-    <div
-      className="
-        fixed   /* 🔥 MAIN FIX */
-        bg-[#7f837f]
-        text-white
-        rounded-xl
-        shadow-xl
-        py-2
-        min-w-[160px]
-        z-[9999]
-      "
-      style={{
-        top: dropdownPos.top,
-        left: dropdownPos.left
+  {/* CONSENT DROPDOWN */}
+  <div className="relative shrink-0">
+
+    <button
+      onClick={(e)=>{
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        setDropdownPos({
+          top: rect.bottom + 6,
+          left: rect.left
+        });
+
+        setOpen(!open);
       }}
+      className="
+        bg-white
+        text-[#5a6c7d]
+        px-5
+        py-3
+        rounded-full
+        font-semibold
+        inline-flex
+        items-center
+        justify-between
+        gap-2
+        min-w-[140px]
+      "
     >
-      {consentOptions.map((opt) => (
-        <div
-          key={opt}
-          onClick={(e) => {
-            e.stopPropagation();
-            setConsent(opt);
-            setOpen(false);
-          }}
-          className="
-            px-4
-            py-2
-            cursor-pointer
-            hover:bg-[#6f736f]
-          "
-        >
-          {opt}
-        </div>
-      ))}
-    </div>
-  )}
+      {consent === "ALL" ? "Consent" : consent}
 
-</div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={`w-6 h-6 transition ${open ? "rotate-180" : ""}`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 10l5 5 5-5"/>
+      </svg>
+    </button>
 
+    {open && (
+      <div
+        className="
+          fixed
+          bg-[#7f837f]
+          text-white
+          rounded-xl
+          shadow-xl
+          py-2
+          min-w-[160px]
+          z-[9999]
+        "
+        style={{
+          top: dropdownPos.top,
+          left: dropdownPos.left
+        }}
+      >
+        {consentOptions.map((opt)=>(
+          <div
+            key={opt}
+            onClick={(e)=>{
+              e.stopPropagation();
+              setConsent(opt);
+              setOpen(false);
+            }}
+            className="px-5 py-2 cursor-pointer hover:bg-[#6f736f]"
+          >
+            {opt}
+          </div>
+        ))}
+      </div>
+    )}
 
-{/* STATUS FILTER */}
+  </div>
 
-{["Sent","Pending","Failed","Delivered"].map(s=>(
+  {/* STATUS BUTTONS */}
+  {["Sent","Pending","Failed","Delivered"].map(s=>(
+    <button
+      key={s}
+      onClick={()=>setStatus(s)}
+      className={`
+        px-5
+        py-3
+        rounded-full
+        font-semibold
+        shrink-0
+        inline-flex
+        items-center
+        justify-center
+        min-w-[110px]
+        ${status===s
+          ? "bg-[#002c3e] text-white"
+          : "bg-white text-[#5a6c7d]"
+        }
+      `}
+    >
+      {s}
+    </button>
+  ))}
 
-<button
-key={s}
-onClick={()=>setStatus(s)}
-className={`
-px-8
-py-3
-rounded-full
-font-semibold
-tracking-wide
-flex-shrink-0
-${status===s
-? "bg-[#002c3e] text-white"
-: "bg-white text-[#5a6c7d]"
-}
-`}
->
+  {/* RESET */}
+  <button
+    onClick={()=>{
+      setSearch("");
+      setConsent("ALL");
+      setStatus("ALL");
+      setPage(1);
 
-{s}
-
-</button>
-
-))}
-
-<button
-  onClick={()=>{
-    setSearch("");
-    setConsent("ALL");
-    setStatus("ALL");
-    setPage(1);
-
-    // ✅ immediately refetch
-    setTimeout(() => {
-      fetchData();
-    }, 0);
-  }}
-  className="
-bg-[#002c3e]
-text-white
-px-8
-py-3
-rounded-full
-font-semibold
-
-
-flex-shrink-0   /* ✅ IMPORTANT */
-"
->
-  Reset
-</button>
+      setTimeout(()=>{ fetchData(); },0);
+    }}
+    className="
+      bg-[#002c3e]
+      text-white
+      px-5
+      py-3
+      rounded-full
+      font-semibold
+      shrink-0
+    "
+  >
+    Reset
+  </button>
 
 </div>
 
@@ -297,14 +305,30 @@ flex-shrink-0   /* ✅ IMPORTANT */
 {/* ================= SUMMARY ================= */}
 
 <div className="grid grid-cols-4 gap-6">
+<Card 
+  label="Users Triggered" 
+  value={total}
+  onClick={() => handleCardClick("ALL")}
+/>
 
-<Card label="Users Triggered" value={total}/>
+<Card 
+  label="SMS Sent" 
+  value={sent}
+  onClick={() => handleCardClick("SENT")}
+/>
 
-<Card label="SMS Sent" value={sent}/>
+<Card 
+  label="SMS Pending" 
+  value={pending}
+  onClick={() => handleCardClick("PENDING")}
+/>
 
-<Card label="SMS Pending" value={pending}/>
-
-<Card label="SMS Failed" value={failed} error/>
+<Card 
+  label="SMS Failed" 
+  value={failed}
+  error
+  onClick={() => handleCardClick("FAILED")}
+/>
 
 </div>
 
@@ -312,7 +336,7 @@ flex-shrink-0   /* ✅ IMPORTANT */
 
 {/* ================= TABLE ================= */}
 
-<div className="bg-white rounded-4xl overflow-hidden">
+<div  ref={tableRef} className="bg-white rounded-4xl overflow-hidden">
 
 {loading ?(
 
@@ -322,27 +346,31 @@ Loading...
 
 ):(
 
-<table className="w-full text-[15px]">
+<table className="w-full text-[15px] table-fixed">
 
 <thead className="bg-[#78bcc4] text-white tracking-wide">
 
 <tr>
 
-<th className="px-3 py-4 text-left whitespace-nowrap">Recipient</th>
+<th className="px-6 py-4 text-left w-[16%]">Recipient</th>
 
-<th className="px-3 py-5 text-left">Phone</th>
+<th className="px-6 py-4 text-left w-[14%]">Phone</th>
 
-<th className="px-3 py-5 text-left">Consent</th>
+<th className="px-6 py-4 text-left w-[12%]">Consent</th>
 
-<th className="px-3 py-5 text-left w-[16%] whitespace-nowrap ">Alerts Type</th>
+<th className="px-3 py-4 text-left w-[10%] whitespace-nowrap">Alerts Type</th>
 
-<th className="px-3 py-5 text-left w-[16%] whitespace-nowrap">Alert Sent At</th>
+<th className="px-9 py-4 text-left w-[18%] whitespace-nowrap">
+  Alert Sent At
+</th>
 
-<th className="px-3 py-5 text-left">Status</th>
+<th className="px-6 py-4 text-left w-[10%]">Status</th>
 
-<th className="px-3 py-5 text-left">Attempts</th>
+<th className="px-3 py-4 text-left w-[8%] ">Attempts</th>
 
-<th className="px-3 py-5 text-left w-[16%]  whitespace-nowrap">Failure Reason</th>
+<th className="px-6 py-4 text-left w-[18%]">
+  Failure Reason
+</th>
 
 </tr>
 
@@ -380,21 +408,21 @@ hover:bg-[#f7f8f3]
 "
 >
 
-<td className="px-3 py-4 font-semibold">
+<td className="px-6 py-4 font-semibold">
 {row.name}
 </td>
 
-<td className="px-3 py-4">
+<td className="px-6 py-4">
 {row.phone}
 </td>
 
-<td className="px-3 py-4">
+<td className="px-6 py-4">
 {row.consent}
 </td>
 
 <td
 className={`
-px-3 py-4 font-medium
+px-6 py-4 font-medium
 ${row.alertType==="MISSED" || row.alertType==="SOS"
 ? "text-[#ee6a59]"
 : ""
@@ -404,13 +432,29 @@ ${row.alertType==="MISSED" || row.alertType==="SOS"
 {formatText(row.alertType)}
 </td>
 
-<td className="px-3 py-4 whitespace-nowrap">
-{new Date(row.createdAt).toLocaleString()}
+<td className="px-6 py-4 whitespace-nowrap">
+  {(() => {
+    const date = new Date(row.createdAt);
+
+    const formatted =
+      date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short"
+      }) +
+      " | " +
+      date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+
+    return formatted;
+  })()}
 </td>
 
 <td
 className={`
-px-3 py-4 font-medium
+px-6 py-4 font-medium
 ${row.status==="SENT"
 ? "text-[#78bcc4]"
 : "text-[#ee6a59]"
@@ -422,11 +466,11 @@ ${row.status==="SENT"
 
 </td>
 
-<td className="px-3 py-4">
+<td className="px-6 py-4">
 {row.retryCount} | 5
 </td>
 
-<td className="px-5 py-4 max-w-[240px] relative">
+<td className="px-6 py-4 max-w-[240px] relative">
 
   <div className="flex items-center gap-2">
 
@@ -522,11 +566,23 @@ ${row.status==="SENT"
 
 /* ================= CARD ================= */
 
-function Card({label,value,error}){
+function Card({label,value,error,onClick}){
 
 return(
 
-<div className="bg-[#f5f5f5] rounded-4xl px-8 py-6">
+<div 
+  onClick={onClick}
+  className="
+    bg-[#f5f5f5]
+    rounded-4xl
+    px-8
+    py-6
+    cursor-pointer
+    transition-all duration-200
+    hover:scale-[1.03]
+    hover:shadow-md
+  "
+>
 
 <p className="text-[#5a6c7d] text-lg tracking-wide font-semibold">
 {label}

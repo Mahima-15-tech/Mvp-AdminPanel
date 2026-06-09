@@ -1,5 +1,6 @@
   import { useEffect, useState } from "react";
   import api from "../api/axios";
+  import { useLocation } from "react-router-dom";
 
   export default function AdminAlertMonitoring() {
 
@@ -21,6 +22,39 @@
 
   const [totalPages, setTotalPages] = useState(1);
 
+  const location = useLocation();
+
+  const [stats,setStats] = useState({});
+
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+const fetchStats = async()=>{
+  
+  const res = await api.get("/admin/alert-stats", {
+    params: { type, status: statusFilter, plan, search }
+  });
+  setStats(res.data);
+};
+
+useEffect(()=>{
+  fetchAlerts();
+  fetchStats();
+},[page,type,statusFilter,plan,search]);
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+
+  const status = params.get("status");
+
+  if (status) {
+    setStatusFilter(status);
+
+    setTimeout(() => {
+      scrollToSection("alerts-table");
+    }, 300);
+  }
+}, [location.search]);
+
   // const [alerts,setAlerts] = useState([]); // filtered (table)
 const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
 
@@ -33,10 +67,7 @@ const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
   return ()=>clearTimeout(delay);
   },[searchInput]);
 
-  /* ================= FETCH ================= */
-  useEffect(()=>{
-  fetchAlerts();
-  },[page,type,statusFilter,plan,search]);
+
 
   const fetchAlerts = async()=>{
     try{
@@ -46,9 +77,12 @@ const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
       const res = await api.get("/admin/alert-monitoring",{
         params:{ page, type, status:statusFilter, plan, search }
       });
+      
+      console.log("FILTER PARAMS 👉", { page, type, statusFilter, plan, search });
+      console.log("RESPONSE 👉", res.data);
   
-      setAlerts(res.data.data || res.data); // depending API
-setTotalPages(res.data.pages || 1); 
+      setAlerts(res.data);
+      setTotalPages(1); 
   
 
       // 👉 FULL DATA (stats ke liye)
@@ -83,34 +117,41 @@ useEffect(() => {
 
   /* ================= SUMMARY ================= */
 
-  const uniqueUsers = new Set(allAlerts.map(a=>a.phone));
-const usersTriggered = uniqueUsers.size;
-
-const smsSent = allAlerts.filter(a=>a.status==="SMS_SENT").length;
-const smsPending = allAlerts.filter(a=>a.status==="SMS_PENDING").length;
-const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
-
+  const usersTriggered = stats.usersTriggered || 0;
+  const smsSent = stats.smsSent || 0;
+  const smsPending = stats.smsPending || 0;
+  const smsFailed = stats.smsFailed || 0;
   return(
 
   <div className="space-y-10">
 
   {/* ================= FILTER BAR ================= */}
 
-  <div className="bg-[#B5B9B2] rounded-4xl px-8 py-5 flex items-center gap-6">
+  <div className="bg-[#B5B9B2] rounded-4xl px-6 py-4 flex items-center gap-2 whitespace-nowrap">
 
   <input
   type="text"
   placeholder="Search Users..."
   value={searchInput}
   onChange={(e)=>setSearchInput(e.target.value)}
-  className="bg-white rounded-full px-6 py-3 w-[280px] outline-none text-[#5a6c7d]"
+  className="bg-white rounded-full px-5 py-3 w-[260px] outline-none text-[#5a6c7d]"
   />
 
-  <div className="relative w-[180px]">
+  <div className="relative ">
 
   <button
-  onClick={()=>setOpenType(!openType)}
-  className="bg-white px-5 py-3 rounded-full w-full flex justify-between items-center text-[#002c3e]"
+  onClick={() => setOpenDropdown(openDropdown === "type" ? null : "type")}
+  className="
+  bg-white
+  rounded-full
+  px-5
+  py-3
+  font-semibold
+  text-[#5a6c7d]
+  inline-flex
+  items-center
+  gap-2
+"
   >
   {type === "ALL"
   ? "All Types"
@@ -118,12 +159,34 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   ? "SOS"
   : "Missed"}
 
-  <span>⌄</span>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  className={`w-6 h-6 transition ${openDropdown === "type" ? "rotate-180" : ""}`}
+
+  fill="none"
+  viewBox="0 0 24 24"
+  stroke="currentColor"
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    d="M7 10l5 5 5-5"
+  />
+</svg>
   </button>
 
-  {openType && (
-  <div className="absolute left-0 top-full mt-1 w-full bg-[#7f817d] rounded-xl shadow-md p-1 z-50">
-
+  {openDropdown === "type" && (
+   <div className="
+   absolute 
+   top-13 
+   left-0   /* ✅ FIX */
+   w-full   /* ✅ SAME WIDTH AS BUTTON */
+   bg-[#7f837f] 
+   rounded-xl 
+   overflow-hidden 
+   z-50
+ ">
   {[
   { label:"All Types", value:"ALL" },
   { label:"SOS", value:"SOS" },
@@ -133,9 +196,16 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   key={item.value}
   onClick={()=>{
   setType(item.value);
-  setOpenType(false);
+  setOpenDropdown(null);
   }}
-  className="px-3 py-1.5 text-[#f5f5f5] rounded-md cursor-pointer hover:bg-[#4c4e4a] transition"
+  className="
+  px-5        /* ✅ same horizontal padding */
+  py-2 
+  text-left   /* ✅ important */
+  leading-4 
+  hover:bg-[#6f736f] 
+  cursor-pointer
+"
   >
   {item.label}
   </div>
@@ -147,11 +217,21 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   </div>
 
   {/* ✅ STATUS DROPDOWN */}
-  <div className="relative w-[180px]">
+  <div className="relative">
 
   <button
-  onClick={()=>setOpenStatus(!openStatus)}
-  className="bg-white px-5 py-3 rounded-full w-full flex justify-between items-center text-[#002c3e]"
+ onClick={() => setOpenDropdown(openDropdown === "status" ? null : "status")}
+ className="
+  bg-white
+  rounded-full
+  px-5
+  py-3
+  font-semibold
+  text-[#5a6c7d]
+  inline-flex
+  items-center
+  gap-2
+"
   >
   {statusFilter === "ALL"
   ? "All Status"
@@ -161,11 +241,33 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   ? "Pending"
   : "Failed"}
 
-  <span>⌄</span>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  className={`w-6 h-6 transition ${openDropdown === "status" ? "rotate-180" : ""}`}
+  fill="none"
+  viewBox="0 0 24 24"
+  stroke="currentColor"
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    d="M7 10l5 5 5-5"
+  />
+</svg>
   </button>
 
-  {openStatus && (
-  <div className="absolute left-0 top-full mt-1 w-full bg-[#7f817d] rounded-xl shadow-md p-1 z-50">
+  {openDropdown === "status" && (
+   <div className="
+   absolute 
+   top-13 
+   left-0   /* ✅ FIX */
+   w-full   /* ✅ SAME WIDTH AS BUTTON */
+   bg-[#7f837f] 
+   rounded-xl 
+   overflow-hidden 
+   z-50
+ ">
 
   {[
   { label:"All Status", value:"ALL" },
@@ -179,7 +281,14 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   setStatusFilter(item.value);
   setOpenStatus(false);
   }}
-  className="px-3 py-1.5 text-[#f5f5f5] rounded-md cursor-pointer hover:bg-[#4c4e4a] transition"
+  className="
+  px-5        /* ✅ same horizontal padding */
+  py-2 
+  text-left   /* ✅ important */
+  leading-4 
+  hover:bg-[#6f736f] 
+  cursor-pointer
+"
   >
   {item.label}
   </div>
@@ -190,11 +299,21 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
 
   </div>
 
-  <div className="relative w-[180px]">
+  <div className="relative ">
 
   <button
-  onClick={()=>setOpenPlan(!openPlan)}
-  className="bg-white px-5 py-3 rounded-full w-full flex justify-between items-center text-[#002c3e]"
+  onClick={() => setOpenDropdown(openDropdown === "plan" ? null : "plan")}
+  className="
+  bg-white
+  rounded-full
+  px-5
+  py-3
+  font-semibold
+  text-[#5a6c7d]
+  inline-flex
+  items-center
+  gap-2
+"
   >
   {plan === "ALL"
   ? "All Plans"
@@ -204,12 +323,33 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   ? "Monthly"
   : "Yearly"}
 
-  <span>⌄</span>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  className={`w-6 h-6 transition ${openDropdown === "plan" ? "rotate-180" : ""}`}
+  fill="none"
+  viewBox="0 0 24 24"
+  stroke="currentColor"
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    d="M7 10l5 5 5-5"
+  />
+</svg>
   </button>
 
-  {openPlan && (
-  <div className="absolute left-0 top-full mt-1 w-full bg-[#7f817d] rounded-xl shadow-md p-1 z-50">
-
+  {openDropdown === "plan" && (
+ <div className="
+ absolute 
+ top-13 
+ left-0   /* ✅ FIX */
+ w-full   /* ✅ SAME WIDTH AS BUTTON */
+ bg-[#7f837f] 
+ rounded-xl 
+ overflow-hidden 
+ z-50
+">
   {[
   { label:"All Plans", value:"ALL" },
   { label:"Trial", value:"TRIAL" },
@@ -222,7 +362,7 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   setPlan(item.value);
   setOpenPlan(false);
   }}
-  className="px-3 py-1.5 text-[#f5f5f5] rounded-md cursor-pointer hover:bg-[#4c4e4a] transition"
+  className="px-6 py-2 leading-4 hover:bg-[#6f736f] cursor-pointer"
   >
   {item.label}
   </div>
@@ -242,7 +382,14 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
   setSearchInput("");
   setPage(1);
   }}
-  className="bg-[#002c3e] text-white px-10 py-3 rounded-full font-semibold"
+  className="
+  bg-[#002c3e]
+  text-white
+  px-5
+  py-3
+  rounded-full
+  font-semibold
+"
   >
   Reset
   </button>
@@ -265,21 +412,23 @@ const smsFailed = allAlerts.filter(a=>a.status==="FAILED").length;
 
 <Card 
   label="Missed Alert Sent" 
-  value={usersTriggered} 
+  value={stats.missedSent || 0} 
   onClick={() => {
-    setType("MISSED_CHECKIN");
+    setType("MISSED_CHECKIN"); // ✅ already ok
+    setStatusFilter("SMS_SENT"); // ✅ ADD THIS
     scrollToSection("alerts-table");
   }} 
 />
 
-  <Card 
-    label="SOS Alerts Sent" 
-    value={smsSent} 
-    onClick={() => {
-      setStatusFilter("SMS_SENT");
-      scrollToSection("alerts-table");
-    }} 
-  />
+<Card 
+  label="SOS Alerts Sent" 
+  value={stats.sosSent || 0}
+  onClick={() => {
+    setType("SOS");              // ✅ ADD THIS
+    setStatusFilter("SMS_SENT"); // ✅ already
+    scrollToSection("alerts-table");
+  }} 
+/>
 
   <Card 
     label="SMS Alerts Pending" 

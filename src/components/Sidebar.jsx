@@ -198,7 +198,7 @@ className="flex items-center gap-3 text-[#5a6c7d] hover:text-[#002c3e]"
 
     {/* OVERLAY */}
     <div
-      className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+      className="absolute inset-0 bg-black/80 "
       onClick={()=>setShowLogout(false)}
     />
 

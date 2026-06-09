@@ -8,6 +8,7 @@ import {
   Legend
 } from "chart.js";
 
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -21,6 +22,8 @@ export default function Dashboard() {
     Monthly: true,
     Yearly: true
   });
+
+  const navigate = useNavigate();
 
   const load = async () => {
     const res = await api.get("/admin/dashboard");
@@ -138,27 +141,27 @@ const formatAmount = (num) => Number(num || 0).toFixed(2);
       <Card 
   title="Total Users" 
   value={data.totalUsers} 
-  onClick={() => console.log("No section yet")} 
+  onClick={() => navigate("/users?filter=ACTIVE#users-table")} 
 />
 
 <Card 
   title="Active Subscriptions" 
   value={data.activeSubscriptions} 
-  onClick={() => scrollToSection("subscription-section")} 
+  onClick={() => navigate("/users?filter=ACTIVE#users-table")} 
 />
 
 <Card 
   title="Alerts Sent Today" 
   value={data.alertsToday} 
-  onClick={() => scrollToSection("activity-section")} 
+  onClick={() => navigate("/alerts?status=SMS_SENT#table")} 
 />
 
 <Card
   title="SMS Failed (24h)"
   value={data.failedSMS}
   color="text-[#ee6a59]"
-  onClick={() => scrollToSection("activity-section")}
-/>
+  onClick={() => navigate("/checkins?status=Failed")}
+ />
 
         
 

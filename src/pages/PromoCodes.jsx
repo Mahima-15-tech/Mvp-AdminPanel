@@ -110,83 +110,157 @@ const handleRefresh = async () => {
 };
 
 
+const handleCardClick = (type) => {
+  setHighlightType(type);
+  scrollToTable();
+
+  setTimeout(() => {
+    setHighlightType(null);
+  }, 3000); // ✅ 3 sec me remove
+};
+
   return (
     <div className="space-y-10">
 
       {/* ================= FILTER BAR (REFERENCE SAME) ================= */}
-      <div className="bg-[#B5B9B2] rounded-4xl px-6 py-5 flex items-center gap-3 flex-wrap justify-between">
+      <div className="
+bg-[#B5B9B2]
+rounded-4xl
+px-6
+py-4
+flex
+items-center
+gap-2
+flex-wrap
+">
 
-        <div className="flex items-center gap-3 flex-wrap">
+  {/* LEFT SIDE */}
+  <div className="flex items-center gap-2 flex-wrap">
 
-          {/* SEARCH */}
-          <div className="bg-white px-4 py-3 rounded-full flex items-center gap-2 w-[260px]">
-          <input
-  placeholder="Search by Email..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  className="outline-none text-sm w-full text-[#5a6c7d] font-semibold tracking-wide"
-/>
-          </div>
+    {/* SEARCH (FIXED SAME AS OTHERS) */}
+    <input
+      placeholder="Search by Email..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="
+        bg-white
+        rounded-full
+        px-5
+        py-3
+        w-[260px]
+        outline-none
+        text-[#002c3e]
+        shrink-0
+      "
+    />
 
-          {/* STATUS DROPDOWN (REFERENCE STYLE) */}
-          <div className="relative">
+    {/* STATUS DROPDOWN (FIXED SIZE LIKE EXPORT) */}
+    <div className="relative shrink-0">
 
-            <button
-              onClick={() => setOpenStatus(!openStatus)}
-              className="bg-[#002c3e] text-white px-8 py-3 rounded-full flex items-center gap-2 font-semibold"
-            >
-              {statusOptions.find(s => s.value === status)?.label}
+    <button
+  onClick={() => setOpenStatus(!openStatus)}
+  className={`
+    px-5
+    py-3
+    rounded-full
+    font-semibold
+    inline-flex
+    items-center
+    justify-between
+    gap-2
+    min-w-[150px]
 
-              <svg
-                className={`w-6 h-6 transition ${openStatus ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M7 10l5 5 5-5" strokeWidth="2"/>
-              </svg>
-            </button>
-
-            {openStatus && (
-              <div className="absolute top-14 bg-[#7f837f] text-white rounded-xl overflow-hidden z-50">
-
-                {statusOptions.map((s) => (
-                  <div
-                    key={s.value}
-                    onClick={() => {
-                      setStatus(s.value);
-                      setOpenStatus(false);
-                    }}
-                    className="px-10 py-1 hover:bg-[#6f736f] cursor-pointer text-left"
-                  >
-                    {s.label}
-                  </div>
-                ))}
-
-              </div>
-            )}
-
-          </div>
-
-          {/* REFRESH */}
-          <button
-  onClick={handleRefresh}
-  className="bg-white w-10 h-10 rounded-full flex items-center justify-center"
+    ${
+      status !== "ALL"
+        ? "bg-[#002c3e] text-white"   /* ✅ SELECTED = DARK */
+        : "bg-[#002c3e] text-white"   /* ✅ ALL bhi DARK */
+    }
+  `}
 >
-            <img src="/refreshicon.svg" className="w-12 h-12"/>
-          </button>
+  {statusOptions.find(s => s.value === status)?.label}
 
+  <svg
+    className={`w-6 h-6 transition ${openStatus ? "rotate-180" : ""}`}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path d="M7 10l5 5 5-5" strokeWidth="2"/>
+  </svg>
+</button>
+
+      {openStatus && (
+        <div className="
+          absolute
+          top-13
+          left-0
+          w-full
+          bg-[#7f837f]
+          text-white
+          rounded-xl
+          overflow-hidden
+          z-50
+        ">
+          {statusOptions.map((s) => (
+            <div
+              key={s.value}
+              onClick={() => {
+                setStatus(s.value);
+                setOpenStatus(false);
+              }}
+              className="
+                px-5
+                py-2
+                text-left
+                hover:bg-[#6f736f]
+                cursor-pointer
+              "
+            >
+              {s.label}
+            </div>
+          ))}
         </div>
+      )}
 
-        {/* CREATE BUTTON */}
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-[#002c3e] text-white px-8 py-3 rounded-full font-semibold"
-        >
-          Create Promo Code
-        </button>
+    </div>
 
-      </div>
+    {/* REFRESH (MATCH SIZE) */}
+    <button
+      onClick={handleRefresh}
+      className="
+        bg-white
+        w-10
+        h-10
+        rounded-full
+        flex
+        items-center
+        justify-center
+        shrink-0
+      "
+    >
+      <img src="/refreshicon.svg" className="w-10 h-10"/>
+    </button>
+
+  </div>
+
+  {/* RIGHT SIDE BUTTON */}
+  <button
+    onClick={() => setShowModal(true)}
+    className="
+      bg-[#002c3e]
+      text-white
+      px-5
+      py-3
+      rounded-full
+      font-semibold
+      shrink-0
+      ml-auto   /* ✅ push right */
+    "
+  >
+    Create Promo Code
+  </button>
+
+</div>
 
       {/* ================= STATS (REFERENCE CARD) ================= */}
       <div className="grid grid-cols-4 gap-6">
@@ -194,37 +268,25 @@ const handleRefresh = async () => {
       <Card 
   label="Total Codes Sent" 
   value={total} 
-  onClick={() => {
-    setHighlightType("ALL");
-    scrollToTable();
-  }} 
+  onClick={() => handleCardClick("ALL")} 
 />
 
 <Card 
   label="Not Redeemed" 
   value={notRedeemed} 
-  onClick={() => {
-    setHighlightType("NOT_REDEEMED");
-    scrollToTable();
-  }} 
+  onClick={() => handleCardClick("NOT_REDEEMED")} 
 />
 
 <Card 
   label="Redeemed" 
   value={redeemed} 
-  onClick={() => {
-    setHighlightType("REDEEMED");
-    scrollToTable();
-  }} 
+  onClick={() => handleCardClick("REDEEMED")} 
 />
 
 <Card 
   label="Expired" 
   value={expired} 
-  onClick={() => {
-    setHighlightType("EXPIRED");
-    scrollToTable();
-  }} 
+  onClick={() => handleCardClick("EXPIRED")} 
 />
 
       </div>
@@ -271,20 +333,22 @@ const handleRefresh = async () => {
       <tr
       key={i}
       className={`border-b border-[#e5e5e5] text-sm transition-all duration-300
-        ${
-          highlightType === "REDEEMED" && row.status === "Redeemed"
-            ? "bg-green-100"
-            : highlightType === "EXPIRED" && row.status === "Expired"
-            ? "bg-red-100"
-            : highlightType === "NOT_REDEEMED" &&
-              row.status !== "Redeemed" &&
-              row.status !== "Expired"
-            ? "bg-yellow-100"
-            : highlightType === "ALL"
-            ? "bg-blue-50"
-            : "hover:bg-[#f7f8f3]"
-        }
-      `}
+      ${
+        highlightType &&
+        (
+          (highlightType === "REDEEMED" && row.status === "Redeemed") ||
+          (highlightType === "EXPIRED" && row.status === "Expired") ||
+          (highlightType === "NOT_REDEEMED" &&
+            row.status !== "Redeemed" &&
+            row.status !== "Expired") ||
+          (highlightType === "ALL")
+        )
+          ? "bg-[#e6f7ff]"   // ✅ SAME COLOR (blue soft)
+          : highlightType
+          ? "opacity-40"     // fade others
+          : "hover:bg-[#f7f8f3]"
+      }
+    `}
     >
         <td className="px-6 py-4 font-semibold">
           {row.code}
