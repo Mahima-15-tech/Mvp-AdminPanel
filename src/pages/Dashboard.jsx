@@ -141,28 +141,32 @@ const formatAmount = (num) => Number(num || 0).toFixed(2);
       <Card 
   title="Total Users" 
   value={data.totalUsers} 
-  onClick={() => navigate("/users?filter=ACTIVE#users-table")} 
+  onClick={() => navigate("/users#users-table")} 
 />
 
 <Card 
   title="Active Subscriptions" 
   value={data.activeSubscriptions} 
-  onClick={() => navigate("/users?filter=ACTIVE#users-table")} 
+  onClick={() => 
+    navigate(`/users?filter=ACTIVE&limit=${data.activeSubscriptions}#users-table`)
+  } 
 />
 
 <Card 
   title="Alerts Sent Today" 
   value={data.alertsToday} 
-  onClick={() => navigate("/alerts?status=SMS_SENT#table")} 
+  onClick={() => 
+    navigate(`/alerts?status=SMS_SENT`)
+  } 
 />
 
 <Card
   title="SMS Failed (24h)"
   value={data.failedSMS}
-  color="text-[#ee6a59]"
-  onClick={() => navigate("/checkins?status=Failed")}
- />
-
+  onClick={() => 
+    navigate(`/checkins?status=FAILED`)
+  }
+/>
         
 
       </div>

@@ -21,6 +21,17 @@ const [totalPages, setTotalPages] = useState(1);
 
 const location = useLocation();
 
+const params = new URLSearchParams(location.search);
+const rangeParam = params.get("range");
+
+
+const [stats,setStats] = useState({
+  total:0,
+  sent:0,
+  pending:0,
+  failed:0
+});
+
 const tableRef = useRef(null);
 
 const handleCardClick = (type) => {
@@ -38,12 +49,48 @@ const handleCardClick = (type) => {
 useEffect(() => {
   const params = new URLSearchParams(location.search);
 
-  const status = params.get("status");
+  const statusParam = params.get("status");
 
-  if (status) {
-    setStatus(status);
+  if (statusParam) {
+    setStatus(statusParam);
+    setPage(1); 
+
+  
+    fetchDataDirect(statusParam);
+
+    setTimeout(() => {
+      tableRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 200);
   }
+
 }, [location.search]);
+
+const fetchDataDirect = async (statusParam) => {
+  try {
+    setLoading(true);
+
+    const res = await api.get("/admin/sms-tracker", {
+      params: {
+        search,
+        consent,
+        status: statusParam,
+        range: rangeParam,
+        page: 1
+      }
+    });
+
+    setData(res.data.data);
+    setTotalPages(res.data.totalPages);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
 const [dropdownPos, setDropdownPos] = useState({
   top: 0,
@@ -65,6 +112,11 @@ useEffect(() => {
   }
 }, [data]);
 
+const fetchStats = async () => {
+  const res = await api.get("/admin/sms-stats"); // 👈 new API
+  setStats(res.data);
+};
+
 /* ================= FETCH ================= */
 
 useEffect(() => {
@@ -79,21 +131,36 @@ useEffect(() => {
   };
 }, []);
 
+// table ke liye
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const hasStatus = params.get("status");
+
+
+  if (!hasStatus) {
+    fetchData();
+  }
+
+}, [consent, status, page, search, location.search]);
+
+
 useEffect(()=>{
-fetchData();
-},[consent,status,page,search]);
+  fetchStats();
+},[]);
 
 const fetchData = async()=>{
 
 try{
 
-setLoading(true);
+  setLoading(true);
+  setData([]); 
 
 const res = await api.get("/admin/sms-tracker",{
 params:{
 search,
 consent,
 status,
+range: rangeParam,
 page
 }
 });
@@ -114,10 +181,10 @@ setLoading(false);
 
 /* ================= SUMMARY ================= */
 
-const total = data.length;
-const sent = data.filter(d=>d.status==="SENT").length;
-const pending = data.filter(d=>d.status==="PENDING").length;
-const failed = data.filter(d=>d.status==="FAILED").length;
+const total = stats.total;
+const sent = stats.sent;
+const pending = stats.pending;
+const failed = stats.failed;
 
 
 /* ================= DROPDOWN ================= */
@@ -336,196 +403,143 @@ return(
 
 {/* ================= TABLE ================= */}
 
-<div  ref={tableRef} className="bg-white rounded-4xl overflow-hidden">
-
-{loading ?(
-
-<div className="p-10 text-center text-gray-400">
-Loading...
-</div>
-
-):(
+<div ref={tableRef} className="bg-white rounded-4xl overflow-visible">
 
 <table className="w-full text-[15px] table-fixed">
 
 <thead className="bg-[#78bcc4] text-white tracking-wide">
-
 <tr>
-
 <th className="px-6 py-4 text-left w-[16%]">Recipient</th>
-
 <th className="px-6 py-4 text-left w-[14%]">Phone</th>
-
 <th className="px-6 py-4 text-left w-[12%]">Consent</th>
-
-<th className="px-3 py-4 text-left w-[10%] whitespace-nowrap">Alerts Type</th>
-
-<th className="px-9 py-4 text-left w-[18%] whitespace-nowrap">
-  Alert Sent At
-</th>
-
+<th className="px-3 py-4 text-left w-[10%]">Alerts Type</th>
+<th className="px-9 py-4 text-left w-[18%]">Alert Sent At</th>
 <th className="px-6 py-4 text-left w-[10%]">Status</th>
-
-<th className="px-3 py-4 text-left w-[8%] ">Attempts</th>
-
-<th className="px-6 py-4 text-left w-[18%]">
-  Failure Reason
-</th>
-
+<th className="px-3 py-4 text-left w-[8%]">Attempts</th>
+<th className="px-6 py-4 text-left w-[18%]">Failure Reason</th>
 </tr>
-
 </thead>
-
 
 <tbody className="text-[#5a6c7d]">
 
-{data.length === 0 ? (
-  <tr className="h-[160px]">
+{loading ? (
 
+  <tr>
+    <td colSpan="8">
+      <div className="p-10 text-center text-gray-400">
+        Loading SMS...
+      </div>
+    </td>
+  </tr>
+
+) : data.length === 0 ? (
+
+  <tr className="h-[160px]">
     <td colSpan="8" className="px-6">
-      <div className="flex flex-col items-center justify-center h-full text-center gap-2">
-        
+      <div className="flex flex-col items-center justify-center gap-2">
         <p className="text-lg font-semibold text-[#5a6c7d]">
           No SMS records found
         </p>
-
-        <p className="text-sm -mt-2.5 text-[#a0a0a0]">
+        <p className="text-sm text-[#a0a0a0]">
           Try adjusting filters or search
         </p>
-
       </div>
     </td>
-
   </tr>
-) :   data.map((row,i)=>(
 
-<tr
-key={i}
-className="
-border-b
-border-[#e5e5e5]
-hover:bg-[#f7f8f3]
-"
->
+) : (
 
-<td className="px-6 py-4 font-semibold">
-{row.name}
-</td>
+  data.map((row,i)=>(
 
-<td className="px-6 py-4">
-{row.phone}
-</td>
-
-<td className="px-6 py-4">
-{row.consent}
-</td>
-
-<td
-className={`
-px-6 py-4 font-medium
-${row.alertType==="MISSED" || row.alertType==="SOS"
-? "text-[#ee6a59]"
-: ""
-}
-`}
->
-{formatText(row.alertType)}
-</td>
-
-<td className="px-6 py-4 whitespace-nowrap">
-  {(() => {
-    const date = new Date(row.createdAt);
-
-    const formatted =
-      date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short"
-      }) +
-      " | " +
-      date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-      });
-
-    return formatted;
-  })()}
-</td>
-
-<td
-className={`
-px-6 py-4 font-medium
-${row.status==="SENT"
-? "text-[#78bcc4]"
-: "text-[#ee6a59]"
-}
-`}
->
-
-  {formatText(row.status)}
-
-</td>
-
-<td className="px-6 py-4">
-{row.retryCount} | 5
-</td>
-
-<td className="px-6 py-4 max-w-[240px] relative">
-
-  <div className="flex items-center gap-2">
-
-    <span className="text-sm text-gray-600 truncate max-w-[150px]">
-      {row.failureReason || "-"}
-    </span>
-
-    {row.failureReason && (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpenRow(openRow === i ? null : i);
-        }}
-        className="text-blue-500 font-bold text-lg leading-none"
-      >
-        ⋯
-      </button>
-    )}
-
-  </div>
-
-  {/* 🔥 YE MISSING THA */}
-  {openRow === i && (
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className="
-        absolute
-        right-0
-        top-10
-        bg-white
-        border
-        shadow-xl
-        rounded-xl
-        p-3
-        w-[260px]
-        z-50
-        text-xs
-        break-words
-      "
+    <tr
+      key={i}
+      className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
     >
-      {row.failureReason}
-    </div>
-  )}
 
-</td>
+      <td className="px-6 py-4 font-semibold">{row.name}</td>
+      <td className="px-6 py-4">{row.phone}</td>
+      <td className="px-6 py-4">{row.consent}</td>
 
-</tr>
+      <td className={`px-6 py-4 font-medium ${
+        row.alertType==="MISSED" || row.alertType==="SOS"
+          ? "text-[#ee6a59]"
+          : ""
+      }`}>
+        {formatText(row.alertType)}
+      </td>
 
-))}
+      <td className="px-6 py-4 whitespace-nowrap">
+        {(() => {
+          const date = new Date(row.createdAt);
+          return (
+            date.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short"
+            }) +
+            " | " +
+            date.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true
+            })
+          );
+        })()}
+      </td>
+
+      <td className={`px-6 py-4 font-medium ${
+        row.status==="SENT"
+          ? "text-[#78bcc4]"
+          : "text-[#ee6a59]"
+      }`}>
+        {formatText(row.status)}
+      </td>
+
+      <td className="px-6 py-4">
+        {row.retryCount} | 5
+      </td>
+
+      <td className="px-6 py-4 max-w-[240px] relative">
+
+        <div className="flex items-center gap-2">
+
+          <span className="text-sm text-gray-600 truncate max-w-[150px]">
+            {row.failureReason || "-"}
+          </span>
+
+          {row.failureReason && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenRow(openRow === i ? null : i);
+              }}
+              className="text-blue-500 font-bold text-lg leading-none"
+            >
+              ⋯
+            </button>
+          )}
+
+        </div>
+
+        {openRow === i && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute right-0 top-10 bg-white border shadow-xl rounded-xl p-3 w-[260px] z-50 text-xs break-words"
+          >
+            {row.failureReason}
+          </div>
+        )}
+
+      </td>
+
+    </tr>
+
+  ))
+
+)}
 
 </tbody>
 
 </table>
-
-)}
 
 </div>
 

@@ -28,32 +28,61 @@
 
   const [openDropdown, setOpenDropdown] = useState(null);
 
-const fetchStats = async()=>{
-  
-  const res = await api.get("/admin/alert-stats", {
-    params: { type, status: statusFilter, plan, search }
-  });
-  setStats(res.data);
-};
-
+  const fetchStats = async () => {
+    const res = await api.get("/admin/alert-stats"); // ❌ NO params
+    setStats(res.data);
+  };
+// ✅ table ke liye
 useEffect(()=>{
   fetchAlerts();
-  fetchStats();
 },[page,type,statusFilter,plan,search]);
+
+// ✅ stats ke liye (only once load)
+useEffect(()=>{
+  fetchStats();
+},[]);
 
 useEffect(() => {
   const params = new URLSearchParams(location.search);
-
   const status = params.get("status");
 
   if (status) {
     setStatusFilter(status);
 
+    // 🔥 DIRECT FETCH (refresh jaisa feel)
+    fetchAlertsDirect(status);
+
     setTimeout(() => {
       scrollToSection("alerts-table");
-    }, 300);
+    }, 200);
   }
 }, [location.search]);
+
+const fetchAlertsDirect = async (status) => {
+  try {
+    setLoading(true);
+
+    const res = await api.get("/admin/alert-monitoring", {
+      params: {
+        page: 1,
+        limit: 5,
+        type,
+        status: status,
+        plan,
+        search
+      }
+    });
+
+    setAlerts(res.data.data || []);
+    setTotalPages(res.data.totalPages || 1);
+    setPage(1);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // const [alerts,setAlerts] = useState([]); // filtered (table)
 const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
@@ -69,32 +98,36 @@ const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
 
 
 
-  const fetchAlerts = async()=>{
-    try{
+  const fetchAlerts = async () => {
+    try {
       setLoading(true);
   
-      // 👉 FILTERED (table)
-      const res = await api.get("/admin/alert-monitoring",{
-        params:{ page, type, status:statusFilter, plan, search }
+      const start = Date.now(); // 👈 add this
+  
+      const res = await api.get("/admin/alert-monitoring", {
+        params: { 
+          page, 
+          limit: 5,  
+          type, 
+          status: statusFilter, 
+          plan, 
+          search 
+        }
       });
       
-      console.log("FILTER PARAMS 👉", { page, type, statusFilter, plan, search });
-      console.log("RESPONSE 👉", res.data);
+      // ✅ correct handling
+      setAlerts(res.data.data || []);
+      setTotalPages(res.data.totalPages || 1);
   
-      setAlerts(res.data);
-      setTotalPages(1); 
+      // 👇 ensure loader at least 400ms dikhe
+      const delay = 400 - (Date.now() - start);
+      if (delay > 0) {
+        await new Promise(r => setTimeout(r, delay));
+      }
   
-
-      // 👉 FULL DATA (stats ke liye)
-      const fullRes = await api.get("/admin/alert-monitoring",{
-        params:{ page:1, type:"ALL", status:"ALL", plan:"ALL", search:"" }
-      });
-  
-      setAllAlerts(fullRes.data);
-  
-    }catch(err){
+    } catch (err) {
       console.error(err);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -455,135 +488,95 @@ useEffect(() => {
 
   <div id="alerts-table" className="bg-white rounded-[30px] overflow-hidden border border-[#e6e6e6]">
 
-    {loading ? (
+<table className="w-full text-[16px] table-fixed">
 
-      <div className="p-10 text-center text-gray-400">
-        Loading alerts...
-      </div>
-
-    ) : (
-
-      <table className="w-full text-[16px] table-fixed">
-
-        {/* ✅ HEADER ALWAYS */}
-        <thead className="bg-[#78bcc4] text-white">
+<thead className="bg-[#78bcc4] text-white">
   <tr>
     <th className="px-6 py-5 text-left w-[14%]">User ID</th>
     <th className="px-6 py-5 text-left w-[14%]">User Name</th>
     <th className="px-6 py-5 text-left w-[10%]">Plan</th>
-    
-    <th className="px-4 py-5 text-left w-[14%]">
-      Alerts Type
-    </th>
-
-    <th className="px-4 py-5 text-left w-[18%] whitespace-nowrap">
-      Alert Sent At
-    </th>
-
+    <th className="px-4 py-5 text-left w-[14%]">Alerts Type</th>
+    <th className="px-4 py-5 text-left w-[18%]">Alert Sent At</th>
     <th className="px-6 py-5 text-left w-[10%]">Status</th>
-    <th className="px-6 py-5 text-left w-[10%] leading-tight">Alerts Sent</th>
-    <th className="px-6 py-5 text-left w-[10%] leading-tight">Alert Credits</th>
+    <th className="px-6 py-5 text-left w-[10%]">Alerts Sent</th>
+    <th className="px-6 py-5 text-left w-[10%]">Alert Credits</th>
   </tr>
 </thead>
 
-        <tbody className="text-[#5a6c7d]">
+<tbody className="text-[#5a6c7d]">
 
-          {/* ✅ EMPTY STATE (FIXED LIKE USERS/REVENUE) */}
-          {alerts.length === 0 ? (
+{loading ? (
 
-<tr className="h-[160px]">
+  <tr>
+    <td colSpan="8">
+      <div className="p-10 text-center text-gray-400">
+        Loading alerts...
+      </div>
+    </td>
+  </tr>
 
-  <td colSpan="8" className="px-6">
-    <div className="flex flex-col items-center justify-center h-full text-center gap-2">
-      
-      <p className="text-lg font-semibold text-[#5a6c7d]">
-        No alert records found
-      </p>
+) : alerts.length === 0 ? (
 
-      <p className="text-sm -mt-2.5  text-[#a0a0a0]">
-        Adjust your filters or search
-      </p>
-
-    </div>
-  </td>
-
-</tr>
+  <tr className="h-[160px]">
+    <td colSpan="8">
+      <div className="flex flex-col items-center justify-center gap-2">
+        <p className="text-lg font-semibold">No alert records found</p>
+        <p className="text-sm text-[#a0a0a0]">
+          Adjust your filters or search
+        </p>
+      </div>
+    </td>
+  </tr>
 
 ) : (
 
-            alerts.map((a,i)=>{
+  alerts.map((a,i)=>{
 
-              const date = new Date(a.createdAt);
+    const date = new Date(a.createdAt);
 
-              const formattedDate =
-                date.toLocaleDateString("en-GB") +
-                " | " +
-                date.toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true
-                });
+    const formattedDate =
+      date.toLocaleDateString("en-GB") +
+      " | " +
+      date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
 
-              return(
+    return(
+      <tr key={i} className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3] transition">
 
-                <tr
-                  key={i}
-                  className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3] transition"
-                >
+        <td className="px-6 py-4 font-medium">{a.phone}</td>
+        <td className="px-6 py-4 font-semibold">{a.userName}</td>
+        <td className="px-6 py-4">
+          {a.planType?.charAt(0) + a.planType?.slice(1).toLowerCase()}
+        </td>
+        <td className="px-4 py-4 font-semibold text-[#ee6a59]">
+          {a.alertType === "MISSED_CHECKIN" ? "Missed" : a.alertType}
+        </td>
+        <td className="px-4 py-4">{formattedDate}</td>
+        <td className={`px-6 py-4 font-semibold ${
+          a.status==="SMS_SENT" ? "text-[#78bcc4]" : "text-[#ee6a59]"
+        }`}>
+          {a.status==="SMS_SENT"
+            ? "Sent"
+            : a.status==="SMS_PENDING"
+            ? "Pending"
+            : "Failed"}
+        </td>
+        <td className="px-6 py-4">{a.retryCount}</td>
+        <td className="px-6 py-4">{a.currentBalance}</td>
 
-                  <td className="px-6 py-4 font-medium">
-                    {a.phone}
-                  </td>
+      </tr>
+    )
+  })
 
-                  <td className="px-6 py-4 font-semibold">
-                    {a.userName}
-                  </td>
+)}
 
-                  <td className="px-6 py-4">
-                    {a.planType?.charAt(0) + a.planType?.slice(1).toLowerCase()}
-                  </td>
+</tbody>
 
-                  <td className="px-4 py-4 font-semibold text-[#ee6a59]">
-  {a.alertType === "MISSED_CHECKIN" ? "Missed" : a.alertType}
-</td>
-                  <td className="px-4 py-4">
-  {formattedDate}
-</td>
-                  <td className={`px-6 py-4 font-semibold ${
-                    a.status==="SMS_SENT"
-                      ? "text-[#78bcc4]"
-                      : "text-[#ee6a59]"
-                  }`}>
-                    {a.status==="SMS_SENT"
-                      ? "Sent"
-                      : a.status==="SMS_PENDING"
-                      ? "Pending"
-                      : "Failed"}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {a.retryCount}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {a.currentBalance}
-                  </td>
-
-                </tr>
-
-              )
-
-            })
-
-          )}
-
-        </tbody>
-
-      </table>
-
-    )}
-
-  </div>
+</table>
+</div>
 
   {/* ================= PAGINATION ================= */}
 

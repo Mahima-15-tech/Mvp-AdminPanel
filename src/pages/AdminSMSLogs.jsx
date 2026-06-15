@@ -225,7 +225,7 @@ const [to,setTo] = useState("");
 const [openExport,setOpenExport] = useState(false);
 
 const [page,setPage] = useState(1);
-
+const [loading, setLoading] = useState(true);
 
 const [summary, setSummary] = useState({
   gross: 0,
@@ -383,22 +383,28 @@ const exportCSV = ()=>{
 
 /* ================= DUMMY DATA ================= */
 const fetchRevenue = async () => {
-  console.log("FROM SEND:", formatDate(from));  // 👈 ADD HERE
-  console.log("TO SEND:", formatDate(to));      // 👈 ADD HERE
-  
-  const res = await api.get("/admin/revenue", {
-    params: {
-      month,
-      from: from ? formatDate(from) : "",
-      to: to ? formatDate(to) : "",
-      page
-    }
-  });
+  try {
+    setLoading(true);   // ✅ START LOADING
 
-  setData(res.data.data);
-  setSummary(res.data.summary);
-  setTotalPages(res.data.totalPages);
-  setTotalCount(res.data.totalCount);
+    const res = await api.get("/admin/revenue", {
+      params: {
+        month,
+        from: from ? formatDate(from) : "",
+        to: to ? formatDate(to) : "",
+        page
+      }
+    });
+
+    setData(res.data.data);
+    setSummary(res.data.summary);
+    setTotalPages(res.data.totalPages);
+    setTotalCount(res.data.totalCount);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);  // ✅ STOP LOADING
+  }
 };
 
 
@@ -736,14 +742,24 @@ Apply
   </tr>
 </thead>
 
-    <tbody className="text-[#5a6c7d]">
+<tbody className="text-[#5a6c7d]">
 
-      {/* ✅ EMPTY STATE (ONLY CHANGE) */}
-      {data.length === 0 ? (
+{/* ✅ LOADING */}
+{loading ? (
+
+  <tr>
+    <td colSpan="7">
+      <div className="p-10 text-center text-gray-400">
+        Loading revenue...
+      </div>
+    </td>
+  </tr>
+
+) : data.length === 0 ? (
 
 <tr className="h-[160px]">
 
-<td colSpan="8" className="px-6 py-20 text-center">
+<td colSpan="7" className="px-6 py-20 text-center">
   <div className="flex flex-col items-center justify-center gap-2">
     <p className="text-lg font-semibold text-[#5a6c7d]">
       No revenue data found
@@ -758,128 +774,95 @@ Apply
 
 ) : (
 
-        /* DATA SAME AS YOURS */
-        paginatedData.map((r,i)=>(
-
-          <tr
-  key={i}
-  className={`
-    border-b border-[#e5e5e5]
-    ${r.status === "REFUNDED"
-      ? "bg-[#f7f7f7] text-[#b6b9b3]"
-      : "hover:bg-[#f7f8f3] text-[#5a6c7d]"
-    }
-  `}
->
-
-            <td className={`px-6 py-4 font-semibold ${
-  r.status === "REFUNDED"
-    ? "text-[#b6b9b3]"
-    : "text-[#78bcc4]"
-}`}>
-              {new Date(r.date).toLocaleDateString("en-GB",{
-                day:"2-digit",
-                month:"short",
-                year:"numeric"
-              })}
-            </td>
-
-            <td className={` py-4 whitespace-nowrap font-semibold ${
-  r.status === "REFUNDED"
-    ? "text-[#b6b9b3]"
-    : "text-[#78bcc4]"
-}`}>
-              {r.userId}
-            </td>
-
-            <td className={`px-6 py-4 font-semibold ${
-  r.status === "REFUNDED"
-    ? "text-[#b6b9b3]"
-    : "text-[#78bcc4]"
-}`}>
-              {r.userName}
-            </td>
-
-            <td className={`px-6 py-4 font-semibold ${
-  r.status === "REFUNDED"
-    ? "text-[#b6b9b3]"
-    : "text-[#78bcc4]"
-}`}>
-              {r.plan?.toLowerCase()}
-            </td>
-
-            <td className={`px-6 py-4 font-semibold ${
-  r.status === "REFUNDED"
-    ? "text-[#b6b9b3]"
-    : "text-[#78bcc4]"
-}`}>
-              ${r.gross.toFixed(2)} 
-            </td>
-
-            <td className={`px-6 py-4 font-semibold ${
-  r.status === "REFUNDED"
-    ? "text-[#b6b9b3]"
-    : "text-[#78bcc4]"
-}`}>
-              ${r.net.toFixed(2)}
-            </td>
-
-            {/* <td className="px-6 py-4 text-[#78bcc4] font-semibold">{r.status}</td> */}
-
-            <td className="px-2 py-4 whitespace-nowrap">
-
-{r.status === "REFUNDED" ? (
-
-  <div
-    className="
-      px-3 py-2
-      rounded-full
-      text-sm font-semibold
-      inline-flex items-center justify-center
-      shadow-sm
-    "
-    style={{
-      background: "linear-gradient(180deg, #f7b3a8 0%, #f5a696 100%)",
-      color: "#ffffff",
-      opacity: 0.9
-    }}
+paginatedData.map((r,i)=>(
+  <tr
+    key={i}
+    className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
   >
-    Refunded
-  </div>
 
-) : (
+    <td className={`px-6 py-4 font-semibold ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {new Date(r.date).toLocaleDateString("en-GB",{
+        day:"2-digit",
+        month:"short",
+        year:"numeric"
+      })}
+    </td>
 
-  <button
-    onClick={() => openRefundModal(r)}
-    className="
-      px-5 py-2
-      rounded-full
-      text-sm font-semibold
-      inline-flex items-center justify-center
-      shadow-md
-      transition
-      hover:scale-[1.05]
-      active:scale-[0.98]
-    "
-    style={{
-      background: "linear-gradient(180deg, #f07c6c 0%, #ee6a59 100%)",
-      color: "#ffffff"
-    }}
-  >
-    Refund
-  </button>
+    <td className={`px-6 py-4 font-semibold ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {r.userId}
+    </td>
 
-)}
+    <td className={`px-6 py-4 font-semibold ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {r.userName}
+    </td>
 
-</td>
+    <td className={`px-6 py-4 font-semibold ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {r.plan === "TOPUP"
+        ? "Top-up"
+        : r.plan === "MONTHLY"
+        ? "Monthly"
+        : r.plan === "YEARLY"
+        ? "Yearly"
+        : r.plan}
+    </td>
 
-          </tr>
+    <td className={`px-6 py-4 font-semibold ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#78bcc4]"
+    }`}>
+      ${r.gross.toFixed(2)}
+    </td>
 
-        ))
+    <td className={`px-6 py-4 font-semibold ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#78bcc4]"
+    }`}>
+      ${r.net.toFixed(2)}
+    </td>
+
+    <td className="px-2 py-4 whitespace-nowrap">
+
+      {r.status === "REFUNDED" ? (
+
+        <span
+          className="inline-flex items-center justify-center px-3 py-2 rounded-full text-sm font-semibold"
+          style={{
+            backgroundColor: "#f5a696",
+            color: "#F5F5F5"
+          }}
+        >
+          Refunded
+        </span>
+
+      ) : (
+
+        <button
+          onClick={() => openRefundModal(r)}
+          className="inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-semibold"
+          style={{
+            backgroundColor: "#ee6a59",
+            color: "#F5F5F5"
+          }}
+        >
+          Refund
+        </button>
 
       )}
 
-    </tbody>
+    </td>
+
+  </tr>
+))
+
+)}
+
+</tbody>
 
   </table>
 
@@ -913,214 +896,226 @@ Apply
 
 
 {showHistory && createPortal(
-  <div className="fixed inset-0 z-[1000] bg-black/80  flex items-center justify-center">
-   
-   <button
+
+<div className="fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center">
+
+  {/* ✅ MODAL BOX */}
+  <div className="bg-white rounded-[30px] w-[1100px] max-h-[90vh] relative">
+
+    {/* ✅ CROSS BUTTON (FIXED PERFECTLY) */}
+    <button
   onClick={() => setShowHistory(false)}
   className="
-    absolute top-54 right-46
-    w-8 h-8
+    absolute 
+    -top-16 right-3
+    
+    w-10 h-10
     flex items-center justify-center
     rounded-full
-    text-white text-sm
-    shadow-md
+    text-white
+    shadow-lg
     transition
     hover:scale-110
+    z-20
   "
   style={{
-    backgroundColor: "#002c3e"
+    backgroundColor: "#78bcc4"
   }}
 >
   ✕
 </button>
-<div className="bg-white rounded-[30px] w-[1100px] max-h-[90vh] overflow-hidden relative">
 
-     
-
-
-      {/* ================= TABLE ================= */}
-      <div className="overflow-auto max-h-[65vh]">
+    {/* ================= TABLE ================= */}
+    <div className="overflow-auto max-h-[65vh]">
 
       <table className="w-full text-[16px] tracking-wide table-fixed">
 
-{/* HEADER */}
-<thead className="bg-[#78bcc4] text-white">
-  <tr>
-    <th className="w-[16%] px-6 py-5 text-left rounded-tl-[30px]">Date</th>
-    <th className="w-[16%] px-6 py-5 text-left">User ID</th>
-    <th className="w-[18%] px-6 py-5 text-left">User Name</th>
-    <th className="w-[14%] px-6 py-5 text-left">Plan</th>
-    <th className="w-[18%] px-1 py-5 text-left whitespace-nowrap">Refund Amount</th>
-    <th className="w-[22%] px-6 py-5 text-left whitespace-nowrap">Request Reason</th>
-    <th className="w-[14%] px-6 py-5 text-left rounded-tr-[30px]">Status</th>
-  </tr>
-</thead>
+        {/* HEADER */}
+        <thead className="bg-[#78bcc4] text-white">
+          <tr>
+            <th className="w-[16%] px-6 py-5 text-left rounded-tl-[30px]">Date</th>
+            <th className="w-[16%] px-6 py-5 text-left">User ID</th>
+            <th className="w-[18%] px-6 py-5 text-left">User Name</th>
+            <th className="w-[14%] px-6 py-5 text-left">Plan</th>
+            <th className="w-[18%] px-1 py-5 text-left whitespace-nowrap">Refund Amount</th>
+            <th className="w-[22%] px-6 py-5 text-left whitespace-nowrap">Request Reason</th>
+            <th className="w-[14%] px-6 py-5 text-left rounded-tr-[30px]">Status</th>
+          </tr>
+        </thead>
 
-<tbody className="text-[#5a6c7d]">
+        <tbody className="text-[#5a6c7d]">
 
-  {historyData.length === 0 ? (
+          {historyData.length === 0 ? (
 
-    <tr className="h-[160px]">
-      <td colSpan="7" className="px-6 py-20 text-center">
-        <p className="text-lg font-semibold">
-          No refund requests found
-        </p>
-      </td>
-    </tr>
+            <tr className="h-[160px]">
+              <td colSpan="7" className="px-6 py-20 text-center">
+                <p className="text-lg font-semibold">
+                  No refund requests found
+                </p>
+              </td>
+            </tr>
 
-  ) : (
+          ) : (
 
-    historyData.map((h, i) => (
+            historyData.map((h, i) => (
 
-      <tr
-        key={i}
-        className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
-      >
+              <tr
+              key={i}
+              className={`border-b border-[#e5e5e5] ${
+                i === historyData.length - 1 ? "border-b-0" : ""
+              }`}
+            >
 
-        {/* DATE */}
-        <td className="px-6 py-4 whitespace-nowrap">
-          {new Date(h.date).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-          })}
-        </td>
+                {/* DATE */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {new Date(h.date).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                  })}
+                </td>
 
-        {/* USER ID */}
-        <td className="px-6 py-4 whitespace-nowrap">
-          {h.userPhone || "-"}
-        </td>
+                {/* USER ID */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {h.userPhone || "-"}
+                </td>
 
-        {/* NAME */}
-        <td className="px-6 py-4 font-semibold">
-          {h.userName}
-        </td>
+                {/* NAME */}
+                <td className="px-6 py-4 font-semibold">
+                  {h.userName}
+                </td>
 
-        {/* PLAN */}
-        <td className="px-6 py-4 capitalize">
-          {h.plan?.toLowerCase()}
-        </td>
+                {/* PLAN */}
+                <td className="px-6 py-4 capitalize">
+                  {h.plan === "topup"
+                    ? "Top-up"
+                    : h.plan?.toLowerCase()}
+                </td>
 
-        {/* AMOUNT */}
-        <td className="px-6 py-4 text-[#78bcc4] font-semibold">
-          ${h.amount?.toFixed(2)}
-        </td>
+                {/* AMOUNT */}
+                <td className="px-6 py-4 font-semibold">
+                  ${h.amount?.toFixed(2)}
+                </td>
 
-        {/* REASON */}
-        <td className="px-6 py-4">
-          {h.refundRequestedReason || "-"}
-        </td>
+                {/* REASON */}
+                <td className="px-6 py-4">
+                  {h.refundRequestedReason || "-"}
+                </td>
 
-        {/* STATUS */}
-        <td className="px-6 py-4">
+                {/* STATUS */}
+                <td className="px-6 py-4">
 
-          {/* COMPLETED */}
-          {h.status === "COMPLETED" && (
-            <span className="text-[#5a6c7d] font-semibold">
-              Completed
-            </span>
+                  {h.status === "COMPLETED" && (
+                    <span className="text-[#5a6c7d] font-semibold">
+                      Completed
+                    </span>
+                  )}
+
+                  {h.status === "PENDING" && (
+                    <span className="text-[#ee6a59] font-semibold">
+                      Pending
+                    </span>
+                  )}
+
+                  {h.status === "FAILED" && (
+                    <div className="flex items-center gap-2">
+
+                      <span className="text-[#ee6a59] font-semibold">
+                        Refund Failed
+                      </span>
+
+                      <div className="w-5 h-5 rounded-full border-2 border-[#5a6c7d] flex items-center justify-center">
+                        <div className="w-2.5 h-2.5 bg-[#78bcc4] rounded-full" />
+                      </div>
+
+                    </div>
+                  )}
+
+                </td>
+
+              </tr>
+
+            ))
+
           )}
 
-          {/* PENDING */}
-          {h.status === "PENDING" && (
-            <span className="text-[#ee6a59] font-semibold">
-              Pending
-            </span>
-          )}
+        </tbody>
 
-          {/* FAILED */}
-          {h.status === "FAILED" && (
-            <div className="flex items-center gap-2">
-
-              <span className="text-[#ee6a59] font-semibold">
-                Refund Failed
-              </span>
-
-              {/* CUSTOM RADIO */}
-              <div className="w-5 h-5 rounded-full border-2 border-[#5a6c7d] flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-[#78bcc4] rounded-full" />
-              </div>
-
-            </div>
-          )}
-
-        </td>
-
-      </tr>
-
-    ))
-
-  )}
-
-</tbody>
-
-</table>
-      </div>
-
-    </div>
-
-  </div>,
-  document.body
-)}
-{showRefundModal && (
-
-<div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-
-  <div className="bg-white rounded-[28px] w-[380px] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
-
-    {/* TITLE */}
-    <h2 className="text-xl font-semibold text-[#0b3c49] text-center mb-3">
-      Approve Refund
-    </h2>
-
-    {/* TEXT */}
-    <p className="text-[#5a6c7d] text-center mb-8 text-sm leading-relaxed">
-      Are you sure you want to refund this user?
-      <br />
-      The amount will be credited via Stripe
-    </p>
-
-    {/* BUTTONS */}
-    <div className="flex gap-4 justify-center">
-
-      {/* CANCEL */}
-      <button
-        onClick={() => setShowRefundModal(false)}
-        className="
-          px-8 py-3
-          rounded-full
-          bg-[#bfc3be]
-          text-white
-          font-semibold
-          hover:opacity-90
-          transition
-        "
-      >
-        Cancel
-      </button>
-
-      {/* CONFIRM */}
-      <button
-        onClick={handleRefundConfirm}
-        className="
-          px-8 py-3
-          rounded-full
-          bg-[#002c3e]
-          text-white
-          font-semibold
-          hover:opacity-90
-          transition
-        "
-      >
-        Confirm
-      </button>
+      </table>
 
     </div>
 
   </div>
 
-</div>
+</div>,
 
+document.body
+)}
+
+
+
+
+{showRefundModal && createPortal(
+
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000]">
+
+    {/* MODAL BOX */}
+    <div className="bg-white rounded-[28px] w-[380px] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
+
+      {/* TITLE */}
+      <h2 className="text-xl font-semibold text-[#0b3c49] text-center mb-3">
+        Approve Refund
+      </h2>
+
+      {/* TEXT */}
+      <p className="text-[#5a6c7d] text-center mb-8 text-sm leading-relaxed">
+        Are you sure you want to refund this user?
+        <br />
+        The amount will be credited via Stripe
+      </p>
+
+      {/* BUTTONS */}
+      <div className="flex gap-4 justify-center">
+
+        {/* CANCEL */}
+        <button
+          onClick={() => setShowRefundModal(false)}
+          className="
+            px-8 py-3
+            rounded-full
+            bg-[#bfc3be]
+            text-white
+            font-semibold
+            hover:opacity-90
+            transition
+          "
+        >
+          Cancel
+        </button>
+
+        {/* CONFIRM */}
+        <button
+          onClick={handleRefundConfirm}
+          className="
+            px-8 py-3
+            rounded-full
+            bg-[#002c3e]
+            text-white
+            font-semibold
+            hover:opacity-90
+            transition
+          "
+        >
+          Confirm
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>,
+
+  document.body
 )}
 </div>
 

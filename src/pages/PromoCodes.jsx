@@ -10,7 +10,7 @@ export default function PromoCodes() {
   const [status, setStatus] = useState("ALL");
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
-  const [highlightType, setHighlightType] = useState(null);
+  
 const tableRef = useRef(null);
 
 const scrollToTable = () => {
@@ -33,14 +33,18 @@ const scrollToTable = () => {
   )
   .filter(d => {
     if (status === "ALL") return true;
-
+  
     if (status === "REDEEMED") return d.status === "Redeemed";
     if (status === "EXPIRED") return d.status === "Expired";
-
+  
+    if (status === "NOT_REDEEMED") {
+      return d.status !== "Redeemed" && d.status !== "Expired";
+    }
+  
     if (status === "1M") return d.duration === "1 Month";
     if (status === "1Y") return d.duration === "1 Year";
     if (status === "UNLIMITED") return d.duration === "Unlimited";
-
+  
     return true;
   });
 
@@ -58,7 +62,7 @@ useEffect(() => {
   setPage(1);
 }, [search, status]);
 
-
+const [stats, setStats] = useState({});
   const statusOptions = [
     { label: "All Status", value: "ALL" },
     { label: "1 Month", value: "1M" },
@@ -86,16 +90,16 @@ useEffect(() => {
   };
  
   useEffect(() => {
-    fetchPromo();
+    fetchPromo();   // table
   }, []);
-
-  const total = data.length;
-
-const expired = data.filter(d => d.status === "Expired").length;
-
-const redeemed = data.filter(d => d.status === "Redeemed").length;
-
-const notRedeemed = total - redeemed - expired;
+  
+  useEffect(() => {
+    fetchStats();   // stats (ONLY ON LOAD)
+  }, []);
+  const total = stats.total || 0;
+const redeemed = stats.redeemed || 0;
+const expired = stats.expired || 0;
+const notRedeemed = stats.notRedeemed || 0;
 
 
 useEffect(() => {
@@ -103,20 +107,33 @@ useEffect(() => {
 }, [search, status]);
 
 const handleRefresh = async () => {
-  setStatus("ALL");   
-  setSearch("");     
-  setPage(1);         
-  await fetchPromo(); 
+  setStatus("ALL");
+  setSearch("");
+  setPage(1);
+
+  await fetchPromo();
+  await fetchStats(); 
+};
+
+const fetchStats = async () => {
+  try {
+    const res = await api.get("/promo/stats"); // 👈 route same rakho
+    setStats(res.data);
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 
 const handleCardClick = (type) => {
-  setHighlightType(type);
   scrollToTable();
 
-  setTimeout(() => {
-    setHighlightType(null);
-  }, 3000); // ✅ 3 sec me remove
+  if (type === "ALL") setStatus("ALL");
+  if (type === "REDEEMED") setStatus("REDEEMED");
+  if (type === "EXPIRED") setStatus("EXPIRED");
+  if (type === "NOT_REDEEMED") setStatus("ALL"); // custom logic below
+
+  setPage(1);
 };
 
   return (
@@ -332,23 +349,7 @@ flex-wrap
     paginatedData.map((row, i) => (
       <tr
       key={i}
-      className={`border-b border-[#e5e5e5] text-sm transition-all duration-300
-      ${
-        highlightType &&
-        (
-          (highlightType === "REDEEMED" && row.status === "Redeemed") ||
-          (highlightType === "EXPIRED" && row.status === "Expired") ||
-          (highlightType === "NOT_REDEEMED" &&
-            row.status !== "Redeemed" &&
-            row.status !== "Expired") ||
-          (highlightType === "ALL")
-        )
-          ? "bg-[#e6f7ff]"   // ✅ SAME COLOR (blue soft)
-          : highlightType
-          ? "opacity-40"     // fade others
-          : "hover:bg-[#f7f8f3]"
-      }
-    `}
+      className="border-b border-[#e5e5e5] text-sm hover:bg-[#f7f8f3]"
     >
         <td className="px-6 py-4 font-semibold">
           {row.code}

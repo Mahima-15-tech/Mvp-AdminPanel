@@ -201,14 +201,16 @@ function SectionTitle({ children }) {
 
 function Info({ label, value }) {
   return (
-    <div className="min-w-0 text-center">   {/* 👈 IMPORTANT */}
-      <p className="text-md font-semibold tracking-wide text-[#5a6c7d]">
+    <div className="text-left">
+
+      <p className="text-md font-semibold text-[#5a6c7d]">
         {label}
       </p>
 
-      <p className="text-xl font-semibold leading-8 tracking-wide text-[#002c3e] break-words">
+      <p className="text-xl font-semibold text-[#002c3e] break-words">
         {value || "—"}
       </p>
+
     </div>
   );
 }
@@ -302,18 +304,44 @@ function Overview({ data }) {
   
   <div className="border-t border-[#CFD5DB]">
   
-  <div className="grid grid-cols-4 gap-x-6 px-10 py-6 border-b border-[#CFD5DB]">
-  <Info label="Phone" value={u.phone}/>
-  <Info label="Gender" value={u.gender}/>
-  <Info label="Location" value={u.profileLocation}/>
-  <Info label="Language" value={formatLanguage(u.language)} />
+  <div className="grid grid-cols-4 px-10 py-6 border-b border-[#CFD5DB]">
+
+  <div className="pr-6">
+    <Info label="Phone" value={u.phone} />
+  </div>
+
+  <div className="px-16">
+    <Info label="Gender" value={u.gender} />
+  </div>
+
+  <div className="px-10">
+    <Info label="Location" value={u.profileLocation} />
+  </div>
+
+  <div className="pl-10">
+    <Info label="Language" value={formatLanguage(u.language)} />
+  </div>
+
 </div>
 
-<div className="grid grid-cols-4 gap-x-6  px-10 py-6 items-start">
-  <Info label="Email" value={u.email}/>
-  <Info label="Age" value={u.age}/>
-  <Info label="Account Created" value={<span className="tracking-tight">{formatDate(u.createdAt)}</span>}/>
-  <Info label="Voice Reminder" value={formatVoice(u.alertVoice)} />
+<div className="grid grid-cols-4 px-10 py-6">
+
+  <div className="pr-6">
+    <Info label="Email" value={u.email} />
+  </div>
+
+  <div className="px-16">
+    <Info label="Age" value={u.age} />
+  </div>
+
+  <div className="px-10">
+    <Info label="Account Created" value={formatDate(u.createdAt)} />
+  </div>
+
+  <div className="pl-10">
+    <Info label="Voice Reminder" value={formatVoice(u.alertVoice)} />
+  </div>
+
 </div>
   
   </div>
@@ -464,7 +492,7 @@ function Subscription({ data , showHistory, setShowHistory}) {
 
         {/* ROW 1 */}
 
-        <div className="grid grid-cols-3 px-10 py-6 border-b border-[#CFD5DB]">
+        <div className="grid grid-cols-[0.8fr_1.2fr_1.2fr] px-10 py-6 border-b border-[#CFD5DB]">
 
           <Info
             label="Plan Type"
@@ -483,7 +511,7 @@ function Subscription({ data , showHistory, setShowHistory}) {
 
         {/* ROW 2 */}
 
-        <div className="grid grid-cols-3 px-10 py-6">
+        <div className="grid grid-cols-[0.8fr_1.2fr_1.2fr] px-10 py-6">
 
           <Info
             label="Auto Renewal"

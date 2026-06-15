@@ -20,52 +20,48 @@ const [stats,setStats]=useState({})
 const [regions,setRegions]=useState({})
 const [countries,setCountries]=useState([])
 const [totalPages,setTotalPages]=useState(1)
-const [rowsPerPage,setRowsPerPage]=useState(10)
+const [rowsPerPage,setRowsPerPage]=useState(5)
 const [searchInput,setSearchInput] = useState("")
-const [highlight, setHighlight] = useState(false);
+// const [highlight, setHighlight] = useState(false);
 const [activeFilter, setActiveFilter] = useState(null);
 const location = useLocation();
+
+const [filterType, setFilterType] = useState("ALL");
 
 const [confirmUser,setConfirmUser]=useState(null)
 
 const [openExport, setOpenExport] = useState(false);
 const exportRef = useRef();
 
+
+
+const tableRef = useRef(null);
+
+
+
 useEffect(() => {
   const params = new URLSearchParams(location.search);
-  const filter = params.get("filter");
 
-  if (filter) {
-    setActiveFilter(filter);
+  const filter = params.get("filter") || "ALL";
+  const limit = 5; 
 
-    // scroll bhi karwa do
+  // state set
+  setFilterType(filter);
+  setRowsPerPage(5);
+  setPage(1);
+
+  // 🔥 DIRECT API CALL (important)
+  fetchUsersDirect(filter);
+
+  // scroll
+  if (location.hash === "#users-table") {
     setTimeout(() => {
       const el = document.getElementById("users-table");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     }, 300);
   }
-}, [location.search]);
 
-const tableRef = useRef(null);
-
-useEffect(() => {
-  if (!loading && location.hash === "#users-table") {
-    
-    setHighlight(true); // 👈 ADD THIS
-
-    setTimeout(() => {
-      tableRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }, 100);
-
-    // 👇 REMOVE highlight after 2 sec
-    setTimeout(() => {
-      setHighlight(false);
-    }, 2000);
-  }
-}, [loading, location]);
+}, [location]);
 
 useEffect(() => {
   const handleClickOutside = (e) => {
@@ -96,13 +92,15 @@ const scrollToUsersTable = () => {
 
 
 const handleCardClick = (type) => {
-  const el = document.getElementById("users-table");
+  setFilterType(type);
+  setPage(1); 
 
+  const el = document.getElementById("users-table");
   if (el) {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  setActiveFilter(type);
+
 
   // remove highlight after 3 sec
   setTimeout(() => {
@@ -117,6 +115,9 @@ const handleRefresh = () => {
   setSearchInput("");
   setSearch("");
   setPage(1);
+  setFilterType("ALL"); 
+
+  fetchUsers(); 
 };
 
 const formatPlan = (plan) => {
@@ -138,21 +139,43 @@ useEffect(() => {
   console.log("USERS DATA 👉", users);
 }, [users]);
 
-
 useEffect(()=>{
   fetchUsers()
-},[page, rowsPerPage, search, fromDate, toDate])
+},[page, rowsPerPage, search, fromDate, toDate, filterType])
 
 
-useEffect(()=>{
+const firstLoad = useRef(true);
 
-  const delay = setTimeout(()=>{
-  setSearch(searchInput)
-  },500)
-  
-  return ()=> clearTimeout(delay)
-  
-  },[searchInput])
+const fetchUsersDirect = async (filter, limit) => {
+  try {
+    setLoading(true);
+
+    const res = await api.get("/admin/users/dashboard-ultra", {
+      params: {
+        page: 1,
+        limit: 5,
+        search,
+        from: fromDate,
+        to: toDate,
+        filter: filter
+      }
+    });
+
+    setUsers(res.data.users.data);
+    setTotalPages(res.data.users.pages || 1);
+    setStats(res.data.stats);
+    setRegions(res.data.regions);
+    setCountries(res.data.countries);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
 const fetchUsers=async()=>{
 
@@ -167,7 +190,8 @@ page,
 limit:rowsPerPage,
 search,
 from:fromDate,
-to:toDate
+to:toDate,
+filter: filterType 
 }
 })
 console.log("FULL RESPONSE 👉", res);
@@ -191,6 +215,8 @@ setLoading(false)
 }
 
 }
+
+
 
 useEffect(() => {
   if (users.length === 0) {
@@ -235,15 +261,7 @@ const year=String(d.getFullYear()).slice(-2)
 return `${day}/${month}/${year}`
 }
 
-if(loading){
-return(
-<div className="space-y-4">
-{Array.from({length:6}).map((_,i)=>(
-<div key={i} className="h-16 bg-gray-200 animate-pulse rounded-xl"/>
-))}
-</div>
-)
-}
+
 
 const handleExport = async (type) => {
 
@@ -477,8 +495,7 @@ return(
 <div 
 ref={tableRef}
   id="users-table"
-  className={`bg-white rounded-4xl w-full mx-auto overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
-    highlight ? "ring-4 ring-[#78bcc4]" : ""
+  className={`bg-white rounded-4xl w-full mx-auto overflow-hidden border border-[#e6e6e6] transition-all duration-500 
   }`}
 >
 
@@ -504,7 +521,17 @@ ref={tableRef}
 
     <tbody className="text-[#5a6c7d]">
 
-{users.length === 0 ? (
+{loading ? (
+
+  <tr>
+    <td colSpan="10">
+      <div className="p-10 text-center text-gray-400">
+        Loading users...
+      </div>
+    </td>
+  </tr>
+
+) : users.length === 0 ? (
 
   <tr className="h-[160px]">
     <td colSpan="10" className="px-6">
@@ -522,24 +549,14 @@ ref={tableRef}
 ) : (
 
   users.map((user) => {
-    console.log("USER FOUND 👉", user);
 
     const isPending =
-  !user.name ||
-  !user.email ||
-  user.name === "Unnamed" ||
-  user.nameCompleted !== true ||
-  user.emailCompleted !== true;
+      !user.name ||
+      !user.email ||
+      user.name === "Unnamed" ||
+      user.nameCompleted !== true ||
+      user.emailCompleted !== true;
 
-  console.log("PENDING CHECK 👉", {
-    userId: user.userId,
-    name: user.name,
-    email: user.email,
-    nameCompleted: user.nameCompleted,
-    emailCompleted: user.emailCompleted,
-    isPending
-  });
-  
     return (
       <tr
         key={user._id}
@@ -549,14 +566,11 @@ border-b border-[#e6e6e6] transition
 ${
   activeFilter === "PENDING_VERIFICATION"
     ? isPending
-      ? "bg-[#fff7e6]"   // ✅ highlight
-      : "opacity-40"     // ❌ fade others
+      ? "bg-[#fff7e6]"
+      : "opacity-40"
 
   : activeFilter === "TRIAL" && user.plan === "TRIAL"
     ? "bg-[#e6f7ff]"
-
-  // : activeFilter === "ACTIVE" && user.status === "ACTIVE"
-  //   ? "bg-[#e6f7ff]"
 
   : activeFilter === "BANNED" && user.status !== "ACTIVE"
     ? "bg-[#ffecec]"
@@ -656,11 +670,14 @@ hover:bg-[#f7f8f3]
 
 <button
 disabled={safePage === 1}
-onClick={() => setPage(p => Math.max(p - 1, 1))}
+onClick={() => {
+  setPage(p => Math.max(p - 1, 1));
+}}
 className="px-6 py-2 rounded-full border text-[#5a6c7d] border-[#5a6c7d] disabled:opacity-40"
 >
 Back
 </button>
+
 
 <span className="text-[#5a6c7d] font-medium">
 Page {safePage} of {safeTotalPages}
@@ -668,7 +685,11 @@ Page {safePage} of {safeTotalPages}
 
 <button
 disabled={safePage === safeTotalPages}
-onClick={() => setPage(p => Math.min(p + 1, safeTotalPages))}
+
+onClick={(e) => {
+  e.preventDefault();
+  setPage(p => Math.min(p + 1, safeTotalPages));
+}}
 className="px-6 py-2 rounded-full bg-[#002c3e] text-white disabled:opacity-40"
 >
 Next
