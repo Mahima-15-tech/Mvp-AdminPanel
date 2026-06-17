@@ -67,7 +67,7 @@ return(
 onChange={e=>setForm({...form,phone:e.target.value})}
 className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 />
-<span className="text-[#002c3e] text-2xl font-semibold">
+<span className="text-[#002c3e] text-xl font-semibold">
   {profile.phone}
 </span>
 </Field>
@@ -78,7 +78,7 @@ className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 onChange={e=>setForm({...form,gender:e.target.value})}
 className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 />
-<span className="text-[#002c3e] text-2xl font-semibold">{profile.gender||"Male"}</span>
+<span className="text-[#002c3e] text-xl font-semibold">{profile.gender||"Male"}</span>
 </Field>
 
 {/* LOCATION */}
@@ -87,7 +87,7 @@ className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 onChange={e=>setForm({...form,location:e.target.value})}
 className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 />
-<span className="text-[#002c3e] text-2xl font-semibold">{profile.location||"Singapore"}</span>
+<span className="text-[#002c3e] text-xl font-semibold">{profile.location||"Singapore"}</span>
 </Field>
 
 <div className="col-span-3 -ml-10 w-[111%] border-t border-[#e6e6e6]"></div>
@@ -111,7 +111,7 @@ className="text-[#002c3e] text-xl font-semibold bg-transparent w-full break-all"
 onChange={e=>setForm({...form,age:e.target.value})}
 className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 />
-<span className="text-[#002c3e] text-2xl font-semibold">{profile.age||50}</span>
+<span className="text-[#002c3e] text-xl font-semibold">{profile.age||50}</span>
 </Field>
 
 {/* DESIGNATION */}
@@ -120,7 +120,7 @@ className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 onChange={e=>setForm({...form,designation:e.target.value})}
 className=" text-[#002c3e] text-xl font-semibold w-42 bg-transparent"
 />
-<span className="text-[#002c3e] text-2xl font-semibold">{profile.designation || "—"}</span>
+<span className="text-[#002c3e] text-xl font-semibold">{profile.designation || "—"}</span>
 </Field>
 
 </div>
@@ -248,7 +248,7 @@ function Field({ label, edit, children }) {
   return (
     <div className="flex flex-col gap-1">
 
-      <p className="text-[#5a6c7d] text-sm font-semibold ">
+      <p className="text-[#5a6c7d] text-sm font-medium ">
         {label}
       </p>
 

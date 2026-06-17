@@ -119,11 +119,10 @@ export default function Broadcast() {
               placeholder="Enter message..."
               className={`
               w-full px-4 py-6 rounded-2xl border outline-none text-sm
-              ${isArchive 
-                ? "bg-[#7F9AA8] text-[#f5f5f5] placeholder:text-[#f5f5f5] border-transparent cursor-not-allowed" 
-                : "bg-white text-[#5a6c7d] border-[#CFD5DB]"
-              }
+              bg-white text-[#5a6c7d] border-[#CFD5DB]
+              ${isArchive ? "cursor-not-allowed opacity-70" : ""}
             `}
+            disabled={isArchive}
             />
           </div>
 

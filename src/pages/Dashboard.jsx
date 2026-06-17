@@ -156,7 +156,7 @@ const formatAmount = (num) => Number(num || 0).toFixed(2);
   title="Alerts Sent Today" 
   value={data.alertsToday} 
   onClick={() => 
-    navigate(`/alerts?status=SMS_SENT`)
+    navigate(`/alerts?status=SMS_SENT&today=true&limit=1`)
   } 
 />
 
@@ -164,7 +164,7 @@ const formatAmount = (num) => Number(num || 0).toFixed(2);
   title="SMS Failed (24h)"
   value={data.failedSMS}
   onClick={() => 
-    navigate(`/checkins?status=FAILED`)
+    navigate(`/checkins?status=FAILED&range=24h`)
   }
 />
         

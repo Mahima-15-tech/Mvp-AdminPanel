@@ -50,8 +50,7 @@ useEffect(() => {
   setRowsPerPage(5);
   setPage(1);
 
-  // 🔥 DIRECT API CALL (important)
-  fetchUsersDirect(filter);
+ 
 
   // scroll
   if (location.hash === "#users-table") {
@@ -118,6 +117,8 @@ const handleRefresh = () => {
   setFilterType("ALL"); 
 
   fetchUsers(); 
+
+  window.location.reload();
 };
 
 const formatPlan = (plan) => {
@@ -146,33 +147,6 @@ useEffect(()=>{
 
 const firstLoad = useRef(true);
 
-const fetchUsersDirect = async (filter, limit) => {
-  try {
-    setLoading(true);
-
-    const res = await api.get("/admin/users/dashboard-ultra", {
-      params: {
-        page: 1,
-        limit: 5,
-        search,
-        from: fromDate,
-        to: toDate,
-        filter: filter
-      }
-    });
-
-    setUsers(res.data.users.data);
-    setTotalPages(res.data.users.pages || 1);
-    setStats(res.data.stats);
-    setRegions(res.data.regions);
-    setCountries(res.data.countries);
-
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
 
 
 
@@ -322,7 +296,7 @@ return(
 
 {/* TOOLBAR */}
 
-<div className="bg-[#B5B9B2] rounded-4xl px-6 py-4 flex items-center gap-2">
+<div className="bg-[#B5B9B2] rounded-4xl px-6 py-4 flex items-center gap-2 w-full">
 
   {/* SEARCH (STANDARD SIZE) */}
   <input
@@ -342,19 +316,7 @@ return(
     "
   />
 
-  {/* REFRESH (MATCH HEIGHT) */}
-  <button
-    onClick={handleRefresh}
-    className="
-      bg-white
-      h-10 w-10
-      rounded-full
-      flex items-center justify-center
-      shrink-0
-    "
-  >
-    <img src="/refreshicon.svg" className="w-10 h-10"/>
-  </button>
+ 
 
   {/* DATE PICKERS */}
   <div className="flex items-center gap-2 shrink-0">
@@ -439,9 +401,28 @@ return(
           PDF
         </div>
 
+  
+
       </div>
+      
     )}
+
+    
   </div>
+
+         {/* REFRESH (MATCH HEIGHT) */}
+         <button
+    onClick={handleRefresh}
+    className="
+      bg-white
+      h-11 w-11
+      rounded-full
+      flex items-center justify-center
+      shrink-0
+    "
+  >
+    <img src="/refreshicon.svg" className="w-10 h-10"/>
+  </button>
 
 </div>
 
@@ -499,7 +480,7 @@ ref={tableRef}
   }`}
 >
 
-  <table className="w-full text-[14px] font-light table-fixed">
+  <table className="w-full text-[15px] font-light table-fixed">
 
     <thead className="bg-[#78bcc4] text-white">
       <tr>
@@ -597,7 +578,7 @@ hover:bg-[#f7f8f3]
 
         <td
           onClick={() => navigate(`/users/${user._id}`)}
-          className="px-6 py-4 font-semibold cursor-pointer whitespace-nowrap"
+          className="px-6 py-4 font-medium cursor-pointer whitespace-nowrap"
         >
           {formatName(user.name)}
         </td>
@@ -626,7 +607,7 @@ hover:bg-[#f7f8f3]
           {user.alertsSent ?? 0}
         </td>
 
-        <td className="px-6 py-4 font-semibold break-words">
+        <td className="px-6 py-4 font-medium tracking-wide break-words">
           <span
             className={`${
               user.lastAlertType === "SOS" ||
@@ -643,7 +624,7 @@ hover:bg-[#f7f8f3]
 
         <td
           onClick={() => setConfirmUser(user)}
-          className={`px-6 py-4 font-semibold cursor-pointer ${
+          className={`px-6 py-4 font-medium tracking-wider cursor-pointer ${
             user.status === "ACTIVE"
               ? "text-[#78bcc4]"
               : "text-[#ee6a59]"

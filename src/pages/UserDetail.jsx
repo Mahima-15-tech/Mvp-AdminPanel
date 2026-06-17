@@ -203,12 +203,12 @@ function Info({ label, value }) {
   return (
     <div className="text-left">
 
-      <p className="text-md font-semibold text-[#5a6c7d]">
+      <p className="text-sm font-medium text-[#5a6c7d]">
         {label}
       </p>
 
       <p className="text-xl font-semibold text-[#002c3e] break-words">
-        {value || "—"}
+        {value || "-"}
       </p>
 
     </div>
@@ -306,7 +306,7 @@ function Overview({ data }) {
   
   <div className="grid grid-cols-4 px-10 py-6 border-b border-[#CFD5DB]">
 
-  <div className="pr-6">
+  <div className="pr-6 ">
     <Info label="Phone" value={u.phone} />
   </div>
 
@@ -681,16 +681,47 @@ function Contacts({ data, showContactHistory, setShowContactHistory  }) {
       ? contacts
       : [...contacts, ...Array(2 - contacts.length).fill(null)];
 
+      const formatConsent = (text) => {
+        if (!text) return "-";
+      
+        return text
+          .toLowerCase()                 // opted_in
+          .replace("_", " ")             // opted in
+          .replace(/\b\w/g, c => c.toUpperCase()); // Opted In
+      };
+
+      const formatDateTime = (date) => {
+        if (!date) return ["-", ""];
+      
+        const d = new Date(date);
+      
+        const datePart = d.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+      
+        const timePart = d.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        });
+      
+        return [`${datePart} |`, timePart];
+      };
+
+    
+
   return (
 
     <div>
-<div className="flex justify-between items-center px-4 py-2">
+<div className="flex justify-between items-center  py-2">
 
 <SectionTitle>Trusted Contacts</SectionTitle>
 
 <button
   onClick={() => setShowContactHistory(true)}
-  className="bg-[#002c3e] text-white px-6 py-2 rounded-full font-semibold"
+  className="bg-[#002c3e] text-white px-6 py-2 mr-11 rounded-full font-semibold"
 >
   History
 </button>
@@ -699,104 +730,106 @@ function Contacts({ data, showContactHistory, setShowContactHistory  }) {
 
       <div className="border border-[#CFD5DB] overflow-hidden">
 
-        {displayContacts.map((c, index) => (
+      {displayContacts.map((c, index) => {
 
-          <div
-            key={index}
-            className={`grid grid-cols-5 px-10 py-6 items-center ${
-              index !== displayContacts.length - 1
-                ? "border-b border-[#CFD5DB]"
-                : ""
-            }`}
-          >
 
-            {/* NUMBER + NAME */}
+const [dateLine, timeLine] = formatDateTime(c?.createdAt);
 
-            <div className="flex items-center gap-2 -ml-1">
+return (
+  <div
+    key={index}
+    className={`grid grid-cols-5 px-10 py-6 items-center ${
+      index !== displayContacts.length - 1
+        ? "border-b border-[#CFD5DB]"
+        : ""
+    }`}
+  >
 
-            <div className="w-10 h-10 min-w-[40px] min-h-[40px] shrink-0 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-xl font-semibold leading-none">
-  {index + 1}
+    {/* NUMBER + NAME */}
+    <div className="flex items-center gap-2 ">
+      <div className="w-7 h-7 min-w-[32px] min-h-[32px] shrink-0 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-sm font-semibold">
+        {index + 1}
+      </div>
+
+      <div>
+        <p className="text-sm font-medium text-[#5a6c7d]">
+          Contact
+        </p>
+
+        <p className="font-semibold tracking-wide leading-6 text-xl text-[#002c3e]">
+          {c?.name || "-"}
+        </p>
+      </div>
+    </div>
+
+    {/* PHONE */}
+    <div className="ml-18 ">
+      <p className="text-sm font-medium text-[#5a6c7d]">
+        Phone
+      </p>
+
+      <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+        {c?.phone || "-"}
+      </p>
+    </div>
+
+    {/* ADDED ON */}
+    <div className="ml-19 w-[90%] pt-4">
+  <p className="text-sm font-medium text-[#5a6c7d]">
+    Added On
+  </p>
+
+  {c?.createdAt ? (
+   <p className="font-semibold text-xl mt-1 text-[#002c3e] leading-6">
+   <span className="flex items-center gap-1">
+     {new Date(c.createdAt).toLocaleDateString("en-GB", {
+       day: "2-digit",
+       month: "short",
+       year: "numeric"
+     })}
+     <span>|</span>
+   </span>
+ 
+   <span className="block">
+     {new Date(c.createdAt).toLocaleTimeString("en-US", {
+       hour: "numeric",
+       minute: "2-digit",
+       hour12: true
+     })}
+   </span>
+ </p>
+  ) : (
+    <p className="font-semibold text-xl text-[#002c3e]">-</p>
+  )}
 </div>
 
-              <div>
+    {/* CONSENT */}
+    <div className="ml-18">
+      <p className="text-sm font-medium text-[#5a6c7d]">
+        Consent
+      </p>
 
-                <p className="text-md font-semibold text-[#5a6c7d]">
-                  Contact
-                </p>
+      <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e] whitespace-nowrap">
+        {formatConsent(c?.consentStatus)}
+      </p>
+    </div>
 
-                <p className="font-semibold tracking-wide leading-6 text-xl text-[#002c3e]">
-                  {c?.name || "No Contact Added"}
-                </p>
+    {/* CONSENT DATE */}
+    <div className="ml-18">
+      <p className="text-sm font-medium text-[#5a6c7d]">
+        Consent Date
+      </p>
 
-              </div>
+      <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+        {c?.consentDate
+          ? new Date(c.consentDate).toLocaleDateString()
+          : "-"}
+      </p>
+    </div>
 
-            </div>
-
-
-            {/* PHONE */}
-
-            <div className="ml-18">
-
-              <p className="text-md font-semibold text-[#5a6c7d]">
-                Phone
-              </p>
-
-              <p className="font-semibold tracking-wide leading-8 text-lg text-[#002c3e]">
-                {c?.phone || "-"}
-              </p>
-
-            </div>
-
-
-            {/* ADDED ON */}
-
-            <div className="ml-18">
-
-              <p className="text-md font-semibold text-[#5a6c7d]">
-                Added On
-              </p>
-
-              <p className="font-semibold  leading-8 text-lg text-[#002c3e]">
-              {c?.createdAt ? formatDate(c.createdAt) : "-"}
-              </p>
-
-            </div>
-
-
-            {/* CONSENT */}
-
-            <div className="ml-18">
-
-              <p className="text-md font-semibold text-[#5a6c7d]">
-                Consent
-              </p>
-
-              <p className="font-semibold tracking-wide leading-8 text-lg text-[#002c3e]">
-                {c?.consentStatus || "-"}
-              </p>
-
-            </div>
-
-
-            {/* CONSENT DATE */}
-
-            <div className="ml-18">
-
-              <p className="text-md font-semibold text-[#5a6c7d]">
-                Consent Date
-              </p>
-
-              <p className="font-semibold tracking-wide leading-8 text-lg text-[#002c3e]">
-                {c?.consentDate
-                  ? new Date(c.consentDate).toLocaleDateString()
-                  : "-"}
-              </p>
-
-            </div>
-
-          </div>
-
-        ))}
+  </div>
+);
+})}
 
       </div>
 
@@ -870,7 +903,7 @@ function formatAlertType(type){
             <div className="grid grid-cols-3 px-10 py-6 border-b border-[#CFD5DB]">
     
               <div>
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                   Alert Type
                 </p>
                 <p className="font-semibold tracking-wide leading-8 text-xl text-[#ee6a59]">
@@ -879,16 +912,16 @@ function formatAlertType(type){
               </div>
     
               <div>
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide ml-12 font-medium text-[#5a6c7d]">
                   Status
                 </p>
-                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                <p className="font-semibold tracking-wide ml-12 leading-8 text-xl text-[#002c3e]">
                   {formatAlertStatus(a.status)}
                 </p>
               </div>
     
               <div>
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                   Alert Credits Used
                 </p>
                 <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
@@ -902,7 +935,7 @@ function formatAlertType(type){
             <div className="grid grid-cols-3 px-10 py-6">
     
               <div>
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                   Date | Time
                 </p>
                 <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
@@ -911,16 +944,16 @@ function formatAlertType(type){
               </div>
     
               <div>
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide ml-12 font-medium text-[#5a6c7d]">
                   Attempts
                 </p>
-                <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
+                <p className="font-semibold tracking-wide ml-12 leading-8 text-xl text-[#002c3e]">
                   {a.retryCount ?? 0} | 5
                 </p>
               </div>
     
               <div>
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                   Alert Credits Balance
                 </p>
                 <p className="font-semibold tracking-wide leading-8 text-xl text-[#002c3e]">
@@ -1077,13 +1110,13 @@ function Checkin({ data }) {
 
             <div className="flex items-center gap-2 ">
 
-              <div className="w-10 h-10 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-xl font-semibold">
+              <div className="w-7 h-7 min-w-[32px] min-h-[32px] rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-md font-semibold">
                 {index + 1}
               </div>
 
               <div>
 
-                <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+                <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                   {row.label}
                 </p>
 
@@ -1100,7 +1133,7 @@ function Checkin({ data }) {
 
             <div className="ml-18">
 
-              <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                 {index === 0 ? "Alert Delay" : "Last Check-in"}
               </p>
 
@@ -1115,7 +1148,7 @@ function Checkin({ data }) {
 
             <div className="ml-18 col-span-2">
 
-              <p className="text-lg tracking-wide font-semibold text-[#5a6c7d]">
+              <p className="text-sm tracking-wide font-medium text-[#5a6c7d]">
                 {index === 0 ? "Status" : "Status Reason"}
               </p>
 
@@ -1245,7 +1278,7 @@ function Credits({ data, refresh }) {
 
           <div>
 
-            <p className="text-lg font-semibold text-[#5a6c7d]">
+            <p className="text-lg font-semibold leading-6 text-[#5a6c7d]">
               Alert Credits Used
             </p>
 
@@ -1257,7 +1290,7 @@ function Credits({ data, refresh }) {
 
           <div>
 
-            <p className="text-lg font-semibold text-[#5a6c7d]">
+            <p className="text-lg font-semibold leading-6 text-[#5a6c7d]">
               Alert Credits Balance
             </p>
 
@@ -1374,14 +1407,14 @@ function Credits({ data, refresh }) {
               <div className="flex items-center gap-4">
 
                 <div
-  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+  className={`w-7 h-7 min-w-[32px] min-h-[32px] rounded-full flex items-center justify-center ${
     isAdd ? "bg-[#0cb4ab]" : "bg-[#ee6a59]"
   }`}
 >
   {isAdd ? (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5 text-white"
+      className="w-4 h-4 text-white"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -1392,7 +1425,7 @@ function Credits({ data, refresh }) {
   ) : (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5 text-white"
+      className="w-4 h-4 text-white"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -1405,12 +1438,12 @@ function Credits({ data, refresh }) {
 
                 <div>
 
-                  <p className="font-semibold text-xl text-[#002c3e]">
+                  <p className="font-medium text-sm text-[#002c3e]">
                     {formatReason(c.reason)}
                   </p>
 
                   <p
-                    className={`text-lg font-semibold ${
+                    className={`text-xl font-semibold ${
                       isAdd ? "text-[#5a6c7d]" : "text-[#ee6a59]"
                     }`}
                   >
@@ -1426,12 +1459,12 @@ function Credits({ data, refresh }) {
 
               <div className="text-right">
 
-                <p className="text-lg font-semibold text-[#5a6c7d]">
+                <p className="text-sm font-medium text-[#5a6c7d]">
                   Alert Credits
                 </p>
 
                 <p
-                  className={`font-semibold text-2xl ${
+                  className={`font-semibold text-xl text-left ${
                     isAdd ? "text-[#0cb4ab]" : "text-[#ee6a59]"
                   }`}
                 >

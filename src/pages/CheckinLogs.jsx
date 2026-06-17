@@ -2,9 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import api from "../api/axios";
 import EmptyState from "../components/EmptyState";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function SmsTracker(){
-
+  const navigate = useNavigate();
 const [data,setData] = useState([]);
 const [loading,setLoading] = useState(true);
 
@@ -46,51 +49,11 @@ const handleCardClick = (type) => {
   }, 100);
 };
 
+
 useEffect(() => {
-  const params = new URLSearchParams(location.search);
+  setPage(1);
+}, [status, consent, search]);
 
-  const statusParam = params.get("status");
-
-  if (statusParam) {
-    setStatus(statusParam);
-    setPage(1); 
-
-  
-    fetchDataDirect(statusParam);
-
-    setTimeout(() => {
-      tableRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }, 200);
-  }
-
-}, [location.search]);
-
-const fetchDataDirect = async (statusParam) => {
-  try {
-    setLoading(true);
-
-    const res = await api.get("/admin/sms-tracker", {
-      params: {
-        search,
-        consent,
-        status: statusParam,
-        range: rangeParam,
-        page: 1
-      }
-    });
-
-    setData(res.data.data);
-    setTotalPages(res.data.totalPages);
-
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
 
 const [dropdownPos, setDropdownPos] = useState({
   top: 0,
@@ -113,7 +76,18 @@ useEffect(() => {
 }, [data]);
 
 const fetchStats = async () => {
-  const res = await api.get("/admin/sms-stats"); // 👈 new API
+  const params = new URLSearchParams(location.search);
+  const rangeParam = params.get("range");
+
+  const statusParam = params.get("status");
+
+const res = await api.get("/admin/sms-stats", {
+  params: {
+    range: rangeParam,
+    status: statusParam   
+  }
+});
+
   setStats(res.data);
 };
 
@@ -133,49 +107,40 @@ useEffect(() => {
 
 // table ke liye
 useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const hasStatus = params.get("status");
-
-
-  if (!hasStatus) {
-    fetchData();
-  }
-
+  fetchData();
 }, [consent, status, page, search, location.search]);
 
 
 useEffect(()=>{
   fetchStats();
-},[]);
+}, [location.search]);  // 🔥 THIS IS THE FIX
 
-const fetchData = async()=>{
+const fetchData = async () => {
+  try {
+    setLoading(true);
 
-try{
+    const params = new URLSearchParams(location.search);
+    const rangeParam = params.get("range");
+    const statusParam = params.get("status");
 
-  setLoading(true);
-  setData([]); 
+    const res = await api.get("/admin/sms-tracker", {
+      params: {
+        search,
+        consent,
+        status: statusParam || status,
+        page,
+        range: rangeParam  // ✅ DEFAULT FIX
+      }
+    });
 
-const res = await api.get("/admin/sms-tracker",{
-params:{
-search,
-consent,
-status,
-range: rangeParam,
-page
-}
-});
+    setData(res.data.data);
+    setTotalPages(res.data.totalPages);
 
-setData(res.data.data);
-setTotalPages(res.data.totalPages);
-
-}
-catch(err){
-console.error(err);
-}
-finally{
-setLoading(false);
-}
-
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
 };
 
 
@@ -345,27 +310,26 @@ return(
 
   {/* RESET */}
   <button
-    onClick={()=>{
-      setSearch("");
-      setConsent("ALL");
-      setStatus("ALL");
-      setPage(1);
+  onClick={()=>{
+    setSearch("");
+    setConsent("ALL");
+    setStatus("ALL");
+    setPage(1);
 
-      setTimeout(()=>{ fetchData(); },0);
-    }}
-    className="
-      bg-[#002c3e]
-      text-white
-      px-5
-      py-3
-      rounded-full
-      font-semibold
-      shrink-0
-    "
-  >
-    Reset
-  </button>
+    navigate("/checkins"); 
 
+    window.location.reload();
+  }}
+  className="
+    bg-white
+    h-11 w-11
+    rounded-full
+    flex items-center justify-center
+    shrink-0
+  "
+>
+  <img src="/refreshicon.svg" className="w-10 h-10"/>
+</button>
 </div>
 
 
@@ -394,8 +358,20 @@ return(
   label="SMS Failed" 
   value={failed}
   error
-  onClick={() => handleCardClick("FAILED")}
+  onClick={() => {
+    setPage(1);
+    setStatus("FAILED");
+  
+    const url = `/checkins?status=FAILED&range=24h`;
+    window.history.pushState({}, "", url);
+  
+    fetchData();
+  }}
+
+
 />
+
+
 
 </div>
 
@@ -403,7 +379,10 @@ return(
 
 {/* ================= TABLE ================= */}
 
-<div ref={tableRef} className="bg-white rounded-4xl overflow-visible">
+<div 
+  ref={tableRef} 
+  className="bg-white rounded-[30px] overflow-hidden border border-[#e6e6e6]"
+>
 
 <table className="w-full text-[15px] table-fixed">
 
@@ -456,11 +435,11 @@ return(
       className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
     >
 
-      <td className="px-6 py-4 font-semibold">{row.name}</td>
-      <td className="px-6 py-4">{row.phone}</td>
-      <td className="px-6 py-4">{row.consent}</td>
+      <td className="px-6 py-4 font-medium">{row.name}</td>
+      <td className="px-6 py-4 font-medium">{row.phone}</td>
+      <td className="px-6 py-4 font-medium">{row.consent}</td>
 
-      <td className={`px-6 py-4 font-medium ${
+      <td className={`px-3 py-4 font-medium  ${
         row.alertType==="MISSED" || row.alertType==="SOS"
           ? "text-[#ee6a59]"
           : ""
@@ -468,7 +447,7 @@ return(
         {formatText(row.alertType)}
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap font-medium">
         {(() => {
           const date = new Date(row.createdAt);
           return (
@@ -494,7 +473,7 @@ return(
         {formatText(row.status)}
       </td>
 
-      <td className="px-6 py-4">
+      <td className="px-6 py-4 font-medium">
         {row.retryCount} | 5
       </td>
 
@@ -502,7 +481,7 @@ return(
 
         <div className="flex items-center gap-2">
 
-          <span className="text-sm text-gray-600 truncate max-w-[150px]">
+          <span className="text-sm font-medium text-gray-600 truncate max-w-[150px]">
             {row.failureReason || "-"}
           </span>
 
@@ -512,7 +491,7 @@ return(
                 e.stopPropagation();
                 setOpenRow(openRow === i ? null : i);
               }}
-              className="text-blue-500 font-bold text-lg leading-none"
+              className="font-bold text-lg leading-none"
             >
               ⋯
             </button>

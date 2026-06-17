@@ -3,6 +3,7 @@ import CreatePromoModal from "../components/CreatePromoModal";
 import api from "../api/axios";
 import { useEffect } from "react";
 
+
 export default function PromoCodes() {
 
   const [showModal, setShowModal] = useState(false);
@@ -38,7 +39,7 @@ const scrollToTable = () => {
     if (status === "EXPIRED") return d.status === "Expired";
   
     if (status === "NOT_REDEEMED") {
-      return d.status !== "Redeemed" && d.status !== "Expired";
+      return d.status === "Not Redeemed";
     }
   
     if (status === "1M") return d.duration === "1 Month";
@@ -111,6 +112,8 @@ const handleRefresh = async () => {
   setSearch("");
   setPage(1);
 
+  window.location.reload();
+
   await fetchPromo();
   await fetchStats(); 
 };
@@ -131,7 +134,7 @@ const handleCardClick = (type) => {
   if (type === "ALL") setStatus("ALL");
   if (type === "REDEEMED") setStatus("REDEEMED");
   if (type === "EXPIRED") setStatus("EXPIRED");
-  if (type === "NOT_REDEEMED") setStatus("ALL"); // custom logic below
+  if (type === "NOT_REDEEMED") setStatus("NOT_REDEEMED"); // custom logic below
 
   setPage(1);
 };
@@ -316,7 +319,7 @@ flex-wrap
   {/* SCROLL CONTAINER */}
   <div className="max-h-[400px] overflow-y-auto">
 
-  <table className="w-full text-[16px] tracking-wide">
+  <table className="w-full text-[15px] tracking-wide">
 
       {/* STICKY HEADER */}
       <thead className="bg-[#78bcc4]  text-white sticky top-0 z-10">
@@ -351,7 +354,7 @@ flex-wrap
       key={i}
       className="border-b border-[#e5e5e5] text-sm hover:bg-[#f7f8f3]"
     >
-        <td className="px-6 py-4 font-semibold">
+        <td className="px-6 py-4 font-medium">
           {row.code}
         </td>
 

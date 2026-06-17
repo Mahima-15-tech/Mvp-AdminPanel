@@ -3,6 +3,9 @@ import { createPortal } from "react-dom";
 import { useState } from "react";
 import api from "../api/axios";
 
+
+import Swal from "sweetalert2";
+
 export default function CreatePromoModal({ onClose, refresh }) {
 
   const [openDuration, setOpenDuration] = useState(false);
@@ -44,18 +47,28 @@ const [sentCount, setSentCount] = useState(0);
   const handleSubmit = async () => {
     try {
   
+      // ❗ VALIDATION ALERTS (SweetAlert)
       if (!code || duration === "Duration" || emails.length === 0) {
-        alert("Please fill all fields");
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Fields",
+          text: "Please fill all fields",
+        });
         return;
       }
   
       const validEmails = emails.filter(e => e.trim() !== "");
   
       if (validEmails.length === 0) {
-        alert("Add at least one email");
+        Swal.fire({
+          icon: "warning",
+          title: "No Emails",
+          text: "Add at least one email",
+        });
         return;
       }
   
+      // ✅ API CALL
       await api.post("/promo/create", {
         code,
         duration,
@@ -63,22 +76,41 @@ const [sentCount, setSentCount] = useState(0);
         message
       });
   
-      // ✅ SHOW TOAST
-      setSentCount(validEmails.length);
-      setShowToast(true);
+      // ✅ SUCCESS ALERT
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: `Promo Code sent to ${validEmails.length} recipient${validEmails.length > 1 ? "s" : ""}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
   
-      // ✅ REFRESH DATA (IMPORTANT)
+      // ✅ REFRESH DATA
       await refresh();
   
-      // ✅ AUTO HIDE + CLOSE
+      // ✅ CLOSE MODAL
       setTimeout(() => {
-        setShowToast(false);
-        onClose(); // 👈 delay ke baad close hoga (smooth feel)
-      }, 3000);
+        onClose();
+      }, 2000);
   
     } catch (err) {
       console.log(err);
-      alert("❌ Error creating promo");
+    
+      const errorMsg = err.response?.data?.error;
+    
+      if (errorMsg === "Promo code already exists") {
+        Swal.fire({
+          icon: "error",
+          title: "Already Used",
+          text: "Promo code already used. Generate a new one.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: errorMsg || "Something went wrong while creating promo",
+        });
+      }
     }
   };
 

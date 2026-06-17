@@ -1,9 +1,9 @@
   import { useEffect, useState } from "react";
   import api from "../api/axios";
   import { useLocation } from "react-router-dom";
-
+  import { useNavigate } from "react-router-dom";
   export default function AdminAlertMonitoring() {
-
+    const navigate = useNavigate();
   const [alerts,setAlerts] = useState([]);
   const [page,setPage] = useState(1);
   const [loading,setLoading] = useState(true);
@@ -21,6 +21,7 @@
   const [openPlan,setOpenPlan] = useState(false);
 
   const [totalPages, setTotalPages] = useState(1);
+  const [todayFilter, setTodayFilter] = useState(false);
 
   const location = useLocation();
 
@@ -28,61 +29,52 @@
 
   const [openDropdown, setOpenDropdown] = useState(null);
 
+  const [filtersReady, setFiltersReady] = useState(false);
+
+  const [limit, setLimit] = useState(5);
+
   const fetchStats = async () => {
-    const res = await api.get("/admin/alert-stats"); // ❌ NO params
+    const res = await api.get("/admin/alert-stats"); 
     setStats(res.data);
   };
-// ✅ table ke liye
-useEffect(()=>{
-  fetchAlerts();
-},[page,type,statusFilter,plan,search]);
+  useEffect(()=>{
+    fetchStats(); 
+  }, []);
 
-// ✅ stats ke liye (only once load)
-useEffect(()=>{
-  fetchStats();
-},[]);
+
+  useEffect(()=>{
+    if (!filtersReady) return;
+  
+    fetchAlerts();
+  }, [page, type, statusFilter, plan, search, todayFilter, limit, filtersReady]);
+
+
+  useEffect(() => {
+    setPage(1);
+  }, [type, statusFilter, plan, search, todayFilter]);
 
 useEffect(() => {
   const params = new URLSearchParams(location.search);
+
   const status = params.get("status");
+  const today = params.get("today");
+  const limitFromUrl = params.get("limit");
 
   if (status) {
     setStatusFilter(status);
-
-    // 🔥 DIRECT FETCH (refresh jaisa feel)
-    fetchAlertsDirect(status);
-
-    setTimeout(() => {
-      scrollToSection("alerts-table");
-    }, 200);
+    setTodayFilter(today === "true");
   }
+
+  if (limitFromUrl) {
+    setLimit(parseInt(limitFromUrl)); // ✅ IMPORTANT
+  }
+
+  setPage(1);
+  setFiltersReady(true);
+
 }, [location.search]);
 
-const fetchAlertsDirect = async (status) => {
-  try {
-    setLoading(true);
 
-    const res = await api.get("/admin/alert-monitoring", {
-      params: {
-        page: 1,
-        limit: 5,
-        type,
-        status: status,
-        plan,
-        search
-      }
-    });
-
-    setAlerts(res.data.data || []);
-    setTotalPages(res.data.totalPages || 1);
-    setPage(1);
-
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
 
   // const [alerts,setAlerts] = useState([]); // filtered (table)
 const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
@@ -107,11 +99,12 @@ const [allAlerts,setAllAlerts] = useState([]); // full data (stats)
       const res = await api.get("/admin/alert-monitoring", {
         params: { 
           page, 
-          limit: 5,  
+          limit,   // ✅ only one
           type, 
           status: statusFilter, 
           plan, 
-          search 
+          search,
+          today: todayFilter
         }
       });
       
@@ -408,24 +401,29 @@ useEffect(() => {
 
   <button
   onClick={()=>{
-  setType("ALL");
-  setStatusFilter("ALL");
-  setPlan("ALL");
-  setSearch("");
-  setSearchInput("");
-  setPage(1);
+    setType("ALL");
+    setStatusFilter("ALL");
+    setPlan("ALL");
+    setSearch("");
+    setSearchInput("");
+    setTodayFilter(false);
+    setLimit(5);
+    setPage(1);
+
+    navigate("/alerts");
+
+    window.location.reload(); // 🔥 optional (agar full reload chahiye)
   }}
   className="
-  bg-[#002c3e]
-  text-white
-  px-5
-  py-3
-  rounded-full
-  font-semibold
-"
-  >
-  Reset
-  </button>
+    bg-white
+    h-11 w-11
+    rounded-full
+    flex items-center justify-center
+    shrink-0
+  "
+>
+  <img src="/refreshicon.svg" className="w-10 h-10"/>
+</button>
 
   </div>
 
@@ -437,8 +435,10 @@ useEffect(() => {
   label="Users Triggered" 
   value={usersTriggered} 
   onClick={() => {
-    setType("ALL");
-    setStatusFilter("ALL");
+    setLimit(5);
+setTodayFilter(false);
+setType("ALL");
+setStatusFilter("ALL");
     scrollToSection("alerts-table");
   }} 
 />
@@ -447,18 +447,25 @@ useEffect(() => {
   label="Missed Alert Sent" 
   value={stats.missedSent || 0} 
   onClick={() => {
-    setType("MISSED_CHECKIN"); // ✅ already ok
-    setStatusFilter("SMS_SENT"); // ✅ ADD THIS
+    setLimit(5);              // ✅ ADD THIS
+    setTodayFilter(false);    // ✅ ADD THIS
+  
+    setType("MISSED_CHECKIN");
+    setStatusFilter("SMS_SENT");
+    setPage(1);               // ✅ safe
+  
     scrollToSection("alerts-table");
-  }} 
+  }}
 />
 
 <Card 
   label="SOS Alerts Sent" 
   value={stats.sosSent || 0}
   onClick={() => {
-    setType("SOS");              // ✅ ADD THIS
-    setStatusFilter("SMS_SENT"); // ✅ already
+    setLimit(5);
+setTodayFilter(false);
+setType("SOS");
+setStatusFilter("SMS_SENT");// ✅ already
     scrollToSection("alerts-table");
   }} 
 />
@@ -467,7 +474,9 @@ useEffect(() => {
     label="SMS Alerts Pending" 
     value={smsPending} 
     onClick={() => {
-      setStatusFilter("SMS_PENDING");
+      setLimit(5);
+setTodayFilter(false);
+setStatusFilter("SMS_PENDING");
       scrollToSection("alerts-table");
     }} 
   />
@@ -477,7 +486,9 @@ useEffect(() => {
     value={smsFailed} 
     error
     onClick={() => {
-      setStatusFilter("FAILED");
+      setLimit(5);
+setTodayFilter(false);
+setStatusFilter("FAILED");
       scrollToSection("alerts-table");
     }} 
   />
@@ -488,7 +499,7 @@ useEffect(() => {
 
   <div id="alerts-table" className="bg-white rounded-[30px] overflow-hidden border border-[#e6e6e6]">
 
-<table className="w-full text-[16px] table-fixed">
+<table className="w-full text-[15px] table-fixed">
 
 <thead className="bg-[#78bcc4] text-white">
   <tr>
@@ -547,15 +558,15 @@ useEffect(() => {
       <tr key={i} className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3] transition">
 
         <td className="px-6 py-4 font-medium">{a.phone}</td>
-        <td className="px-6 py-4 font-semibold">{a.userName}</td>
+        <td className="px-6 py-4 font-medum">{a.userName}</td>
         <td className="px-6 py-4">
           {a.planType?.charAt(0) + a.planType?.slice(1).toLowerCase()}
         </td>
-        <td className="px-4 py-4 font-semibold text-[#ee6a59]">
+        <td className="px-4 py-4 font-medium text-[#ee6a59]">
           {a.alertType === "MISSED_CHECKIN" ? "Missed" : a.alertType}
         </td>
-        <td className="px-4 py-4">{formattedDate}</td>
-        <td className={`px-6 py-4 font-semibold ${
+        <td className="px-4 py-4 text-[14px]">{formattedDate}</td>
+        <td className={`px-6 py-4 font-medium ${
           a.status==="SMS_SENT" ? "text-[#78bcc4]" : "text-[#ee6a59]"
         }`}>
           {a.status==="SMS_SENT"

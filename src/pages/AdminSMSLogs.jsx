@@ -637,19 +637,7 @@ PDF
 </div>
 
 
-{/* REFRESH */}
 
-<button
-onClick={()=>{
-setFrom("");
-setTo("");
-setMonth("ALL");
-fetchRevenue();
-}}
-className="bg-white w-10   h-10 rounded-full flex items-center justify-center shrink- "
->
-<img src="/refreshicon.svg" className="w-10 h-10"/>
-</button>
 
 
 <InlineDatePicker
@@ -674,6 +662,26 @@ onClick={()=>{
 className="bg-[#002c3e] text-white px-5 font-semibold py-3 rounded-full"
 >
 Apply
+</button>
+
+<button
+  onClick={()=>{
+    setFrom("");
+    setTo("");
+    setMonth("ALL");
+    setPage(1);
+
+    window.location.reload(); // 🔥 full reload
+  }}
+  className="
+    bg-white
+    h-11 w-11
+    rounded-full
+    flex items-center justify-center
+    shrink-0
+  "
+>
+  <img src="/refreshicon.svg" className="w-10 h-10"/>
 </button>
 
 <button
@@ -721,19 +729,19 @@ Apply
 
 <div 
   id="revenue-table"
-  className={`bg-white rounded-4xl overflow-hidden border border-[#e6e6e6] transition-all duration-500 ${
-    highlightTable ? "ring-4 ring-[#78bcc4]" : ""
-  }`}
+  className={`bg-white rounded-4xl overflow-hidden border border-[#e6e6e6] transition-all duration-500 
+  `}
 >
 
-<table className="w-full text-[16px] tracking-wide table-fixed">
+<table className="w-full text-[15px]  table-fixed">
 
     {/* HEADER (unchanged) */}
     <thead className="bg-[#78bcc4] text-white">
   <tr>
-    <th className="w-[16%] px-6 py-5 text-left">Date</th>
+   
     <th className="w-[16%] px-6 py-5 text-left">User ID</th>
     <th className="w-[18%] px-6 py-5 text-left">User Name</th>
+    <th className="w-[16%] px-6 py-5 text-left">Date</th>
     <th className="w-[14%] px-6 py-5 text-left">Plan</th>
     <th className="w-[18%] px-6 py-5 text-left">Gross</th>
     <th className="w-[18%] px-6 py-5 text-left">Net</th>
@@ -780,7 +788,21 @@ paginatedData.map((r,i)=>(
     className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
   >
 
-    <td className={`px-6 py-4 font-semibold ${
+   
+
+    <td className={`px-6 py-4 font-medium ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {r.userId}
+    </td>
+
+    <td className={`px-6 py-4 font-medium ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {r.userName}
+    </td>
+
+    <td className={`px-6 py-4 font-medium ${
       r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
     }`}>
       {new Date(r.date).toLocaleDateString("en-GB",{
@@ -790,19 +812,7 @@ paginatedData.map((r,i)=>(
       })}
     </td>
 
-    <td className={`px-6 py-4 font-semibold ${
-      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
-    }`}>
-      {r.userId}
-    </td>
-
-    <td className={`px-6 py-4 font-semibold ${
-      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
-    }`}>
-      {r.userName}
-    </td>
-
-    <td className={`px-6 py-4 font-semibold ${
+    <td className={`px-6 py-4 font-medium ${
       r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
     }`}>
       {r.plan === "TOPUP"
@@ -814,13 +824,13 @@ paginatedData.map((r,i)=>(
         : r.plan}
     </td>
 
-    <td className={`px-6 py-4 font-semibold ${
+    <td className={`px-6 py-4 font-semibold text-[16px] ${
       r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#78bcc4]"
     }`}>
       ${r.gross.toFixed(2)}
     </td>
 
-    <td className={`px-6 py-4 font-semibold ${
+    <td className={`px-6 py-4 font-semibold text-[16px] ${
       r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#78bcc4]"
     }`}>
       ${r.net.toFixed(2)}
@@ -928,7 +938,7 @@ paginatedData.map((r,i)=>(
     {/* ================= TABLE ================= */}
     <div className="overflow-auto max-h-[65vh]">
 
-      <table className="w-full text-[16px] tracking-wide table-fixed">
+      <table className="w-full text-[15px] tracking-wide table-fixed">
 
         {/* HEADER */}
         <thead className="bg-[#78bcc4] text-white">
@@ -967,7 +977,7 @@ paginatedData.map((r,i)=>(
             >
 
                 {/* DATE */}
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap font-medium">
                   {new Date(h.date).toLocaleDateString("en-GB", {
                     day: "2-digit",
                     month: "short",
@@ -976,29 +986,29 @@ paginatedData.map((r,i)=>(
                 </td>
 
                 {/* USER ID */}
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap font-medium ">
                   {h.userPhone || "-"}
                 </td>
 
                 {/* NAME */}
-                <td className="px-6 py-4 font-semibold">
+                <td className="px-6 py-4 font-medium ">
                   {h.userName}
                 </td>
 
                 {/* PLAN */}
-                <td className="px-6 py-4 capitalize">
+                <td className="px-6 py-4 capitalize font-medium">
                   {h.plan === "topup"
                     ? "Top-up"
                     : h.plan?.toLowerCase()}
                 </td>
 
                 {/* AMOUNT */}
-                <td className="px-6 py-4 font-semibold">
+                <td className="px-6 py-4 font-semibold text-[#78bcc4]">
                   ${h.amount?.toFixed(2)}
                 </td>
 
                 {/* REASON */}
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 font-medium">
                   {h.refundRequestedReason || "-"}
                 </td>
 
@@ -1006,13 +1016,13 @@ paginatedData.map((r,i)=>(
                 <td className="px-6 py-4">
 
                   {h.status === "COMPLETED" && (
-                    <span className="text-[#5a6c7d] font-semibold">
+                    <span className="text-[#5a6c7d] font-medium">
                       Completed
                     </span>
                   )}
 
                   {h.status === "PENDING" && (
-                    <span className="text-[#ee6a59] font-semibold">
+                    <span className="text-[#ee6a59] font-medium">
                       Pending
                     </span>
                   )}
@@ -1020,7 +1030,7 @@ paginatedData.map((r,i)=>(
                   {h.status === "FAILED" && (
                     <div className="flex items-center gap-2">
 
-                      <span className="text-[#ee6a59] font-semibold">
+                      <span className="text-[#ee6a59] font-medium">
                         Refund Failed
                       </span>
 
