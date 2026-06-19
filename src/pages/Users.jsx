@@ -484,8 +484,9 @@ ref={tableRef}
 
     <thead className="bg-[#78bcc4] text-white">
       <tr>
+      <th className="px-6 py-4 text-left leading-4">User Name</th>
         <th className="px-6 py-6 text-left">User ID</th>
-        <th className="px-6 py-4 text-left leading-4">User Name</th>
+      
         <th className="px-6 py-4 text-left">Joined</th>
         <th className="px-6 py-4 text-left">Plans</th>
         <th className="px-6 py-4 text-left">Renewal</th>
@@ -572,16 +573,18 @@ hover:bg-[#f7f8f3]
 `}
       >
 
-        <td className="px-3 py-4 font-medium whitespace-nowrap">
-          {user.userId}
-        </td>
-
-        <td
+<td
           onClick={() => navigate(`/users/${user._id}`)}
           className="px-6 py-4 font-medium cursor-pointer whitespace-nowrap"
         >
           {formatName(user.name)}
         </td>
+
+        <td className="px-3 py-4 font-medium whitespace-nowrap">
+          {user.userId}
+        </td>
+
+      
 
         <td className="px-6 py-4">
           {formatDate(user.joined)}

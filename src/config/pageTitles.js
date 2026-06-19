@@ -53,6 +53,11 @@ export const pageTitles = {
   "/settings/system-health": {
     title: "System Status",
     subtitle: "Current System Performance Overview",
+  },
+
+  "/settings/api-keys": {
+    title: "API Keys",
+    subtitle: "Update Stripe and Twilio keys for SOLO",
   }
 
 };

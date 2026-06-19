@@ -147,6 +147,18 @@ text-[#5a6c7d] hover:bg-gray-100
   </NavLink>
 
   <NavLink
+  to="/settings/api-keys"
+  className={({isActive}) =>
+  `block px-4 py-2 rounded-full text-md font-medium
+  ${isActive
+    ? "bg-[#78bcc4] text-white"
+    : "text-[#5a6c7d] hover:bg-gray-100"}`
+  }
+>
+  API Keys
+</NavLink>
+
+  <NavLink
     to="/settings/system-health"
     className={({isActive}) =>
     `block px-4 py-2 rounded-full text-md font-medium 

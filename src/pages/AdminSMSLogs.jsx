@@ -738,9 +738,9 @@ Apply
     {/* HEADER (unchanged) */}
     <thead className="bg-[#78bcc4] text-white">
   <tr>
-   
+  <th className="w-[18%] px-6 py-5 text-left">User Name</th>
     <th className="w-[16%] px-6 py-5 text-left">User ID</th>
-    <th className="w-[18%] px-6 py-5 text-left">User Name</th>
+    
     <th className="w-[16%] px-6 py-5 text-left">Date</th>
     <th className="w-[14%] px-6 py-5 text-left">Plan</th>
     <th className="w-[18%] px-6 py-5 text-left">Gross</th>
@@ -788,7 +788,11 @@ paginatedData.map((r,i)=>(
     className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3]"
   >
 
-   
+<td className={`px-6 py-4 font-medium ${
+      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
+    }`}>
+      {r.userName}
+    </td>
 
     <td className={`px-6 py-4 font-medium ${
       r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
@@ -796,11 +800,7 @@ paginatedData.map((r,i)=>(
       {r.userId}
     </td>
 
-    <td className={`px-6 py-4 font-medium ${
-      r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"
-    }`}>
-      {r.userName}
-    </td>
+   
 
     <td className={`px-6 py-4 font-medium ${
       r.status === "REFUNDED" ? "text-[#b6b9b3]" : "text-[#5a6c7d]"

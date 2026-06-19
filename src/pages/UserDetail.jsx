@@ -191,11 +191,15 @@ export default function UserDetail() {
    REUSABLE COMPONENTS
 ===================================================== */
 
-function SectionTitle({ children }) {
+function SectionTitle({ children, rightContent }) {
   return (
-    <h2 className="text-2xl font-semibold tracking-wide text-[#002c3e] px-10 py-6">
-      {children}
-    </h2>
+    <div className="flex justify-between items-center px-10 py-6">
+      <h2 className="text-2xl font-semibold tracking-wide text-[#002c3e]">
+        {children}
+      </h2>
+
+      {rightContent}
+    </div>
   );
 }
 
@@ -471,20 +475,18 @@ function Subscription({ data , showHistory, setShowHistory}) {
 
       {/* TITLE + BUTTON */}
 
-      <div className="flex justify-between items-center px-10 py-6">
-
-        <h2 className="text-2xl font-semibold text-[#002c3e]">
-          Subscription Details
-        </h2>
-
-        <button
-  onClick={() => setShowHistory(true)}
-  className="bg-[#002c3e] text-white px-6 py-2 font-semibold tracking-wide rounded-full text-md"
+      <SectionTitle
+  rightContent={
+    <button
+      onClick={() => setShowHistory(true)}
+      className="bg-[#002c3e] text-white px-6 py-1 font-semibold tracking-wide rounded-full text-md"
+    >
+      History
+    </button>
+  }
 >
-  History
-</button>
-
-      </div>
+  Subscription Details
+</SectionTitle>
 
       {/* DATA */}
 
@@ -715,13 +717,13 @@ function Contacts({ data, showContactHistory, setShowContactHistory  }) {
   return (
 
     <div>
-<div className="flex justify-between items-center  py-2">
+<div className="flex justify-between items-center ">
 
 <SectionTitle>Trusted Contacts</SectionTitle>
 
 <button
   onClick={() => setShowContactHistory(true)}
-  className="bg-[#002c3e] text-white px-6 py-2 mr-11 rounded-full font-semibold"
+  className="bg-[#002c3e] text-white px-6 py-1 mr-11 rounded-full font-semibold"
 >
   History
 </button>
@@ -737,17 +739,17 @@ const [dateLine, timeLine] = formatDateTime(c?.createdAt);
 
 return (
   <div
-    key={index}
-    className={`grid grid-cols-5 px-10 py-6 items-center ${
-      index !== displayContacts.length - 1
-        ? "border-b border-[#CFD5DB]"
-        : ""
-    }`}
-  >
+  key={index}
+  className={`grid grid-cols-5 px-10 py-6 items-start ${
+    index !== displayContacts.length - 1
+      ? "border-b border-[#CFD5DB]"
+      : ""
+  }`}
+>
 
     {/* NUMBER + NAME */}
     <div className="flex items-center gap-2 ">
-      <div className="w-7 h-7 min-w-[32px] min-h-[32px] shrink-0 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-sm font-semibold">
+      <div className="w-7 h-7 min-w-[32px] min-h-[32px]  shrink-0 rounded-full bg-[#78bcc4] text-white flex items-center justify-center text-sm font-semibold">
         {index + 1}
       </div>
 
@@ -773,34 +775,36 @@ return (
       </p>
     </div>
 
-    {/* ADDED ON */}
-    <div className="ml-19 w-[90%] pt-4">
+    <div className="px-6 ml-14 w-[100%]">
   <p className="text-sm font-medium text-[#5a6c7d]">
     Added On
   </p>
 
-  {c?.createdAt ? (
-   <p className="font-semibold text-xl mt-1 text-[#002c3e] leading-6">
-   <span className="flex items-center gap-1">
-     {new Date(c.createdAt).toLocaleDateString("en-GB", {
-       day: "2-digit",
-       month: "short",
-       year: "numeric"
-     })}
-     <span>|</span>
-   </span>
- 
-   <span className="block">
-     {new Date(c.createdAt).toLocaleTimeString("en-US", {
-       hour: "numeric",
-       minute: "2-digit",
-       hour12: true
-     })}
-   </span>
- </p>
-  ) : (
-    <p className="font-semibold text-xl text-[#002c3e]">-</p>
-  )}
+  <div className="font-semibold text-xl text-[#002c3e] leading-6 mt-1">
+    
+    {/* DATE + PIPE */}
+    <span className="block">
+      {c?.createdAt
+        ? `${new Date(c.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+          })} |`
+        : "-"}
+    </span>
+
+    {/* TIME */}
+    <span className="block">
+      {c?.createdAt
+        ? new Date(c.createdAt).toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+          })
+        : "\u00A0"}
+    </span>
+    
+  </div>
 </div>
 
     {/* CONSENT */}
@@ -1257,28 +1261,20 @@ function Credits({ data, refresh }) {
 
       {/* HEADER */}
 
-      <div className="grid grid-cols-2 px-10 py-6">
-
-        <h2 className="text-[26px] font-semibold text-[#002c3e]">
-          Alert Credits Management
-        </h2>
-
-        <h2 className="text-[26px] font-semibold text-[#002c3e]">
-          Adjust Alert Credits
-        </h2>
-
-      </div>
+      <SectionTitle>
+  Alert Credits Management
+</SectionTitle>
 
 
       {/* INFO + ADJUST */}
 
-      <div className="grid grid-cols-2 border-t border-[#CFD5DB]">
+      <div className="grid grid-cols-2 py-2 border-t  border-[#CFD5DB]">
 
         <div className="flex gap-24 px-10 py-6">
 
           <div>
 
-            <p className="text-lg font-semibold leading-6 text-[#5a6c7d]">
+            <p className="text-lg font-semibold leading-6 whitespace-nowrap text-[#5a6c7d]">
               Alert Credits Used
             </p>
 
@@ -1290,7 +1286,7 @@ function Credits({ data, refresh }) {
 
           <div>
 
-            <p className="text-lg font-semibold leading-6 text-[#5a6c7d]">
+            <p className="text-lg font-semibold leading-6 whitespace-nowrap text-[#5a6c7d]">
               Alert Credits Balance
             </p>
 
@@ -1305,80 +1301,82 @@ function Credits({ data, refresh }) {
 
         {/* ADJUST */}
 
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center py-3 -mr-4">
 
-          <div className="flex items-center gap-4 bg-[#B5B9B2] px-6 py-6 -ml-12 rounded-4xl">
+<div className="bg-[#B5B9B2] px-4 py-2 rounded-4xl">
+  
+  {/* ✅ LABEL INSIDE (only added) */}
+  <p className="text-sm text-white font-semibold mb-2 ml-1">
+    Adjust Alert Credits
+  </p>
 
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-38 px-4 py-2 text-[#5a6c7d] text-xl bg-white rounded-full outline-none"
-            />
+  {/* ✅ SAME OLD CONTENT (unchanged) */}
+  <div className="flex items-center gap-4">
+    
+    <input
+      type="number"
+      value={amount}
+      onChange={(e) => setAmount(Number(e.target.value))}
+      className="w-30 px-4 py-2 text-[#5a6c7d] text-xl bg-white rounded-full outline-none"
+    />
 
-<button
-  onClick={() => setAmount(amount + 1)}
-  className="w-11 h-11 rounded-full bg-white flex items-center justify-center"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 text-[#5a6c7d]"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth="3"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-  </svg>
-</button>
+    <button
+      onClick={() => setAmount(amount + 1)}
+      className="w-11 h-11 rounded-full bg-white flex items-center justify-center"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5 text-[#5a6c7d]"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth="3"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+      </svg>
+    </button>
 
-<button
-  onClick={() => setAmount(amount - 1)}
-  className="w-11 h-11 rounded-full bg-white flex items-center justify-center"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 text-[#5a6c7d]"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth="3"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
-  </svg>
-</button>
+    <button
+      onClick={() => setAmount(amount - 1)}
+      className="w-11 h-11 rounded-full bg-white flex items-center justify-center"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5 text-[#5a6c7d]"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth="3"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+      </svg>
+    </button>
 
-<button
-  onClick={adjustCredit}
-  disabled={loading}
-  className="
-    relative
-    bg-[#002c3e] text-white
-    px-14 py-3 rounded-full font-semibold
-    min-w-[140px] flex items-center justify-center
-  "
->
-  {/* Original text (invisible when loading) */}
-  <span className={loading ? "opacity-0" : "opacity-100"}>
-    Apply
-  </span>
+    <button
+      onClick={adjustCredit}
+      disabled={loading}
+      className="relative bg-[#002c3e] text-white px-14 py-3 rounded-full font-semibold min-w-[140px] flex items-center justify-center"
+    >
+      <span className={loading ? "opacity-0" : "opacity-100"}>
+        Apply
+      </span>
 
-  {/* Loader overlay */}
-  {loading && (
-  <div className="absolute w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-)}
-</button>
+      {loading && (
+        <div className="absolute w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      )}
+    </button>
 
-          </div>
+  </div>
+</div>
 
-        </div>
+</div>
 
       </div>
 
 
       {/* HISTORY TITLE */}
 
-      <div className="border-t border-[#CFD5DB] px-10 py-5">
+      <div className="border-t border-[#CFD5DB] px-10 py-6">
 
         <p className="text-xl font-semibold text-[#002c3e]">
           View History
@@ -1464,7 +1462,7 @@ function Credits({ data, refresh }) {
                 </p>
 
                 <p
-                  className={`font-semibold text-xl text-left ${
+                  className={`font-semibold text-xl text-left  ${
                     isAdd ? "text-[#0cb4ab]" : "text-[#ee6a59]"
                   }`}
                 >

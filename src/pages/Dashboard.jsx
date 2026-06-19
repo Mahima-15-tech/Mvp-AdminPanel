@@ -86,6 +86,10 @@ const pieData = {
     {
       data: values,
       backgroundColor: backgroundColors,
+
+      // ✅ ADD THIS (same colors → no brightness change)
+      hoverBackgroundColor: backgroundColors,
+
       borderColor: "#f5f5f5",
       hoverOffset: 5
     }
@@ -108,16 +112,44 @@ const pieOptions = {
           size: 16
         }
       },
-
-      // 🔥 ADD THIS
       onClick: (e, legendItem) => {
         const label = legendItem.text;
-
         setActiveSegments(prev => ({
           ...prev,
           [label]: !prev[label]
         }));
       }
+    },
+  
+    // 🔥 ADD THIS BLOCK
+    tooltip: {
+      backgroundColor: "#5a6c7d",
+      titleColor: "#ffffff",
+      bodyColor: "#ffffff",
+      padding: 10,
+      cornerRadius: 10,
+    
+      callbacks: {
+        title: () => "",
+    
+        label: function(context) {
+          // 👇 yaha manually space add karo
+          return ` ${context.label}: ${context.raw}`;
+        },
+    
+        labelPointStyle: function() {
+          return {
+            pointStyle: "circle",
+            rotation: 0
+          };
+        }
+      },
+    
+      usePointStyle: true,
+    
+      // 👇 circle ka size control
+      boxWidth: 12,
+      boxHeight: 12
     }
   },
   maintainAspectRatio: false

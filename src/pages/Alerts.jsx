@@ -503,8 +503,9 @@ setStatusFilter("FAILED");
 
 <thead className="bg-[#78bcc4] text-white">
   <tr>
+  <th className="px-6 py-5 text-left w-[14%]">User Name</th>
     <th className="px-6 py-5 text-left w-[14%]">User ID</th>
-    <th className="px-6 py-5 text-left w-[14%]">User Name</th>
+    
     <th className="px-6 py-5 text-left w-[10%]">Plan</th>
     <th className="px-4 py-5 text-left w-[14%]">Alerts Type</th>
     <th className="px-4 py-5 text-left w-[18%]">Alert Sent At</th>
@@ -557,8 +558,9 @@ setStatusFilter("FAILED");
     return(
       <tr key={i} className="border-b border-[#e5e5e5] hover:bg-[#f7f8f3] transition">
 
+<td className="px-6 py-4 font-medum">{a.userName}</td>
         <td className="px-6 py-4 font-medium">{a.phone}</td>
-        <td className="px-6 py-4 font-medum">{a.userName}</td>
+       
         <td className="px-6 py-4">
           {a.planType?.charAt(0) + a.planType?.slice(1).toLowerCase()}
         </td>

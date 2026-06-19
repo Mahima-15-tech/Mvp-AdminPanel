@@ -20,6 +20,7 @@ import SupportTickets from "../pages/SupportTickets";
 import Broadcast from "../pages/Broadcast";
 import PromoCodes from "../pages/PromoCodes";
 import EmailPreview from "../pages/EmailPreview";
+import ApiKeys from "../pages/Settings/ApiKeys";
 
 export default function AppRouter() {
   const [darkMode, setDarkMode] = useState(false);
@@ -157,7 +158,16 @@ export default function AppRouter() {
       <AdminLayout darkMode={darkMode} setDarkMode={setDarkMode}><SystemHealth /></AdminLayout>
     </AdminGuard>}  />
 
-
+    <Route
+  path="/settings/api-keys"
+  element={
+    <AdminGuard>
+      <AdminLayout>
+        <ApiKeys />
+      </AdminLayout>
+    </AdminGuard>
+  }
+/>
 
       </Routes>
     </BrowserRouter>
