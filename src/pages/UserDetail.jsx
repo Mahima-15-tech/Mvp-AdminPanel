@@ -479,7 +479,7 @@ function Subscription({ data , showHistory, setShowHistory}) {
   rightContent={
     <button
       onClick={() => setShowHistory(true)}
-      className="bg-[#002c3e] text-white px-6 py-1 font-semibold tracking-wide rounded-full text-md"
+      className="bg-[#002c3e] text-white px-6 py-1 font-semibold mr-1 rounded-full text-md"
     >
       History
     </button>
